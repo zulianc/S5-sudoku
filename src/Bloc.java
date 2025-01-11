@@ -18,6 +18,10 @@ public class Bloc {
         cases.add(nouvelleCase);
     }
 
+    // Obtenir le nombre actuel de cases ajoutées au bloc
+    public int getNombreCasesActuelles() {
+        return cases.size();
+    }
     // Obtenir une case par index
     public Case getCase(int index) {
         if (index < 0 || index >= cases.size()) {
@@ -26,10 +30,7 @@ public class Bloc {
         return cases.get(index);
     }
 
-    // Obtenir le nombre actuel de cases ajoutées au bloc
-    public int getNombreCasesActuelles() {
-        return cases.size();
-    }
+
 
 
 }
