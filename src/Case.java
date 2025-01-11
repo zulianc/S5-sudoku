@@ -2,15 +2,11 @@ public class Case {
     private String valeur;
     private int ligne, colonne, bloc;
 
-    public Case( int ligne, int colonne, int bloc) {
+    public Case(String valeur, int ligne, int colonne, int bloc) {
+        this.valeur = valeur;
         this.ligne = ligne;
         this.colonne = colonne;
         this.bloc = bloc;
-    }
-
-    public Case(String valeur, int ligne, int colonne, int bloc) {
-        this(ligne, colonne, bloc);
-        this.valeur = valeur;
     }
 
     public String getValeur() {
@@ -25,11 +21,11 @@ public class Case {
         return ligne;
     }
 
-    public int getBloc() {
-        return bloc;
-    }
-
     public int getColonne() {
         return colonne;
+    }
+
+    public int getBloc() {
+        return bloc;
     }
 }

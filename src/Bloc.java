@@ -1,26 +1,33 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Bloc {
-    private Case[] cases;
-    public int taille;
+    private List<Case> cases; // Liste dynamique pour stocker les cases
+    private int capacite; // Nombre maximum de cases dans le bloc
 
-    public Bloc(int taille) {
-        this.taille = taille;
-        cases = new Case[this.taille];
+    public Bloc(int capacite) {
+        this.capacite = capacite;
+        this.cases = new ArrayList<>(capacite);
     }
 
-    // Obtenir une case par son index
+    // Ajouter une case au bloc
+    public void ajouterCase(int index, Case nouvelleCase) {
+        if (cases.size() >= capacite) {
+            throw new IllegalStateException("Le bloc est déjà plein.");
+        }
+        cases.add(nouvelleCase);
+    }
+
+    // Obtenir le nombre actuel de cases ajoutées au bloc
+    public int getNombreCasesActuelles() {
+        return cases.size();
+    }
+
+    // Obtenir une case par index
     public Case getCase(int index) {
-        if (index < 0 || index >= taille) {
-            throw new IndexOutOfBoundsException("Index invalide : " + index);
+        if (index < 0 || index >= cases.size()) {
+            throw new IndexOutOfBoundsException("Index hors limites pour le bloc.");
         }
-        return cases[index];
-    }
-
-    // Afficher le contenu du bloc
-    public void afficherBloc() {
-        for (int i = 0; i < taille; i++) {
-            System.out.print((cases[i] != null ? cases[i].getValeur() : "vide") + " ");
-        }
-        System.out.println();
+        return cases.get(index);
     }
 }
-
