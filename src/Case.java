@@ -17,13 +17,15 @@ public class Case {
         this.valeur = valeur;
     }
 
-    public int getLigne() {
-        return ligne;
-    }
 
     public int getColonne() {
         return colonne;
     }
+
+    public int getLigne() {
+        return ligne;
+    }
+
 
     public int getBloc() {
         return bloc;

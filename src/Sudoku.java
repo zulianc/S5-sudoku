@@ -51,6 +51,7 @@ public class Sudoku {
         }
     }
 
+
     public void setSymboles(String[] symboles) {
         if (symboles.length != taille) {
             throw new IllegalArgumentException("Le nombre de symboles doit correspondre à la taille de la grille.");
