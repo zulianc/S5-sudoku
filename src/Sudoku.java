@@ -3,25 +3,20 @@ public class Sudoku {
     private Bloc[] blocs;
     private String[] symboles;
     private int taille;
-    private int tailleBloc; // Taille du bloc (racine carrée de la taille de la grille)
+    private int tailleBloc; // Nombre de cases par bloc
 
     public Sudoku(int taille) {
         this.taille = taille;
 
-        // La taille des blocs est la racine carrée de la taille de la grille
-        this.tailleBloc = (int) Math.sqrt(taille);
-
-        // Vérifier que la taille est un carré parfait
-        if (tailleBloc * tailleBloc != taille) {
-            throw new IllegalArgumentException("La taille de la grille doit être un carré parfait.");
-        }
+        // Initialiser la taille des blocs
+        tailleBloc = (int) Math.sqrt(taille); // Bloc carré de taille racine de la taille de la grille
 
         sudoku = new Case[taille][taille];
         blocs = new Bloc[taille];
 
         // Initialiser les blocs
         for (int i = 0; i < taille; i++) {
-            blocs[i] = new Bloc(tailleBloc);
+            blocs[i] = new Bloc(tailleBloc); // Chaque bloc peut contenir `tailleBloc * tailleBloc` cases
         }
 
         // Initialiser la grille et remplir les blocs
@@ -42,15 +37,14 @@ public class Sudoku {
                 blocs[blocIndex].ajouterCase(caseIndexDansBloc, nouvelleCase);
                 caseIndexDansBloc++;
 
-                // Passer au bloc suivant si le bloc actuel est plein
+                // Vérifier si le bloc est plein et passer au bloc suivant si nécessaire
                 if (caseIndexDansBloc == tailleBloc * tailleBloc) {
                     blocIndex++;
-                    caseIndexDansBloc = 0;
+                    caseIndexDansBloc = 0; // Réinitialiser l'index des cases pour le nouveau bloc
                 }
             }
         }
     }
-
 
     public void setSymboles(String[] symboles) {
         if (symboles.length != taille) {
