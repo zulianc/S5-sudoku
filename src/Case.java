@@ -4,12 +4,17 @@ public class Case {
     private int colonne;
     private int blocIndex;
 
-    public Case(String valeur, int ligne, int colonne, int blocIndex) {
-        this.valeur = valeur;
+    public Case( int ligne, int colonne, int blocIndex) {
         this.ligne = ligne;
         this.colonne = colonne;
         this.blocIndex = blocIndex;
     }
+
+    public Case(String valeur, int ligne, int colonne, int blocIndex) {
+        this( ligne,  colonne,  blocIndex);
+        this.valeur = valeur;
+    }
+
 
     public String getValeur() {
         return valeur;
