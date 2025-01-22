@@ -1,7 +1,7 @@
 public class PlacedSudoku {
-    private Sudoku sudoku;
-    private int row;
-    private int col;
+    private final Sudoku sudoku;
+    private final int row;
+    private final int col;
 
     public PlacedSudoku(Sudoku sudoku, int row, int col) {
         this.sudoku = sudoku;
@@ -10,14 +10,14 @@ public class PlacedSudoku {
     }
 
     public Sudoku getSudoku() {
-        return sudoku;
+        return this.sudoku;
     }
 
     public int getRow() {
-        return row;
+        return this.row;
     }
 
     public int getCol() {
-        return col;
+        return this.col;
     }
 }

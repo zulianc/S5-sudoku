@@ -1,69 +1,158 @@
-public class Sudoku {
-    private Case[][] sudoku;
-    private Bloc[] blocs;
-    private String[] symboles;
-    private int taille;
- // Nombre de cases par bloc
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
-    public Sudoku(int taille) {
+public class Sudoku {
+    private final Case[][] cases;
+    private final Bloc[] blocs;
+    private final int taille;
+    private HashMap<Integer, String> symboles;
+
+    public Sudoku(int taille, int[][] placements) {
+        if (taille <= 0 || taille > 9) {
+            throw new IllegalArgumentException("Size must be between 1 and 9");
+        }
         this.taille = taille;
 
-        sudoku = new Case[taille][taille];
-        blocs = new Bloc[taille];
+        this.cases = new Case[taille][taille];
+        this.blocs = new Bloc[taille];
+        this.symboles = null;
 
-        // Initialiser les blocs
+        Case[][] blocs = new Case[taille][taille];
+        int[] placedInBlocks = new int[taille];
+
         for (int i = 0; i < taille; i++) {
-            blocs[i] = new Bloc(taille); // Chaque bloc peut contenir `tailleBloc * tailleBloc` cases
-        }
+            for (int j = 0; j < taille; j++) {
+                int block = placements[i][j];
+                if (block < 0 || block >= taille) {
+                    throw new IllegalArgumentException("Illegal placement");
+                }
 
-        // Initialiser la grille et remplir les blocs
-        initialiserGrille();
-    }
+                this.cases[i][j] = new Case(i, j, block);
+                blocs[block][placedInBlocks[block]] = this.cases[i][j];
 
-    private void initialiserGrille() {
-        int blocIndex = 0; // Index du bloc
-        for (int ligne = 0; ligne < taille ; ligne++) {
-            int caseIndexDansBloc = 0; // Index des cases dans chaque bloc
-            for (int colonne = 0; colonne < taille ; colonne++) {
-                // Créer une nouvelle case
-                Case nouvelleCase = new Case(ligne, colonne, blocIndex);
-                sudoku[ligne][colonne] = nouvelleCase;
-
-                // Ajouter la case au bloc
-                blocs[blocIndex].ajouterCase(caseIndexDansBloc, nouvelleCase);
-                caseIndexDansBloc++;
-
-
+                placedInBlocks[block]++;
             }
-            blocIndex++;
+        }
+
+        for (int i = 0; i < taille; i++) {
+            this.blocs[i] = new Bloc(taille, blocs[i]);
         }
     }
 
-    public void setSymboles(String[] symboles) {
-        if (symboles.length != taille) {
-            throw new IllegalArgumentException("Le nombre de symboles doit correspondre à la taille de la grille.");
-        }
-        this.symboles = symboles;
+    public Sudoku(int taille, int[][] placements, HashMap<Integer, String> symboles) {
+        this(taille, placements);
+        this.setSymboles(symboles);
     }
 
-    public void afficherSudoku() {
-        for (int ligne = 0; ligne < taille; ligne++) {
-            for (int colonne = 0; colonne < taille; colonne++) {
-                String valeur = (sudoku[ligne][colonne].getValeur() != null) ? sudoku[ligne][colonne].getValeur() : ".";
-                System.out.print(valeur + " ");
-            }
-            System.out.println();
+    public void setSymboles(HashMap<Integer, String> symboles) {
+        Set<Integer> set = new HashSet<>();
+        for (int i = 0; i < this.taille; i++) {
+            set.add(i);
         }
+
+        if(symboles.keySet().equals(set)) {
+            this.symboles = symboles;
+        }
+        else {
+            throw new IllegalArgumentException("Index out of bounds");
+        }
+    }
+
+    public Case[][] getCases() {
+        return this.cases;
+    }
+
+    public Case[] getLigne(int ligne) {
+        if (ligne < 0 || ligne >= this.taille) {
+            throw new IllegalArgumentException("Index out of bounds");
+        }
+        return this.cases[ligne];
+    }
+
+    public Case[] getColonne(int colonne) {
+        if (colonne < 0 || colonne >= this.taille) {
+            throw new IllegalArgumentException("Index out of bounds");
+        }
+        Case[] col = new Case[this.taille];
+        for (int i = 0; i < this.taille; i++) {
+            col[i] = this.cases[i][colonne];
+        }
+        return col;
     }
 
     public Case getCase(int ligne, int colonne) {
-        if (ligne < 0 || ligne >= taille || colonne < 0 || colonne >= taille) {
-            throw new IndexOutOfBoundsException("Coordonnées hors limites : " + ligne + ", " + colonne);
+        if (ligne < 0 || ligne >= this.taille || colonne < 0 || colonne >= this.taille) {
+            throw new IllegalArgumentException("Index out of bounds");
         }
-        return sudoku[ligne][colonne];
+        return this.cases[ligne][colonne];
     }
 
-    public Bloc[] getBlocs(int i) {
-        return blocs;
+    public Bloc[] getBlocs() {
+        return this.blocs;
+    }
+
+    public Bloc getBloc(int block) {
+        if (block < 0 || block >= this.taille) {
+            throw new IllegalArgumentException("Index out of bounds");
+        }
+        return this.blocs[block];
+    }
+
+    public int getTaille() {
+        return this.taille;
+    }
+
+    public HashMap<Integer, String> getSymboles() {
+        return this.symboles;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        int colorDivision = (255 * 3) / this.taille;
+
+        for (int i = 0; i < this.taille; i++) {
+            for (int j = 0; j < this.taille; j++) {
+                int bloc = this.cases[i][j].getBlocIndex();
+                int colorTotal = colorDivision * bloc;
+                int red, green, blue;
+                if (colorTotal <= 255) {
+                    red = 255 - colorTotal;
+                    green = colorTotal;
+                    blue = 0;
+                } else if (colorTotal <= (255 * 2)) {
+                    colorTotal = colorTotal - 255;
+
+                    red = 0;
+                    green = 255 - colorTotal;
+                    blue = colorTotal;
+                } else {
+                    colorTotal = colorTotal - (255 * 2);
+
+                    red = colorTotal;
+                    green = 0;
+                    blue = 255 - colorTotal;
+                }
+                sb.append("\033[38;2;").append(red).append(";").append(green).append(";").append(blue).append("m");
+
+                sb.append("[");
+                if (this.cases[i][j].getValeur() == -1) {
+                    sb.append(" ");
+                }
+                else {
+                    int num = this.cases[i][j].getValeur();
+                    if (this.symboles != null) {
+                        sb.append(this.symboles.get(num));
+                    }
+                    else {
+                        sb.append(num);
+                    }
+                }
+                sb.append("]");
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 }

@@ -1,25 +1,47 @@
 public class Bloc {
-    private Case[] cases;
-    private int taille;
+    private final Case[] cases;
+    private final int taille;
 
-    public Bloc(int taille) {
+    protected Bloc(int taille, Case[] cases) {
         this.taille = taille;
-        this.cases = new Case[taille]; // Un tableau de cases pour un bloc
+        this.cases = cases;
     }
 
-    public void ajouterCase(int index, Case nouvelleCase) {
-        if (index >= 0 && index < cases.length) {
-            cases[index] = nouvelleCase;
+    public void changerValeur(int index, int valeur) {
+        if (index >= 0 && index < this.cases.length) {
+            this.cases[index].setValeur(valeur);
+            return;
         }
+        throw new IllegalArgumentException("Index out of bounds");
     }
 
-    public void afficherCases() {
-        for (int i = 0; i < cases.length; i++) {
-            if (cases[i] != null) {
-                System.out.println(cases[i].toString());
+    public void changerValeur(int ligne, int colonne, int valeur) {
+        for (Case c : this.cases) {
+            if (c.getLigne() == ligne && c.getColonne() == colonne) {
+                c.setValeur(valeur);
+                return;
             }
         }
+        throw new IllegalArgumentException("Index out of bounds");
     }
 
+    public Case getCase(int index) {
+        if (index >= 0 && index < this.cases.length) {
+            return this.cases[index];
+        }
+        throw new IllegalArgumentException("Index out of bounds");
+    }
 
+    public Case getCase(int ligne, int colonne) {
+        for (Case c : this.cases) {
+            if (c.getLigne() == ligne && c.getColonne() == colonne) {
+                return c;
+            }
+        }
+        throw new IllegalArgumentException("Index out of bounds");
+    }
+
+    public int getTaille() {
+        return this.taille;
+    }
 }

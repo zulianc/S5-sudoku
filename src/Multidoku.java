@@ -1,23 +1,36 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Multidoku {
-    private ArrayList<PlacedSudoku> sudokus;
-    private int sizeSudokus;
+    private final ArrayList<PlacedSudoku> sudokus;
+    private final int sizeSudokus;
+    private final int sizeMultidokuGrid;
     private HashMap<Integer, String> symbolsSudokus;
 
-    public Multidoku(ArrayList<PlacedSudoku> sudokus, int sizeSudokus, HashMap<Integer, String> symbolsSudokus) {
+    public Multidoku(ArrayList<PlacedSudoku> sudokus) {
+        int size = sudokus.getFirst().getSudoku().getTaille();
+        for (PlacedSudoku sudoku : sudokus) {
+            if (size != sudoku.getSudoku().getTaille()) throw new IllegalArgumentException("All sudokus are not the same size");
+        }
+
         this.sudokus = sudokus;
-        this.sizeSudokus = sizeSudokus;
-        this.symbolsSudokus = symbolsSudokus;
+        this.sizeSudokus = size;
+        this.sizeMultidokuGrid = (size * 2) - 1;
+    }
+
+    public Multidoku(ArrayList<PlacedSudoku> sudokus, HashMap<Integer, String> symbolsSudokus) {
+        this(sudokus);
+        this.setSymbolsSudokus(symbolsSudokus);
     }
 
     public ArrayList<PlacedSudoku> getSudokus() {
-        return sudokus;
+        return this.sudokus;
     }
 
     public Sudoku getSudoku(int row, int col) {
-        for (PlacedSudoku sudoku : sudokus) {
+        for (PlacedSudoku sudoku : this.sudokus) {
             if (sudoku.getRow() == row && sudoku.getCol() == col) {
                 return sudoku.getSudoku();
             }
@@ -26,11 +39,29 @@ public class Multidoku {
     }
 
     public int getSizeSudokus() {
-        return sizeSudokus;
+        return this.sizeSudokus;
+    }
+
+    public int getSizeMultidokuGrid() {
+        return this.sizeMultidokuGrid;
     }
 
     public HashMap<Integer, String> getSymbolsSudokus() {
-        return symbolsSudokus;
+        return this.symbolsSudokus;
+    }
+
+    public void setSymbolsSudokus(HashMap<Integer, String> symbolsSudokus) {
+        Set<Integer> set = new HashSet<>();
+        for (int i = 0; i < this.sizeSudokus; i++) {
+            set.add(i);
+        }
+
+        if(symbolsSudokus.keySet().equals(set)) {
+            this.symbolsSudokus = symbolsSudokus;
+        }
+        else {
+            throw new IllegalArgumentException("Index out of bounds");
+        }
     }
 
     @Override

@@ -1,26 +1,26 @@
 public class Case {
-    private String valeur;
-    private int ligne;
-    private int colonne;
-    private int blocIndex;
+    private int valeur;
+    private final int ligne;
+    private final int colonne;
+    private final int blocIndex;
 
-    public Case( int ligne, int colonne, int blocIndex) {
+    protected Case(int ligne, int colonne, int blocIndex) {
+        this.valeur = -1;
         this.ligne = ligne;
         this.colonne = colonne;
         this.blocIndex = blocIndex;
     }
 
-    public Case(String valeur, int ligne, int colonne, int blocIndex) {
-        this( ligne,  colonne,  blocIndex);
+    protected Case(int valeur, int ligne, int colonne, int blocIndex) {
+        this(ligne,  colonne,  blocIndex);
         this.valeur = valeur;
     }
 
-
-    public String getValeur() {
+    public int getValeur() {
         return valeur;
     }
 
-    public void setValeur(String valeur) {
+    public void setValeur(int valeur) {
         this.valeur = valeur;
     }
 
