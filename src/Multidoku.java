@@ -10,9 +10,9 @@ public class Multidoku {
     private HashMap<Integer, String> symbolsSudokus;
 
     public Multidoku(ArrayList<PlacedSudoku> sudokus) {
-        int size = sudokus.getFirst().getSudoku().getTaille();
+        int size = sudokus.getFirst().sudoku().getTaille();
         for (PlacedSudoku sudoku : sudokus) {
-            if (size != sudoku.getSudoku().getTaille()) throw new IllegalArgumentException("All sudokus are not the same size");
+            if (size != sudoku.sudoku().getTaille()) throw new IllegalArgumentException("All sudokus are not the same size");
         }
 
         this.sudokus = sudokus;
@@ -31,8 +31,8 @@ public class Multidoku {
 
     public Sudoku getSudoku(int row, int col) {
         for (PlacedSudoku sudoku : this.sudokus) {
-            if (sudoku.getRow() == row && sudoku.getCol() == col) {
-                return sudoku.getSudoku();
+            if (sudoku.row() == row && sudoku.col() == col) {
+                return sudoku.sudoku();
             }
         }
         return null;
