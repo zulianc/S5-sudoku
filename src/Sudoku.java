@@ -42,7 +42,33 @@ public class Sudoku {
 
     public Sudoku(int taille, int[][] placements, HashMap<Integer, String> symboles) {
         this(taille, placements);
-        this.setSymboles(symboles);
+        if (symboles != null) {
+            this.setSymboles(symboles);
+        }
+    }
+
+    public Sudoku copy() {
+        int[][] placements = new int[this.taille][this.taille];
+        for (int i = 0; i < this.taille; i++) {
+            for (int j = 0; j < this.taille; j++) {
+                placements[i][j] = this.cases[i][j].getBlocIndex();
+            }
+        }
+
+        HashMap<Integer, String> symboles = null;
+        if (this.symboles != null) {
+            symboles = new HashMap<>(this.symboles);
+        }
+
+        Sudoku newSudoku = new Sudoku(this.taille, placements, symboles);
+
+        for (int i = 0; i < this.taille; i++) {
+            for (int j = 0; j < this.taille; j++) {
+                newSudoku.getCase(i, j).setValeur(this.cases[i][j].getValeur());
+            }
+        }
+
+        return newSudoku;
     }
 
     public void setSymboles(HashMap<Integer, String> symboles) {

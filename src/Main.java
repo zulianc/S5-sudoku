@@ -15,5 +15,8 @@ public class Main {
             }
         }
         System.out.println(sudoku);
+        Sudoku sudoku2 = sudoku.copy();
+        sudoku.getCase(0, 0).setValeur(1);
+        System.out.println(sudoku2);
     }
 }
