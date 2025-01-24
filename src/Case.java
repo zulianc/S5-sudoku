@@ -6,9 +6,9 @@ public class Case {
     private final int ligne;
     private final int colonne;
     private final int blocIndex;
-    private Set<Integer> possibleValues;
+    private HashSet<Integer> possibleValues;
 
-    protected Case(int ligne, int colonne, int blocIndex, Set<Integer> possibleValues) {
+    protected Case(int ligne, int colonne, int blocIndex, HashSet<Integer> possibleValues) {
         this.valeur = -1;
         this.ligne = ligne;
         this.colonne = colonne;
@@ -16,9 +16,14 @@ public class Case {
         this.possibleValues = possibleValues;
     }
 
-    protected Case(int valeur, int ligne, int colonne, int blocIndex, Set<Integer> possibleValues) {
-        this(ligne,  colonne,  blocIndex, possibleValues);
+    protected Case(int valeur, int ligne, int colonne, int blocIndex) {
         this.valeur = valeur;
+        this.ligne = ligne;
+        this.colonne = colonne;
+        this.blocIndex = blocIndex;
+        HashSet<Integer> possibleValues = new HashSet<>();
+        possibleValues.add(valeur);
+        this.possibleValues = possibleValues;
     }
 
     public int getValeur() {
@@ -49,5 +54,17 @@ public class Case {
 
     public Set<Integer> getPossibleValues() {
         return this.possibleValues;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Valeur : ").append(this.valeur).append("\n");
+        sb.append("Position : ").append(this.ligne).append(" ").append(this.colonne).append(" ").append(this.blocIndex).append("\n");
+        sb.append("Possible Values : ");
+        for (Integer i : this.possibleValues) {
+            sb.append(i).append(" ");
+        }
+        return sb.toString();
     }
 }

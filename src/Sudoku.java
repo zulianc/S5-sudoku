@@ -17,11 +17,6 @@ public class Sudoku {
         this.blocs = new Bloc[taille];
         this.symboles = null;
 
-        Set<Integer> possibleValues = new HashSet<>();
-        for (int i = 0; i < taille; i++) {
-            possibleValues.add(i);
-        }
-
         Case[][] blocs = new Case[taille][taille];
         int[] placedInBlocks = new int[taille];
 
@@ -32,6 +27,10 @@ public class Sudoku {
                     throw new IllegalArgumentException("Illegal placement");
                 }
 
+                HashSet<Integer> possibleValues = new HashSet<>();
+                for (int k = 0; k < taille; k++) {
+                    possibleValues.add(k);
+                }
                 this.cases[i][j] = new Case(i, j, block, possibleValues);
                 blocs[block][placedInBlocks[block]] = this.cases[i][j];
 
@@ -55,7 +54,7 @@ public class Sudoku {
                 constraints.add(newConstraint);
 
                 // column i
-                toInsert = new ArrayList<>(Arrays.asList(this.getColonne(i)).subList(0, taille));;
+                toInsert = new ArrayList<>(Arrays.asList(this.getColonne(i)).subList(0, taille));
                 toInsert.remove(this.getColonne(i)[j]);
                 newConstraint = new NotEqualConstraint(this.getColonne(i)[j], toInsert);
                 constraints.add(newConstraint);
@@ -206,7 +205,7 @@ public class Sudoku {
                         sb.append(this.symboles.get(num));
                     }
                     else {
-                        sb.append(num);
+                        sb.append(num + 1);
                     }
                 }
                 sb.append("]");
