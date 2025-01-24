@@ -27,7 +27,8 @@ public class Case {
 
     public void setValeur(int valeur) {
         this.valeur = valeur;
-        this.possibleValues = new HashSet<>(valeur);
+        this.possibleValues = new HashSet<>();
+        this.possibleValues.add(valeur);
     }
 
     public void removePossibleValue(int valeur) {

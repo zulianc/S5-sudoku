@@ -2,21 +2,22 @@ public class Main {
     public static void main(String[] args) {
         Menu menu = new Menu();
         menu.startMenu();
-        int[][] placements = new int[9][9];
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                placements[i][j] = ((i / 3)*3) + (j / 3);
+        int[][] placements = new int[2][2];
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                placements[i][j] = ((i / 2)*2) + (j / 1);
             }
         }
-        Sudoku sudoku = new Sudoku(9, placements);
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                sudoku.getCase(i, j).setValeur(placements[i][j]);
-            }
-        }
+        Sudoku sudoku = new Sudoku(2, placements);
+        sudoku.getCase(0, 0).setValeur(0);
         System.out.println(sudoku);
-        Sudoku sudoku2 = sudoku.copy();
-        sudoku.getCase(0, 0).setValeur(1);
-        System.out.println(sudoku2);
+
+        Solver solver = new Solver(sudoku, null);
+        boolean solvable = solver.solve();
+        if (!solvable) {
+            System.out.println("cheh");
+        }
+
+        System.out.println(sudoku);
     }
 }

@@ -5,7 +5,7 @@ public class Sudoku {
     private final Bloc[] blocs;
     private final int taille;
     private HashMap<Integer, String> symboles;
-    private final ArrayList<NotEqualConstraint> defaultConstraints;
+    private final ArrayList<SudokuConstraints> defaultConstraints;
 
     public Sudoku(int taille, int[][] placements) {
         if (taille <= 0 || taille > 9) {
@@ -43,26 +43,25 @@ public class Sudoku {
             this.blocs[i] = new Bloc(taille, blocs[i]);
         }
 
-        ArrayList<NotEqualConstraint> constraints = new ArrayList<>();
+        ArrayList<SudokuConstraints> constraints = new ArrayList<>();
         NotEqualConstraint newConstraint;
-        ArrayList<Case> line;
-        ArrayList<Case> column;
-        ArrayList<Case> block;
         ArrayList<Case> toInsert;
         for(int i = 0; i < taille; i++) {
-            line = new ArrayList<>(Arrays.asList(this.getLigne(i)).subList(0, taille));
-            column = new ArrayList<>(Arrays.asList(this.getColonne(i)).subList(0, taille));
-            block = new ArrayList<>(Arrays.asList(this.getBloc(i).getCases()).subList(0, taille));
             for (int j = 0; j < taille; j++) {
-                toInsert = line;
-                toInsert.remove(this.getCase(i, j));
-                newConstraint = new NotEqualConstraint(this.cases[i][j], toInsert);
+                // line i
+                toInsert = new ArrayList<>(Arrays.asList(this.getLigne(i)).subList(0, taille));
+                toInsert.remove(this.getLigne(i)[j]);
+                newConstraint = new NotEqualConstraint(this.getLigne(i)[j], toInsert);
                 constraints.add(newConstraint);
-                toInsert = column;
-                toInsert.remove(this.getCase(i, j));
-                newConstraint = new NotEqualConstraint(this.cases[i][j], toInsert);
+
+                // column i
+                toInsert = new ArrayList<>(Arrays.asList(this.getColonne(i)).subList(0, taille));;
+                toInsert.remove(this.getColonne(i)[j]);
+                newConstraint = new NotEqualConstraint(this.getColonne(i)[j], toInsert);
                 constraints.add(newConstraint);
-                toInsert = block;
+
+                // block i
+                toInsert = new ArrayList<>(Arrays.asList(this.getBloc(i).getCases()).subList(0, taille));
                 toInsert.remove(this.getBloc(i).getCase(j));
                 newConstraint = new NotEqualConstraint(this.getBloc(i).getCase(j), toInsert);
                 constraints.add(newConstraint);
@@ -164,7 +163,7 @@ public class Sudoku {
         return this.symboles;
     }
 
-    public ArrayList<NotEqualConstraint> getDefaultConstraints() {
+    public ArrayList<SudokuConstraints> getDefaultConstraints() {
         return this.defaultConstraints;
     }
 
@@ -214,6 +213,7 @@ public class Sudoku {
             }
             sb.append("\n");
         }
+        sb.append("\033[38;2;255;255;255m");
         return sb.toString();
     }
 }

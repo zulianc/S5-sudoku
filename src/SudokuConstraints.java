@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Set;
 
 public abstract class SudokuConstraints {
     private final Case caseHasContraint;
@@ -10,5 +9,15 @@ public abstract class SudokuConstraints {
         this.casesToCompareTo = casesToCompareTo;
     }
 
-    public abstract boolean setNewValue();
+    public abstract boolean setNewPossibleValues();
+
+    public abstract boolean isValidated();
+
+    protected Case getCase() {
+        return this.caseHasContraint;
+    }
+
+    protected ArrayList<Case> getCasesToCompareTo() {
+        return this.casesToCompareTo;
+    }
 }
