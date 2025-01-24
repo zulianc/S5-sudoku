@@ -25,6 +25,10 @@ public class Bloc {
         throw new IllegalArgumentException("Index out of bounds");
     }
 
+    public Case[] getCases() {
+        return this.cases;
+    }
+
     public Case getCase(int index) {
         if (index >= 0 && index < this.cases.length) {
             return this.cases[index];
