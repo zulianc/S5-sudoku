@@ -2,40 +2,44 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class NotEqualConstraint extends SudokuConstraints {
+public class NotEqualConstraint implements SudokuConstraints {
+    private final Case constrainedCase;
+    private final ArrayList<Case> casesToCompareTo;
+
     public NotEqualConstraint(Case caseHasConstraint, ArrayList<Case> casesToCompareTo) {
-        super(caseHasConstraint, casesToCompareTo);
+        this.constrainedCase = caseHasConstraint;
+        this.casesToCompareTo = casesToCompareTo;
     }
 
     @Override
     public boolean setNewPossibleValues() {
-        Set<Integer> baseSet = super.getCase().getPossibleValues();
-        int valeur = super.getCase().getValeur();
+        Set<Integer> casePossibleValues = this.constrainedCase.getPossibleValues();
+        int caseValue = this.constrainedCase.getValeur();
 
-        for (Case c : super.getCasesToCompareTo()) {
-            if (valeur == -1) {
-                if (c.getValeur() != -1) {
-                    baseSet.remove(c.getValeur());
+        for (Case caseToCompare : this.casesToCompareTo) {
+            if (caseValue == -1) {
+                if (caseToCompare.getValeur() != -1) {
+                    casePossibleValues.remove(caseToCompare.getValeur());
                 }
             }
             else {
-                if (c.getValeur() == valeur) {
+                if (caseToCompare.getValeur() == caseValue) {
                     return false;
                 }
             }
         }
-        if (baseSet.isEmpty()) {
+        if (casePossibleValues.isEmpty()) {
             return false;
         }
-        if (baseSet.size() == 1) {
-            super.getCase().setValeur((int) baseSet.toArray()[0]);
+        if (casePossibleValues.size() == 1) {
+            this.constrainedCase.setValeur((int) casePossibleValues.toArray()[0]);
         }
         return true;
     }
 
     @Override
     public boolean isValidated() {
-        Set<Integer> set = new HashSet<>(super.getCase().getPossibleValues());
-        return (set.size() == 1 && set.contains(super.getCase().getValeur()));
+        Set<Integer> set = new HashSet<>(this.constrainedCase.getPossibleValues());
+        return (set.size() == 1 && set.contains(this.constrainedCase.getValeur()));
     }
 }

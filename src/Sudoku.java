@@ -207,7 +207,8 @@ public class Sudoku {
                 }
                 sb.append("]");
             }
-            sb.append("\n");
+            if (!(i == this.taille - 1))
+                sb.append("\n");
         }
         sb.append("\033[38;2;255;255;255m");
         return sb.toString();
