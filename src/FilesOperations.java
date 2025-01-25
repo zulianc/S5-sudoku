@@ -1,10 +1,51 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.HashMap;
 
 public abstract class FilesOperations {
-    public static void convertSudokuToFile(Sudoku sudoku) {
-        //TODO
+    public static void convertSudokuToFile(Sudoku sudoku, String filename) {
+        try {
+            boolean hasSymbols = !(sudoku.getSymboles() == null);
+
+            String filepath = "./data/sudokus/" + filename + ".txt";
+            FileWriter fw = new FileWriter(filepath);
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            bw.append("puzzleType:\n").append("sudoku\n");
+            bw.append("hasSymbols:\n").append(Boolean.toString(hasSymbols)).append("\n");
+            bw.append("size:\n").append(Integer.toString(sudoku.getTaille())).append("\n");
+
+            bw.append("placements:\n");
+            for (int i = 0; i < sudoku.getTaille(); i++) {
+                for (int j = 0; j < sudoku.getTaille(); j++) {
+                    bw.append(Integer.toString(sudoku.getCase(i, j).getBlocIndex() + 1)).append(" ");
+                }
+                bw.append("\n");
+            }
+
+            bw.append("values:\n");
+            for (int i = 0; i < sudoku.getTaille(); i++) {
+                for (int j = 0; j < sudoku.getTaille(); j++) {
+                    bw.append(Integer.toString(sudoku.getCase(i, j).getValeur() + 1)).append(" ");
+                }
+                bw.append("\n");
+            }
+
+            if (hasSymbols) {
+                bw.append("symbols:\n");
+                for (int i = 0; i < sudoku.getTaille(); i++) {
+                    bw.append(sudoku.getSymboles().get(i)).append("\n");
+                }
+            }
+
+            bw.flush();
+            bw.close();
+            fw.close();
+        } catch (Exception e) {
+            System.out.println("Exception " + e.getMessage());
+        }
     }
 
     public static Sudoku readSudokuFromFile(String filepath) {
@@ -54,6 +95,9 @@ public abstract class FilesOperations {
                         sudoku.getCase(i, j).setValeur(values[i][j]);
                     }
                 }
+
+                br.close();
+                fr.close();
                 return sudoku;
             }
             else {
