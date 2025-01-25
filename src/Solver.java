@@ -11,7 +11,7 @@ public class Solver {
         else {
             this.constraints = constraints;
         }
-        this.constraints.addAll(sudoku.getDefaultConstraints());
+        this.constraints.addAll(sudoku.defaultConstraints());
     }
 
     public boolean solve() {

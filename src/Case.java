@@ -31,9 +31,15 @@ public class Case {
     }
 
     public void setValeur(int valeur) {
-        this.valeur = valeur;
-        this.possibleValues = new HashSet<>();
-        this.possibleValues.add(valeur);
+        if (valeur == -1) return;
+        if (this.possibleValues.contains(valeur)) {
+            this.valeur = valeur;
+            this.possibleValues = new HashSet<>();
+            this.possibleValues.add(valeur);
+        }
+        else {
+            throw new IllegalArgumentException("Valeur illégale");
+        }
     }
 
     public void removePossibleValue(int valeur) {
