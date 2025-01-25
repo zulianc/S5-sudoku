@@ -89,3 +89,9 @@ nb-configuration.xml
 ##############################
 *.log
 !libraries/*
+
+data/multidokus/*
+!data/multidokus/.gitkeep
+
+data/tests/*
+!data/tests/.gitkeep
