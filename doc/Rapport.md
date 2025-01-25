@@ -21,7 +21,7 @@ La première étape a été les classes de bases (Sudoku, Cases, etc.).
 ### Tests unitaires
 ### Interface graphique
 ### Fichier de configuration et sauvegarde
-### 5.5 Rajout de règles de déduction
-### 5.6 Grilles avec multiples solutions
-### 5.7 Rajout de contrainte
-### 5.8 Résolution par l’humain
+### Rajout de règles de déduction
+### Grilles avec multiples solutions
+### Rajout de contrainte
+### Résolution par l’humain
