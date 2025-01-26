@@ -1,7 +1,7 @@
 public record PlacedSudoku(Sudoku sudoku, int row, int col) {
     public PlacedSudoku(Sudoku sudoku, int row, int col) {
         this.sudoku = sudoku;
-        int sizeSudoku = sudoku.getTaille();
+        int sizeSudoku = sudoku.getSize();
         if (row < 0 || row >= sizeSudoku || col < 0 || col >= sizeSudoku) {
             throw new IllegalArgumentException("Row or col out of bounds");
         }

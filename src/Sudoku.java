@@ -3,31 +3,47 @@ import java.util.*;
 public class Sudoku {
     private final Case[][] cases;
     private final Bloc[] blocs;
-    private final int taille;
-    private HashMap<Integer, String> symboles;
+    private final int size;
+    private HashMap<Integer, String> symbols;
+    private final Boolean useDefaultPlacements;
 
-    public Sudoku(int taille, int[][] placements) {
-        if (taille <= 0 || taille > 9) {
+    public Sudoku(int size, int[][] placements) {
+        if (size <= 0 || size > 9) {
             throw new IllegalArgumentException("Size must be between 1 and 9");
         }
-        this.taille = taille;
+        this.size = size;
 
-        this.cases = new Case[taille][taille];
-        this.blocs = new Bloc[taille];
-        this.symboles = null;
+        this.useDefaultPlacements = (placements == null);
+        if (placements == null) {
+            placements = new int[size][size];
+            int width = (int) Math.sqrt(size);
+            while (size % width != 0 && width > 1) {
+                width--;
+            }
+            int height = size / width;
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    placements[i][j] = ((i/height) * height) + (j/width);
+                }
+            }
+        }
 
-        Case[][] blocs = new Case[taille][taille];
-        int[] placedInBlocks = new int[taille];
+        this.cases = new Case[size][size];
+        this.blocs = new Bloc[size];
+        this.symbols = null;
 
-        for (int i = 0; i < taille; i++) {
-            for (int j = 0; j < taille; j++) {
+        Case[][] blocs = new Case[size][size];
+        int[] placedInBlocks = new int[size];
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
                 int block = placements[i][j];
-                if (block < 0 || block >= taille) {
+                if (block < 0 || block >= size) {
                     throw new IllegalArgumentException("Illegal placement");
                 }
 
                 HashSet<Integer> possibleValues = new HashSet<>();
-                for (int k = 0; k < taille; k++) {
+                for (int k = 0; k < size; k++) {
                     possibleValues.add(k);
                 }
                 this.cases[i][j] = new Case(i, j, block, possibleValues);
@@ -37,35 +53,35 @@ public class Sudoku {
             }
         }
 
-        for (int i = 0; i < taille; i++) {
-            this.blocs[i] = new Bloc(taille, blocs[i]);
+        for (int i = 0; i < size; i++) {
+            this.blocs[i] = new Bloc(size, blocs[i]);
         }
     }
 
-    public Sudoku(int taille, int[][] placements, HashMap<Integer, String> symboles) {
-        this(taille, placements);
-        if (symboles != null) {
-            this.setSymboles(symboles);
+    public Sudoku(int size, int[][] placements, HashMap<Integer, String> symbols) {
+        this(size, placements);
+        if (symbols != null) {
+            this.setSymbols(symbols);
         }
     }
 
     public Sudoku copy() {
-        int[][] placements = new int[this.taille][this.taille];
-        for (int i = 0; i < this.taille; i++) {
-            for (int j = 0; j < this.taille; j++) {
+        int[][] placements = new int[this.size][this.size];
+        for (int i = 0; i < this.size; i++) {
+            for (int j = 0; j < this.size; j++) {
                 placements[i][j] = this.cases[i][j].getBlocIndex();
             }
         }
 
         HashMap<Integer, String> symboles = null;
-        if (this.symboles != null) {
-            symboles = new HashMap<>(this.symboles);
+        if (this.symbols != null) {
+            symboles = new HashMap<>(this.symbols);
         }
 
-        Sudoku newSudoku = new Sudoku(this.taille, placements, symboles);
+        Sudoku newSudoku = new Sudoku(this.size, placements, symboles);
 
-        for (int i = 0; i < this.taille; i++) {
-            for (int j = 0; j < this.taille; j++) {
+        for (int i = 0; i < this.size; i++) {
+            for (int j = 0; j < this.size; j++) {
                 newSudoku.getCase(i, j).setValeur(this.cases[i][j].getValeur());
             }
         }
@@ -77,22 +93,22 @@ public class Sudoku {
         ArrayList<SudokuConstraints> constraints = new ArrayList<>();
         NotEqualConstraint newConstraint;
         ArrayList<Case> toInsert;
-        for(int i = 0; i < this.taille; i++) {
-            for (int j = 0; j < this.taille; j++) {
+        for(int i = 0; i < this.size; i++) {
+            for (int j = 0; j < this.size; j++) {
                 // line i
-                toInsert = new ArrayList<>(Arrays.asList(this.getLigne(i)).subList(0, this.taille));
+                toInsert = new ArrayList<>(Arrays.asList(this.getLigne(i)).subList(0, this.size));
                 toInsert.remove(this.getLigne(i)[j]);
                 newConstraint = new NotEqualConstraint(this.getLigne(i)[j], toInsert);
                 constraints.add(newConstraint);
 
                 // column i
-                toInsert = new ArrayList<>(Arrays.asList(this.getColonne(i)).subList(0, this.taille));
+                toInsert = new ArrayList<>(Arrays.asList(this.getColonne(i)).subList(0, this.size));
                 toInsert.remove(this.getColonne(i)[j]);
                 newConstraint = new NotEqualConstraint(this.getColonne(i)[j], toInsert);
                 constraints.add(newConstraint);
 
                 // block i
-                toInsert = new ArrayList<>(Arrays.asList(this.getBloc(i).getCases()).subList(0, this.taille));
+                toInsert = new ArrayList<>(Arrays.asList(this.getBloc(i).getCases()).subList(0, this.size));
                 toInsert.remove(this.getBloc(i).getCase(j));
                 newConstraint = new NotEqualConstraint(this.getBloc(i).getCase(j), toInsert);
                 constraints.add(newConstraint);
@@ -101,14 +117,14 @@ public class Sudoku {
         return constraints;
     }
 
-    public void setSymboles(HashMap<Integer, String> symboles) {
+    public void setSymbols(HashMap<Integer, String> symbols) {
         Set<Integer> set = new HashSet<>();
-        for (int i = 0; i < this.taille; i++) {
+        for (int i = 0; i < this.size; i++) {
             set.add(i);
         }
 
-        if(symboles.keySet().equals(set)) {
-            this.symboles = symboles;
+        if(symbols.keySet().equals(set)) {
+            this.symbols = symbols;
         }
         else {
             throw new IllegalArgumentException("Index out of bounds");
@@ -120,25 +136,25 @@ public class Sudoku {
     }
 
     public Case[] getLigne(int ligne) {
-        if (ligne < 0 || ligne >= this.taille) {
+        if (ligne < 0 || ligne >= this.size) {
             throw new IllegalArgumentException("Index out of bounds");
         }
         return this.cases[ligne];
     }
 
     public Case[] getColonne(int colonne) {
-        if (colonne < 0 || colonne >= this.taille) {
+        if (colonne < 0 || colonne >= this.size) {
             throw new IllegalArgumentException("Index out of bounds");
         }
-        Case[] col = new Case[this.taille];
-        for (int i = 0; i < this.taille; i++) {
+        Case[] col = new Case[this.size];
+        for (int i = 0; i < this.size; i++) {
             col[i] = this.cases[i][colonne];
         }
         return col;
     }
 
     public Case getCase(int ligne, int colonne) {
-        if (ligne < 0 || ligne >= this.taille || colonne < 0 || colonne >= this.taille) {
+        if (ligne < 0 || ligne >= this.size || colonne < 0 || colonne >= this.size) {
             throw new IllegalArgumentException("Index out of bounds");
         }
         return this.cases[ligne][colonne];
@@ -149,27 +165,31 @@ public class Sudoku {
     }
 
     public Bloc getBloc(int block) {
-        if (block < 0 || block >= this.taille) {
+        if (block < 0 || block >= this.size) {
             throw new IllegalArgumentException("Index out of bounds");
         }
         return this.blocs[block];
     }
 
-    public int getTaille() {
-        return this.taille;
+    public int getSize() {
+        return this.size;
     }
 
-    public HashMap<Integer, String> getSymboles() {
-        return this.symboles;
+    public HashMap<Integer, String> getSymbols() {
+        return this.symbols;
+    }
+
+    public boolean isUsingDefaultPlacements() {
+        return this.useDefaultPlacements;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        int colorDivision = (255 * 3) / this.taille;
+        int colorDivision = (255 * 3) / this.size;
 
-        for (int i = 0; i < this.taille; i++) {
-            for (int j = 0; j < this.taille; j++) {
+        for (int i = 0; i < this.size; i++) {
+            for (int j = 0; j < this.size; j++) {
                 int bloc = this.cases[i][j].getBlocIndex();
                 int colorTotal = colorDivision * bloc;
                 int red, green, blue;
@@ -198,8 +218,8 @@ public class Sudoku {
                 }
                 else {
                     int num = this.cases[i][j].getValeur();
-                    if (this.symboles != null) {
-                        sb.append(this.symboles.get(num));
+                    if (this.symbols != null) {
+                        sb.append(this.symbols.get(num));
                     }
                     else {
                         sb.append(num + 1);
@@ -207,7 +227,7 @@ public class Sudoku {
                 }
                 sb.append("]");
             }
-            if (!(i == this.taille - 1))
+            if (!(i == this.size - 1))
                 sb.append("\n");
         }
         sb.append("\033[38;2;255;255;255m");

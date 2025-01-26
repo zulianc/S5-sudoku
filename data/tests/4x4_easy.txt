@@ -1,19 +1,17 @@
 puzzleType:
 sudoku
-hasSymbols:
+useCustomPlacements:
+false
+useCustomSymbols:
 true
 size:
 4
-placements:
-1 1 2 2
-1 1 2 2
-3 3 4 4
-3 3 4 4
 values:
 0 0 0 4
 0 0 0 0
 2 0 0 3
 4 0 1 2
+placements:
 symbols:
 A
 B

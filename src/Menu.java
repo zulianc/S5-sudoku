@@ -1,5 +1,6 @@
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public abstract class Menu {
@@ -16,7 +17,7 @@ public abstract class Menu {
                 System.out.println("2. Résoudre un sudoku");
                 System.out.println("3. Quitter");
                 System.out.print("Choix : ");
-                choice = getIntFromUser();
+                choice = getIntFromUser(false);
             } while (choice < 1 || choice > 3);
 
             switch (choice) {
@@ -49,7 +50,7 @@ public abstract class Menu {
             System.out.println("1. Résoudre ce sudoku");
             System.out.println("2. Quitter");
             System.out.print("Choix : ");
-            choice = getIntFromUser();
+            choice = getIntFromUser(false);
         } while (choice < 1 || choice > 2);
 
         if (choice == 1) {
@@ -66,7 +67,7 @@ public abstract class Menu {
             System.out.println("2. Importer un sudoku et le résoudre");
             System.out.println("3. Quitter");
             System.out.print("Choix : ");
-            choice = getIntFromUser();
+            choice = getIntFromUser(false);
         } while (choice < 1 || choice > 3);
         if (choice == 3) {
             return;
@@ -97,29 +98,43 @@ public abstract class Menu {
     private static Sudoku createSudoku() {
         System.out.println("----------");
         System.out.println("Veuillez remplir les informations du sudoku");
-        System.out.println("Rentrez 0 si une case n'a pas de valeur");
 
         System.out.print("Taille du sudoku : ");
-        int size = getIntFromUser();
+        int size = getIntFromUser(false);
 
         int[][] values = new int[size][size];
         int[][] placements = new int[size][size];
 
+        System.out.println("Voulez-vous spécifier la position des blocs ?");
+        int input = askYesOrNo();
+        boolean hasCustomPlacement = (input == 1);
+
+        System.out.println("Voulez-vous spécifier les symboles utilisés ?");
+        input = askYesOrNo();
+        boolean hascustomSymbols = (input == 1);
+
+        System.out.println("Si une case est vide, rentrez 0 ou rien");
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 int val;
                 do {
                     System.out.print("Valeur de la case à la ligne " + (i+1) + " et colonne " + (j+1) + " : ");
-                    val = getIntFromUser();
+                    val = getIntFromUser(true);
                 } while (val < 0 || val > size);
                 values[i][j] = val - 1;
 
-                do {
-                    System.out.print("Bloc auquel appartient cette case : ");
-                    val = getIntFromUser();
-                } while (val < 1 || val > size);
-                placements[i][j] = val - 1;
+                if (hasCustomPlacement) {
+                    do {
+                        System.out.print("Bloc auquel appartient cette case : ");
+                        val = getIntFromUser(false);
+                    } while (val < 1 || val > size);
+                    placements[i][j] = val - 1;
+                }
             }
+        }
+
+        if (!hasCustomPlacement) {
+            placements = null;
         }
 
         Sudoku sudoku;
@@ -132,8 +147,18 @@ public abstract class Menu {
             }
         }
         catch (Exception e) {
-            System.out.println("Invalid sudoku !");
+            System.out.println("Le sudoku créé n'est pas valide !");
             return null;
+        }
+
+        if (hascustomSymbols) {
+            HashMap<Integer, String> symbols = new HashMap<>();
+            for (int i = 0; i < size; i++) {
+                System.out.print("Veuillez rentrer le symbole pour le chiffre " + (i+1) + " : ");
+                String symbol = scanner.nextLine();
+                symbols.put(i, symbol);
+            }
+            sudoku.setSymbols(symbols);
         }
 
         System.out.println("Sudoku créé : ");
@@ -158,14 +183,7 @@ public abstract class Menu {
     private static void askToSaveSudoku(Sudoku sudoku) {
         System.out.println("----------");
         System.out.println("Enregistrer ce sudoku dans un fichier ?");
-        int choice;
-        do {
-            System.out.println("1. Oui");
-            System.out.println("2. Non");
-            System.out.print("Choix : ");
-            choice = getIntFromUser();
-        } while (choice < 1 || choice > 2);
-        
+        int choice = askYesOrNo();
         if (choice == 1) {
             String filename = askNewFileName(false);
             FilesOperations.convertSudokuToFile(sudoku, filename);
@@ -206,7 +224,7 @@ public abstract class Menu {
         do {
             System.out.println("Importer quel fichier ?");
             System.out.print("Choix : ");
-            choice = getIntFromUser();
+            choice = getIntFromUser(false);
         } while (choice < 1 || choice > validFilesCount);
 
         return directoryPath + "/" + validFiles[choice - 1];
@@ -240,16 +258,8 @@ public abstract class Menu {
 
             else if (filesNames.contains(filename)) {
                 System.out.println("Ce fichier existe déjà, écraser le fichier ?");
-                int choice;
-                do {
-                    System.out.println("1. Oui");
-                    System.out.println("2. Non");
-                    System.out.print("Choix : ");
-                    choice = getIntFromUser();
-                } while (choice < 1 || choice > 2);
-                if (choice == 1) {
-                    fileIsOK = true;
-                }
+                int choice = askYesOrNo();
+                fileIsOK = (choice == 1);
             }
 
             else {
@@ -260,21 +270,35 @@ public abstract class Menu {
         return filename;
     }
 
-    private static int getIntFromUser() {
+    private static int getIntFromUser(boolean convertNothingToZero) {
         int value = -99;
         boolean validInput = false;
         while (!validInput) {
-            try {
-                value = scanner.nextInt();
+            String input = scanner.nextLine();
+            if (convertNothingToZero && input.isEmpty()) {
+                value = 0;
                 validInput = true;
             }
-            catch (Exception e) {
-                System.out.println("Veuillez rentrer un nombre !");
-                System.out.print("Choix : ");
+            else {
+                if (input.matches("[0-9]+")) {
+                    value = Integer.parseInt(input);
+                    validInput = true;
+                } else {
+                    System.out.print("Veuillez rentrer un nombre : ");
+                }
             }
-            scanner.nextLine();
         }
-
         return value;
+    }
+
+    private static int askYesOrNo() {
+        int choice;
+        do {
+            System.out.println("1. Oui");
+            System.out.println("2. Non");
+            System.out.print("Choix : ");
+            choice = getIntFromUser(false);
+        } while (choice < 1 || choice > 2);
+        return choice;
     }
 }
