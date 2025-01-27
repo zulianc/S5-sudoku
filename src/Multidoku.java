@@ -27,6 +27,7 @@ public class Multidoku implements Puzzle {
     /**
      * Constructeur de la classe, sans les symboles
      * @param sudokus La liste des sudokus constituant le multidoku
+     * @throws IllegalArgumentException Si les sudokus ne font pas la même taille
      */
     public Multidoku(ArrayList<PlacedSudoku> sudokus) throws IllegalArgumentException {
         int size = sudokus.getFirst().sudoku().getSize();
@@ -47,6 +48,7 @@ public class Multidoku implements Puzzle {
      * Constructeur de la classe, avec les symboles
      * @param sudokus La liste des sudokus constituant le multidoku
      * @param symbols Les symboles utilisés lors de l'affichage du multidoku
+     * @throws IllegalArgumentException Si les sudokus ne font pas la même taille
      */
     public Multidoku(ArrayList<PlacedSudoku> sudokus, HashMap<Integer, String> symbols) throws IllegalArgumentException {
         this(sudokus);
@@ -58,6 +60,7 @@ public class Multidoku implements Puzzle {
     /**
      * Indique au multidoku quels symboles utiliser, qui doivent être numérotés de 0 à (taille des sudokus - 1)
      * @param symbols Les nouveaux symboles à utiliser
+     * @throws IllegalArgumentException Si les arguments passés ne créent pas une liste de symboles valide
      */
     public void setSymbols(HashMap<Integer, String> symbols) throws IllegalArgumentException {
         Set<Integer> set = new HashSet<>();
@@ -86,6 +89,7 @@ public class Multidoku implements Puzzle {
      * @param line La ligne du sudoku dans la grille du multidoku
      * @param column La colonne du sudoku dans la grille du multidoku
      * @return Le sudoku demandé, s'il existe
+     * Si les arguments passés n'obtiennent pas un sudoku valide
      */
     public Sudoku getSudoku(int line, int column) throws IllegalArgumentException {
         for (PlacedSudoku sudoku : this.sudokus) {
