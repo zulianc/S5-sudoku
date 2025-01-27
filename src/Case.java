@@ -1,7 +1,7 @@
 import java.util.HashSet;
 
 /**
- * Une Case représente une case à l'intérieur d'un Sudoku, et ne doit pas exister sans faire partie d'un
+ * Une Case représente une case à l'intérieur d'un Sudoku, et ne doit pas exister sans faire partie d'un sudoku
  */
 public class Case {
     /**
@@ -31,8 +31,9 @@ public class Case {
      * @param line La ligne de cette case dans le sudoku
      * @param column La colonne de cette case dans le sudoku
      * @param blocIndex Le bloc de cette case dans le sudoku
+     * @throws IllegalArgumentException Si la case n'a pas au moins une valeur possible
      */
-    public Case(HashSet<Integer> possibleValues, int line, int column, int blocIndex) {
+    public Case(HashSet<Integer> possibleValues, int line, int column, int blocIndex) throws IllegalArgumentException {
         this.value = -1;
         this.line = line;
         this.column = column;
@@ -66,6 +67,7 @@ public class Case {
     /**
      * Donne une valeur à cette case, mais seulement si cette valeur fait partie de ses valeurs possibles
      * @param value La valeur à essayer d'attribuer à cette case
+     * @throws IllegalArgumentException Si la valeur ne peut pas être attribuée à la case
      */
     public void setValue(int value) throws IllegalArgumentException {
         if (this.possibleValues.contains(value)) {

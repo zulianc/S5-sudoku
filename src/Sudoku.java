@@ -29,6 +29,7 @@ public class Sudoku implements Puzzle {
      * Constructeur de la classe, sans symboles
      * @param size La taille du sudoku
      * @param placements Les blocs auxquels appartiennent les cases, s'il est null alors les blocs auront les formes par défaut
+     * @throws IllegalArgumentException Si les arguments passés ne créent pas un sudoku valide
      */
     public Sudoku(int size, int[][] placements) throws IllegalArgumentException {
         if (size <= 0) {
@@ -86,7 +87,7 @@ public class Sudoku implements Puzzle {
 
         // on attribue les blocs
         for (int i = 0; i < size; i++) {
-            this.blocs[i] = new Bloc(size, blocs[i]);
+            this.blocs[i] = new Bloc(blocs[i]);
         }
     }
 
@@ -95,6 +96,7 @@ public class Sudoku implements Puzzle {
      * @param size La taille du sudoku
      * @param placements Les blocs auxquels appartiennent les cases, s'il est null alors les blocs auront les formes par défaut
      * @param symbols Les symboles utilisés lors de l'affichage de la grille
+     * @throws IllegalArgumentException Si les arguments passés ne créent pas un sudoku valide
      */
     public Sudoku(int size, int[][] placements, HashMap<Integer, String> symbols) throws IllegalArgumentException {
         this(size, placements);
@@ -105,7 +107,7 @@ public class Sudoku implements Puzzle {
 
     /**
      * Crée une copie du sudoku, qui ne comporte aucune référence vers le Sudoku originel
-     * @return Une copier du Sudoku
+     * @return Une copie du Sudoku
      */
     public Sudoku copy() {
         // on copie les placements
@@ -137,6 +139,7 @@ public class Sudoku implements Puzzle {
     /**
      * Indique au sudoku quels symboles utiliser, qui doivent être numérotés de 0 à (taille du sudoku - 1)
      * @param symbols Les nouveaux symboles à utiliser
+     * @throws IllegalArgumentException Si les arguments passés ne créent pas une liste de symboles valide
      */
     public void setSymbols(HashMap<Integer, String> symbols) throws IllegalArgumentException{
         Set<Integer> set = new HashSet<>();
@@ -164,6 +167,7 @@ public class Sudoku implements Puzzle {
      * Getter d'une ligne du sudoku
      * @param ligne La ligne du sudoku à récupérer
      * @return Une ligne du sudoku
+     * @throws IllegalArgumentException Si les arguments passés n'obtiennent pas une case valide
      */
     public Case[] getLigne(int ligne) throws IllegalArgumentException {
         if (ligne < 0 || ligne >= this.size) {
@@ -176,6 +180,7 @@ public class Sudoku implements Puzzle {
      * Getter d'une colonne du sudoku
      * @param colonne La colonne du sudoku à récupérer
      * @return Une colonne du sudoku
+     * @throws IllegalArgumentException Si les arguments passés n'obtiennent pas une case valide
      */
     public Case[] getColonne(int colonne) throws IllegalArgumentException {
         if (colonne < 0 || colonne >= this.size) {
@@ -193,8 +198,9 @@ public class Sudoku implements Puzzle {
      * @param ligne La ligne de la case
      * @param colonne La colonne de la case
      * @return Une case du sudoku
+     * @throws IllegalArgumentException Si les arguments passés n'obtiennent pas une case valide
      */
-    public Case getCase(int ligne, int colonne) {
+    public Case getCase(int ligne, int colonne) throws IllegalArgumentException {
         if (ligne < 0 || ligne >= this.size || colonne < 0 || colonne >= this.size) {
             throw new IllegalArgumentException("Le sudoku ne contient pas de case était à la ligne " + ligne + " et colonne " + colonne);
         }
@@ -213,6 +219,7 @@ public class Sudoku implements Puzzle {
      * Getter d'un bloc du sudoku
      * @param bloc Le numéro du bloc
      * @return Un bloc du sudoku
+     * @throws IllegalArgumentException Si les arguments passés n'obtiennent pas un bloc valide
      */
     public Bloc getBloc(int bloc) {
         if (bloc < 0 || bloc >= this.size) {
@@ -269,7 +276,7 @@ public class Sudoku implements Puzzle {
                 constraints.add(newConstraint);
 
                 // contrainte entre la case j du bloc i et le bloc i
-                toInsert = new ArrayList<>(Arrays.asList(this.getBloc(i).getCases()).subList(0, this.size));
+                toInsert = new ArrayList<>(Arrays.asList(this.getBloc(i).cases()).subList(0, this.size));
                 toInsert.remove(this.getBloc(i).getCase(j));
                 newConstraint = new NotEqualConstraint(this.getBloc(i).getCase(j), toInsert);
                 constraints.add(newConstraint);

@@ -1,38 +1,33 @@
 /**
- * Un Bloc représente un bloc de cases qui ne peuvent pas avoir la même valeur à l'intérieur d'un Sudoku, et ne doit pas exister sans faire partie d'un
+ * Un Bloc représente un bloc de cases qui ne peuvent pas avoir la même valeur à l'intérieur d'un Sudoku, et ne doit pas exister sans faire partie d'un sudoku
+ *
+ * @param cases Les cases contenues dans le bloc
  */
-public class Bloc {
-    /**
-     * Les cases contenues dans le bloc
-     */
-    private final Case[] cases;
-    /**
-     * La taille du bloc, qui est la même que celle du Sudoku auquel il appartient
-     */
-    private final int size;
-
+public record Bloc(Case[] cases) {
     /**
      * Constructeur de la classe
-     * @param size La taille du bloc
+     *
      * @param cases Les cases contenues dans le bloc
      */
-    public Bloc(int size, Case[] cases) {
-        this.size = size;
-        this.cases = cases;
+    public Bloc {
     }
 
     /**
      * Getter des cases du bloc
+     *
      * @return Les cases du bloc
      */
-    public Case[] getCases() {
+    @Override
+    public Case[] cases() {
         return this.cases;
     }
 
     /**
      * Getter de la i-ème case contenue dans le bloc
+     *
      * @param index La position de la case dans le bloc
      * @return La case dans le bloc, si elle existe
+     * @throws IllegalArgumentException Si les arguments passés n'obtiennent pas une case valide
      */
     public Case getCase(int index) throws IllegalArgumentException {
         if (index >= 0 && index < this.cases.length) {
@@ -43,9 +38,11 @@ public class Bloc {
 
     /**
      * Getter d'une case du bloc selon sa position dans le Sudoku
-     * @param ligne La ligne de la case souhaitée
+     *
+     * @param ligne   La ligne de la case souhaitée
      * @param colonne La colonne de la case souhaitée
      * @return La case souhaitée, si elle existe
+     * @throws IllegalArgumentException Si les arguments passés n'obtiennent pas une case valide
      */
     public Case getCase(int ligne, int colonne) throws IllegalArgumentException {
         for (Case c : this.cases) {
@@ -58,9 +55,10 @@ public class Bloc {
 
     /**
      * Getter de la taille du bloc
+     *
      * @return La taille du bloc
      */
     public int getSize() {
-        return this.size;
+        return this.cases.length;
     }
 }
