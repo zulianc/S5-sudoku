@@ -79,11 +79,11 @@ public abstract class Menu {
             askToSaveSudoku(sudoku);
         }
         if (choice == 2) {
-            String filepath = askWhichFileToImport(false);
-            if (filepath == null) {
+            String filename = askWhichFileToImport(false);
+            if (filename == null) {
                 return;
             }
-            sudoku = FilesOperations.readSudokuFromFile(filepath);
+            sudoku = FilesOperations.readSudokuFromFile(filename);
             if (sudoku == null) {
                 System.out.println("Erreur lors de la lecture du sudoku !");
                 return;
@@ -142,7 +142,8 @@ public abstract class Menu {
             sudoku = new Sudoku(size, placements);
             for (int i = 0; i < size; i++) {
                 for (int j = 0; j < size; j++) {
-                    sudoku.getCase(i, j).setValeur(values[i][j]);
+                    if (values[i][j] != -1)
+                        sudoku.getCase(i, j).setValue(values[i][j]);
                 }
             }
         }
@@ -168,8 +169,7 @@ public abstract class Menu {
     }
 
     private static void solveSudoku(Sudoku sudoku) {
-        Solver solver = new Solver(sudoku, null);
-        boolean solved = solver.solve();
+        boolean solved = Solver.solve(sudoku, null);
 
         System.out.println("----------");
         if (solved) {
@@ -227,7 +227,7 @@ public abstract class Menu {
             choice = getIntFromUser(false);
         } while (choice < 1 || choice > validFilesCount);
 
-        return directoryPath + "/" + validFiles[choice - 1];
+        return validFiles[choice - 1];
     }
 
     private static String askNewFileName(boolean isMultidoku) {

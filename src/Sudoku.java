@@ -1,26 +1,55 @@
 import java.util.*;
 
-public class Sudoku {
+/**
+ * Un Sudoku représente une grille de Sudoku, c'est-à-dire une grille carrée de cases et ayant des blocs de la même taille que la grille
+ */
+public class Sudoku implements Puzzle {
+    /**
+     * Les cases qui composent la grille, qui doit être carrée
+     */
     private final Case[][] cases;
+    /**
+     * Les blocs qui composent la grille, les blocs doivent être de même taille que la grille, mais pas forcément rectangulaires
+     */
     private final Bloc[] blocs;
+    /**
+     * La taille de la grille
+     */
     private final int size;
+    /**
+     * Les symboles utilisés pour remplacer les nombres lors de l'affichage de la grille, s'ils sont définis
+     */
     private HashMap<Integer, String> symbols;
+    /**
+     * Indique si les blocs utilisent la forme par défaut ou non, si c'est le cas ils formeront un rectangle le plus carré possible, avec une hauteur plus grand ou égale à la largeur
+     */
     private final Boolean useDefaultPlacements;
 
-    public Sudoku(int size, int[][] placements) {
-        if (size <= 0 || size > 9) {
-            throw new IllegalArgumentException("Size must be between 1 and 9");
+    /**
+     * Constructeur de la classe, sans symboles
+     * @param size La taille du sudoku
+     * @param placements Les blocs auxquels appartiennent les cases, s'il est null alors les blocs auront les formes par défaut
+     */
+    public Sudoku(int size, int[][] placements) throws IllegalArgumentException {
+        if (size <= 0) {
+            throw new IllegalArgumentException("Le sudoku doit avoir une taille supérieur à 0");
         }
-        this.size = size;
 
+        this.size = size;
+        this.cases = new Case[size][size];
+        this.blocs = new Bloc[size];
+        this.symbols = null;
         this.useDefaultPlacements = (placements == null);
-        if (placements == null) {
+
+        if (this.useDefaultPlacements) {
             placements = new int[size][size];
+            // on cherche le rapport entier le plus proche d'un carré
             int width = (int) Math.sqrt(size);
             while (size % width != 0 && width > 1) {
                 width--;
             }
             int height = size / width;
+            // on attribue les blocs par défaut
             for (int i = 0; i < size; i++) {
                 for (int j = 0; j < size; j++) {
                     placements[i][j] = ((i/height) * height) + (j/width);
@@ -28,44 +57,58 @@ public class Sudoku {
             }
         }
 
-        this.cases = new Case[size][size];
-        this.blocs = new Bloc[size];
-        this.symbols = null;
-
-        Case[][] blocs = new Case[size][size];
-        int[] placedInBlocks = new int[size];
-
+        // création des cases de la grille
+        Case[][] blocs = new Case[size][size]; // la liste des blocs de la grille
+        int[] placedInBloc = new int[size]; // le nombre de cases dans chaque bloc
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                int block = placements[i][j];
-                if (block < 0 || block >= size) {
-                    throw new IllegalArgumentException("Illegal placement");
+                int bloc = placements[i][j];
+                if (bloc < 0 || bloc >= size) {
+                    throw new IllegalArgumentException("Le bloc " + bloc + " n'existe pas");
                 }
 
+                // on doit créer un nouveau set à chaque fois sinon modifier celui d'une case modifiera celui de toutes les cases
                 HashSet<Integer> possibleValues = new HashSet<>();
                 for (int k = 0; k < size; k++) {
                     possibleValues.add(k);
                 }
-                this.cases[i][j] = new Case(i, j, block, possibleValues);
-                blocs[block][placedInBlocks[block]] = this.cases[i][j];
 
-                placedInBlocks[block]++;
+                // on doit faire attention à ce que les blocs et la grille référencent bien les mêmes cases
+                this.cases[i][j] = new Case(possibleValues, i, j, bloc);
+                blocs[bloc][placedInBloc[bloc]] = this.cases[i][j];
+
+                placedInBloc[bloc]++;
+                if (placedInBloc[bloc] > size) {
+                    throw new IllegalArgumentException("Il y a trop de cases dans le bloc " + bloc);
+                }
             }
         }
 
+        // on attribue les blocs
         for (int i = 0; i < size; i++) {
             this.blocs[i] = new Bloc(size, blocs[i]);
         }
     }
 
-    public Sudoku(int size, int[][] placements, HashMap<Integer, String> symbols) {
+    /**
+     * Constructeur de la classe, avec symboles
+     * @param size La taille du sudoku
+     * @param placements Les blocs auxquels appartiennent les cases, s'il est null alors les blocs auront les formes par défaut
+     * @param symbols Les symboles utilisés lors de l'affichage de la grille
+     */
+    public Sudoku(int size, int[][] placements, HashMap<Integer, String> symbols) throws IllegalArgumentException {
         this(size, placements);
         if (symbols != null) {
             this.setSymbols(symbols);
         }
     }
 
+    /**
+     * Crée une copie du sudoku, qui ne comporte aucune référence vers le Sudoku originel
+     * @return Une copier du Sudoku
+     */
     public Sudoku copy() {
+        // on copie les placements
         int[][] placements = new int[this.size][this.size];
         for (int i = 0; i < this.size; i++) {
             for (int j = 0; j < this.size; j++) {
@@ -73,41 +116,159 @@ public class Sudoku {
             }
         }
 
-        HashMap<Integer, String> symboles = null;
+        // on copie les symboles
+        HashMap<Integer, String> symbols = null;
         if (this.symbols != null) {
-            symboles = new HashMap<>(this.symbols);
+            symbols = new HashMap<>(this.symbols);
         }
 
-        Sudoku newSudoku = new Sudoku(this.size, placements, symboles);
+        Sudoku newSudoku = new Sudoku(this.size, placements, symbols);
 
+        // on copie les valeurs des cases
         for (int i = 0; i < this.size; i++) {
             for (int j = 0; j < this.size; j++) {
-                newSudoku.getCase(i, j).setValeur(this.cases[i][j].getValeur());
+                newSudoku.getCase(i, j).setValue(this.cases[i][j].getValue());
             }
         }
 
         return newSudoku;
     }
 
-    public ArrayList<SudokuConstraints> defaultConstraints() {
-        ArrayList<SudokuConstraints> constraints = new ArrayList<>();
+    /**
+     * Indique au sudoku quels symboles utiliser, qui doivent être numérotés de 0 à (taille du sudoku - 1)
+     * @param symbols Les nouveaux symboles à utiliser
+     */
+    public void setSymbols(HashMap<Integer, String> symbols) throws IllegalArgumentException{
+        Set<Integer> set = new HashSet<>();
+        for (int i = 0; i < this.size; i++) {
+            set.add(i);
+        }
+
+        if (symbols.keySet().equals(set)) {
+            this.symbols = symbols;
+        }
+        else {
+            throw new IllegalArgumentException("Les symboles n'ont pas les bons numéros");
+        }
+    }
+
+    /**
+     * Getter des cases du sudoku
+     * @return Les cases du sudoku
+     */
+    public Case[][] getCases() {
+        return this.cases;
+    }
+
+    /**
+     * Getter d'une ligne du sudoku
+     * @param ligne La ligne du sudoku à récupérer
+     * @return Une ligne du sudoku
+     */
+    public Case[] getLigne(int ligne) throws IllegalArgumentException {
+        if (ligne < 0 || ligne >= this.size) {
+            throw new IllegalArgumentException("La ligne " + ligne + " n'existe pas");
+        }
+        return this.cases[ligne];
+    }
+
+    /**
+     * Getter d'une colonne du sudoku
+     * @param colonne La colonne du sudoku à récupérer
+     * @return Une colonne du sudoku
+     */
+    public Case[] getColonne(int colonne) throws IllegalArgumentException {
+        if (colonne < 0 || colonne >= this.size) {
+            throw new IllegalArgumentException("La colonne " + colonne + " n'existe pas");
+        }
+        Case[] col = new Case[this.size];
+        for (int i = 0; i < this.size; i++) {
+            col[i] = this.cases[i][colonne];
+        }
+        return col;
+    }
+
+    /**
+     * Getter d'une case du sudoku
+     * @param ligne La ligne de la case
+     * @param colonne La colonne de la case
+     * @return Une case du sudoku
+     */
+    public Case getCase(int ligne, int colonne) {
+        if (ligne < 0 || ligne >= this.size || colonne < 0 || colonne >= this.size) {
+            throw new IllegalArgumentException("Le sudoku ne contient pas de case était à la ligne " + ligne + " et colonne " + colonne);
+        }
+        return this.cases[ligne][colonne];
+    }
+
+    /**
+     * Getter des blocs du sudoku
+     * @return Les blocs du sudoku
+     */
+    public Bloc[] getBlocs() {
+        return this.blocs;
+    }
+
+    /**
+     * Getter d'un bloc du sudoku
+     * @param bloc Le numéro du bloc
+     * @return Un bloc du sudoku
+     */
+    public Bloc getBloc(int bloc) {
+        if (bloc < 0 || bloc >= this.size) {
+            throw new IllegalArgumentException("Le bloc " + bloc + " n'existe pas");
+        }
+        return this.blocs[bloc];
+    }
+
+    /**
+     * Getter de la taille du sudoku
+     * @return La taille du sudoku
+     */
+    public int getSize() {
+        return this.size;
+    }
+
+    /**
+     * Getter des symboles utilisés lors de l'affichage du sudoku
+     * @return Les symboles utilisés lors de l'affichage du sudoku
+     */
+    public HashMap<Integer, String> getSymbols() {
+        return this.symbols;
+    }
+
+    /**
+     * Indique si le sudoku utilise les placements de blocs par défaut
+     * @return Si le sudoku utilise les placements de blocs par défaut
+     */
+    public boolean isUsingDefaultPlacements() {
+        return this.useDefaultPlacements;
+    }
+
+    /**
+     * Retourne les contraintes internes entre les cases du sudoku
+     * @return Une liste de contraintes entre cases
+     */
+    @Override
+    public ArrayList<SudokuConstraint> defaultConstraints() {
+        ArrayList<SudokuConstraint> constraints = new ArrayList<>();
         NotEqualConstraint newConstraint;
         ArrayList<Case> toInsert;
         for(int i = 0; i < this.size; i++) {
             for (int j = 0; j < this.size; j++) {
-                // line i
+                // contrainte entre la case j de la ligne i et la ligne i
                 toInsert = new ArrayList<>(Arrays.asList(this.getLigne(i)).subList(0, this.size));
                 toInsert.remove(this.getLigne(i)[j]);
                 newConstraint = new NotEqualConstraint(this.getLigne(i)[j], toInsert);
                 constraints.add(newConstraint);
 
-                // column i
+                // contrainte entre la case j de la colonne i et la colonne i
                 toInsert = new ArrayList<>(Arrays.asList(this.getColonne(i)).subList(0, this.size));
                 toInsert.remove(this.getColonne(i)[j]);
                 newConstraint = new NotEqualConstraint(this.getColonne(i)[j], toInsert);
                 constraints.add(newConstraint);
 
-                // block i
+                // contrainte entre la case j du bloc i et le bloc i
                 toInsert = new ArrayList<>(Arrays.asList(this.getBloc(i).getCases()).subList(0, this.size));
                 toInsert.remove(this.getBloc(i).getCase(j));
                 newConstraint = new NotEqualConstraint(this.getBloc(i).getCase(j), toInsert);
@@ -117,72 +278,10 @@ public class Sudoku {
         return constraints;
     }
 
-    public void setSymbols(HashMap<Integer, String> symbols) {
-        Set<Integer> set = new HashSet<>();
-        for (int i = 0; i < this.size; i++) {
-            set.add(i);
-        }
-
-        if(symbols.keySet().equals(set)) {
-            this.symbols = symbols;
-        }
-        else {
-            throw new IllegalArgumentException("Index out of bounds");
-        }
-    }
-
-    public Case[][] getCases() {
-        return this.cases;
-    }
-
-    public Case[] getLigne(int ligne) {
-        if (ligne < 0 || ligne >= this.size) {
-            throw new IllegalArgumentException("Index out of bounds");
-        }
-        return this.cases[ligne];
-    }
-
-    public Case[] getColonne(int colonne) {
-        if (colonne < 0 || colonne >= this.size) {
-            throw new IllegalArgumentException("Index out of bounds");
-        }
-        Case[] col = new Case[this.size];
-        for (int i = 0; i < this.size; i++) {
-            col[i] = this.cases[i][colonne];
-        }
-        return col;
-    }
-
-    public Case getCase(int ligne, int colonne) {
-        if (ligne < 0 || ligne >= this.size || colonne < 0 || colonne >= this.size) {
-            throw new IllegalArgumentException("Index out of bounds");
-        }
-        return this.cases[ligne][colonne];
-    }
-
-    public Bloc[] getBlocs() {
-        return this.blocs;
-    }
-
-    public Bloc getBloc(int block) {
-        if (block < 0 || block >= this.size) {
-            throw new IllegalArgumentException("Index out of bounds");
-        }
-        return this.blocs[block];
-    }
-
-    public int getSize() {
-        return this.size;
-    }
-
-    public HashMap<Integer, String> getSymbols() {
-        return this.symbols;
-    }
-
-    public boolean isUsingDefaultPlacements() {
-        return this.useDefaultPlacements;
-    }
-
+    /**
+     * Crée un string qui affiche le sudoku comme une grille, avec les valeurs des cases déjà remplies et des couleurs différentes pour chaque bloc
+     * @return Un string qui permet d'afficher le sudoku
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -190,6 +289,7 @@ public class Sudoku {
 
         for (int i = 0; i < this.size; i++) {
             for (int j = 0; j < this.size; j++) {
+                // calcul de la couleur de la case en fonction du bloc
                 int bloc = this.cases[i][j].getBlocIndex();
                 int colorTotal = colorDivision * bloc;
                 int red, green, blue;
@@ -212,12 +312,13 @@ public class Sudoku {
                 }
                 sb.append("\033[38;2;").append(red).append(";").append(green).append(";").append(blue).append("m");
 
+                // insère la case
                 sb.append("[");
-                if (this.cases[i][j].getValeur() == -1) {
+                if (this.cases[i][j].getValue() == -1) {
                     sb.append(" ");
                 }
                 else {
-                    int num = this.cases[i][j].getValeur();
+                    int num = this.cases[i][j].getValue();
                     if (this.symbols != null) {
                         sb.append(this.symbols.get(num));
                     }
@@ -230,6 +331,7 @@ public class Sudoku {
             if (!(i == this.size - 1))
                 sb.append("\n");
         }
+        // remet la couleur normale
         sb.append("\033[38;2;255;255;255m");
         return sb.toString();
     }

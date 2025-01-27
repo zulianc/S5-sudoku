@@ -1,11 +1,9 @@
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
- * Une contrainte de sudoku qui stipule qu'une case ne doit pas avoir la même valeur qu'une liste d'autres cases
+ * Une contrainte de sudoku qui stipule qu'une case doit avoir la même valeur qu'une liste d'autres cases
  */
-public class NotEqualConstraint implements SudokuConstraint {
+public class EqualConstraint implements SudokuConstraint {
     /**
      * La case qui subit les contraintes
      */
@@ -20,7 +18,7 @@ public class NotEqualConstraint implements SudokuConstraint {
      * @param constrainedCase La case qui subit les contraintes
      * @param casesToCompareTo Les cases auxquelles on doit comparer leurs valeurs
      */
-    public NotEqualConstraint(Case constrainedCase, ArrayList<Case> casesToCompareTo) {
+    public EqualConstraint(Case constrainedCase, ArrayList<Case> casesToCompareTo) {
         this.constrainedCase = constrainedCase;
         this.casesToCompareTo = casesToCompareTo;
     }
@@ -31,12 +29,8 @@ public class NotEqualConstraint implements SudokuConstraint {
      */
     @Override
     public boolean setNewPossibleValues() {
-        for (Case caseToCompare : this.casesToCompareTo) {
-            if (caseToCompare.getValue() != -1) {
-                constrainedCase.removePossibleValue(caseToCompare.getValue());
-            }
-        }
-        return this.constrainedCase.isValid();
+        //TODO
+        return false;
     }
 
     /**
@@ -45,6 +39,7 @@ public class NotEqualConstraint implements SudokuConstraint {
      */
     @Override
     public boolean isValidated() {
-        return (this.constrainedCase.getValue() != -1 && this.constrainedCase.isValid());
+        //TODO
+        return false;
     }
 }

@@ -1,51 +1,66 @@
+/**
+ * Un Bloc représente un bloc de cases qui ne peuvent pas avoir la même valeur à l'intérieur d'un Sudoku, et ne doit pas exister sans faire partie d'un
+ */
 public class Bloc {
+    /**
+     * Les cases contenues dans le bloc
+     */
     private final Case[] cases;
-    private final int taille;
+    /**
+     * La taille du bloc, qui est la même que celle du Sudoku auquel il appartient
+     */
+    private final int size;
 
-    protected Bloc(int taille, Case[] cases) {
-        this.taille = taille;
+    /**
+     * Constructeur de la classe
+     * @param size La taille du bloc
+     * @param cases Les cases contenues dans le bloc
+     */
+    public Bloc(int size, Case[] cases) {
+        this.size = size;
         this.cases = cases;
     }
 
-    public void changerValeur(int index, int valeur) {
-        if (index >= 0 && index < this.cases.length) {
-            this.cases[index].setValeur(valeur);
-            return;
-        }
-        throw new IllegalArgumentException("Index out of bounds");
-    }
-
-    public void changerValeur(int ligne, int colonne, int valeur) {
-        for (Case c : this.cases) {
-            if (c.getLigne() == ligne && c.getColonne() == colonne) {
-                c.setValeur(valeur);
-                return;
-            }
-        }
-        throw new IllegalArgumentException("Index out of bounds");
-    }
-
+    /**
+     * Getter des cases du bloc
+     * @return Les cases du bloc
+     */
     public Case[] getCases() {
         return this.cases;
     }
 
-    public Case getCase(int index) {
+    /**
+     * Getter de la i-ème case contenue dans le bloc
+     * @param index La position de la case dans le bloc
+     * @return La case dans le bloc, si elle existe
+     */
+    public Case getCase(int index) throws IllegalArgumentException {
         if (index >= 0 && index < this.cases.length) {
             return this.cases[index];
         }
-        throw new IllegalArgumentException("Index out of bounds");
+        throw new IllegalArgumentException("Le bloc ne contient pas de case numéroté " + index);
     }
 
-    public Case getCase(int ligne, int colonne) {
+    /**
+     * Getter d'une case du bloc selon sa position dans le Sudoku
+     * @param ligne La ligne de la case souhaitée
+     * @param colonne La colonne de la case souhaitée
+     * @return La case souhaitée, si elle existe
+     */
+    public Case getCase(int ligne, int colonne) throws IllegalArgumentException {
         for (Case c : this.cases) {
-            if (c.getLigne() == ligne && c.getColonne() == colonne) {
+            if (c.getLine() == ligne && c.getColumn() == colonne) {
                 return c;
             }
         }
-        throw new IllegalArgumentException("Index out of bounds");
+        throw new IllegalArgumentException("Le bloc ne contient pas de case étant à la ligne " + ligne + " et colonne " + colonne);
     }
 
-    public int getTaille() {
-        return this.taille;
+    /**
+     * Getter de la taille du bloc
+     * @return La taille du bloc
+     */
+    public int getSize() {
+        return this.size;
     }
 }

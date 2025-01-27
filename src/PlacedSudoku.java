@@ -1,22 +1,8 @@
-public record PlacedSudoku(Sudoku sudoku, int row, int col) {
-    public PlacedSudoku(Sudoku sudoku, int row, int col) {
-        this.sudoku = sudoku;
-        int sizeSudoku = sudoku.getSize();
-        if (row < 0 || row >= sizeSudoku || col < 0 || col >= sizeSudoku) {
-            throw new IllegalArgumentException("Row or col out of bounds");
-        }
-        this.row = row;
-        this.col = col;
-    }
-
-    public Sudoku getSudoku() {
-        return this.sudoku;
-    }
-
-    public int getRow() {
-        return this.row;
-    }
-    public int getCol() {
-        return this.col;
-    }
+/**
+ * Un record ayant pour but de lier un sudoku constitutif d'un multidoku avec son placement sur la grille du multidoku
+ * @param sudoku Le sudoku
+ * @param line Sa ligne sur la grille du multidoku, égal à celle de sa première ligne
+ * @param column Sa colonne sur la grille du multidoku, égal à celle de sa première colonne
+ */
+public record PlacedSudoku(Sudoku sudoku, int line, int column) {
 }
