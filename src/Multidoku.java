@@ -134,6 +134,24 @@ public class Multidoku implements Puzzle {
         return null;
     }
 
+    @Override
+    public ArrayList<SudokuConstraint> constraintsOnCase(Case c) {
+        //TODO
+        return null;
+    }
+
+    @Override
+    public ArrayList<Case> casesList() {
+        //TODO
+        return null;
+    }
+
+    @Override
+    public Puzzle copy() {
+        //TODO
+        return null;
+    }
+
     /**
      * Crée un string qui affiche le multidoku comme une grille, avec les valeurs des cases déjà remplies et des couleurs différentes pour chaque bloc
      * @return Un string qui permet d'afficher le sudoku

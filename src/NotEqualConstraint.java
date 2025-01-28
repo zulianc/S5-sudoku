@@ -1,6 +1,4 @@
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Une contrainte de sudoku qui stipule qu'une case ne doit pas avoir la même valeur qu'une liste d'autres cases

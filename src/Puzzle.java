@@ -9,4 +9,10 @@ public interface Puzzle {
      * @return Les contraintes internes du puzzle
      */
     ArrayList<SudokuConstraint> defaultConstraints();
+
+    ArrayList<SudokuConstraint> constraintsOnCase(Case c);
+
+    ArrayList<Case> casesList();
+
+    Puzzle copy();
 }

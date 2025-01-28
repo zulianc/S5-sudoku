@@ -169,7 +169,7 @@ public abstract class Menu {
     }
 
     private static void solveSudoku(Sudoku sudoku) {
-        boolean solved = Solver.solve(sudoku, null);
+        boolean solved = Solver.solveWithBacktracking(sudoku, null);
 
         System.out.println("----------");
         if (solved) {
@@ -211,7 +211,7 @@ public abstract class Menu {
             if (puzzle.getName().endsWith(".txt")) {
                 validFilesCount++;
                 System.out.println(validFilesCount + ". " + puzzle.getName());
-                validFiles[validFilesCount - 1] = puzzle.getName();
+                validFiles[validFilesCount - 1] = puzzle.getName().replace(".txt", "");
             }
         }
 

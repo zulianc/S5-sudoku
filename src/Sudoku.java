@@ -106,37 +106,6 @@ public class Sudoku implements Puzzle {
     }
 
     /**
-     * Crée une copie du sudoku, qui ne comporte aucune référence vers le Sudoku originel
-     * @return Une copie du Sudoku
-     */
-    public Sudoku copy() {
-        // on copie les placements
-        int[][] placements = new int[this.size][this.size];
-        for (int i = 0; i < this.size; i++) {
-            for (int j = 0; j < this.size; j++) {
-                placements[i][j] = this.cases[i][j].getBlocIndex();
-            }
-        }
-
-        // on copie les symboles
-        HashMap<Integer, String> symbols = null;
-        if (this.symbols != null) {
-            symbols = new HashMap<>(this.symbols);
-        }
-
-        Sudoku newSudoku = new Sudoku(this.size, placements, symbols);
-
-        // on copie les valeurs des cases
-        for (int i = 0; i < this.size; i++) {
-            for (int j = 0; j < this.size; j++) {
-                newSudoku.getCase(i, j).setValue(this.cases[i][j].getValue());
-            }
-        }
-
-        return newSudoku;
-    }
-
-    /**
      * Indique au sudoku quels symboles utiliser, qui doivent être numérotés de 0 à (taille du sudoku - 1)
      * @param symbols Les nouveaux symboles à utiliser
      * @throws IllegalArgumentException Si les arguments passés ne créent pas une liste de symboles valide
@@ -283,6 +252,79 @@ public class Sudoku implements Puzzle {
             }
         }
         return constraints;
+    }
+
+    @Override
+    public ArrayList<SudokuConstraint> constraintsOnCase(Case c) {
+        ArrayList<SudokuConstraint> constraints = new ArrayList<>();
+        NotEqualConstraint newConstraint;
+        ArrayList<Case> toInsert;
+        int i = c.getLine();
+        int j = c.getColumn();
+        int k = c.getBlocIndex();
+        // contrainte entre la case et la ligne i
+        toInsert = new ArrayList<>(Arrays.asList(this.getLigne(i)).subList(0, this.size));
+        toInsert.remove(c);
+        newConstraint = new NotEqualConstraint(c, toInsert);
+        constraints.add(newConstraint);
+
+        // contrainte entre la case et la colonne j
+        toInsert = new ArrayList<>(Arrays.asList(this.getColonne(j)).subList(0, this.size));
+        toInsert.remove(c);
+        newConstraint = new NotEqualConstraint(c, toInsert);
+        constraints.add(newConstraint);
+
+        // contrainte entre la case et le bloc k
+        toInsert = new ArrayList<>(Arrays.asList(this.getBloc(k).cases()).subList(0, this.size));
+        toInsert.remove(c);
+        newConstraint = new NotEqualConstraint(c, toInsert);
+        constraints.add(newConstraint);
+        return constraints;
+    }
+
+    @Override
+    public ArrayList<Case> casesList() {
+        ArrayList<Case> cases = new ArrayList<>();
+        for (int i = 0; i < this.size; i++) {
+            for (int j = 0; j < this.size; j++) {
+                cases.add(this.getCase(i, j));
+            }
+        }
+        return cases;
+    }
+
+    /**
+     * Crée une copie du sudoku, qui ne comporte aucune référence vers le Sudoku originel
+     * @return Une copie du Sudoku
+     */
+    @Override
+    public Sudoku copy() {
+        // on copie les placements
+        int[][] placements = new int[this.size][this.size];
+        for (int i = 0; i < this.size; i++) {
+            for (int j = 0; j < this.size; j++) {
+                placements[i][j] = this.cases[i][j].getBlocIndex();
+            }
+        }
+
+        // on copie les symboles
+        HashMap<Integer, String> symbols = null;
+        if (this.symbols != null) {
+            symbols = new HashMap<>(this.symbols);
+        }
+
+        Sudoku newSudoku = new Sudoku(this.size, placements, symbols);
+
+        // on copie les valeurs des cases
+        for (int i = 0; i < this.size; i++) {
+            for (int j = 0; j < this.size; j++) {
+                if (this.cases[i][j].getValue() != -1) {
+                    newSudoku.getCase(i, j).setValue(this.cases[i][j].getValue());
+                }
+            }
+        }
+
+        return newSudoku;
     }
 
     /**

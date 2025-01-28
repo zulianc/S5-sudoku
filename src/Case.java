@@ -8,6 +8,7 @@ public class Case {
      * La valeur que contient la case, entre 0 et (taille du sudoku - 1), ou -1 pour indiquer que la case est vide
      */
     private int value;
+    private int testValue;
     /**
      * La ligne sur laquelle est placée cette case dans le sudoku
      */
@@ -35,6 +36,7 @@ public class Case {
      */
     public Case(HashSet<Integer> possibleValues, int line, int column, int blocIndex) throws IllegalArgumentException {
         this.value = -1;
+        this.testValue = -1;
         this.line = line;
         this.column = column;
         this.blocIndex = blocIndex;
@@ -56,6 +58,7 @@ public class Case {
      */
     public Case(int value, int line, int column, int blocIndex) {
         this.value = value;
+        this.testValue = -1;
         this.line = line;
         this.column = column;
         this.blocIndex = blocIndex;
@@ -80,6 +83,10 @@ public class Case {
         }
     }
 
+    public void tryValue(int value) {
+        this.testValue = value;
+    }
+
     /**
      * Indique à la case qu'elle ne doit pas prendre cette valeur, ce qui ne fait rien si cette valeur était déjà impossible
      * @param valeur La valeur à essayer d'enlever
@@ -99,11 +106,26 @@ public class Case {
         return !this.possibleValues.isEmpty();
     }
 
+    public boolean hasValue() {
+        return this.value != -1;
+    }
+
+    /**
+     * Retourne les valeurs que peut prendre la case
+     * @return Les valeurs que peut prendre la case
+     */
+    public HashSet<Integer> possibleValues() {
+        return new HashSet<>(this.possibleValues);
+    }
+
     /**
      * Getter de la valeur de la case
      * @return La valeur de la case
      */
     public int getValue() {
+        if (this.value == -1) {
+            return this.testValue;
+        }
         return this.value;
     }
 
