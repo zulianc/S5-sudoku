@@ -27,13 +27,23 @@ public class Multidoku implements Puzzle {
     /**
      * Constructeur de la classe, sans les symboles
      * @param sudokus La liste des sudokus constituant le multidoku
-     * @throws IllegalArgumentException Si les sudokus ne font pas la même taille
+     * @throws IllegalArgumentException Si deux des sudokus ne font pas la même taille, ou sont placés au même endroit
      */
     public Multidoku(ArrayList<PlacedSudoku> sudokus) throws IllegalArgumentException {
         int size = sudokus.getFirst().sudoku().getSize();
         int gridSize = size;
+        ArrayList<PlacedSudoku> testedSudokus = new ArrayList<>();
         for (PlacedSudoku sudoku : sudokus) {
+            // on teste la taille du sudoku
             if (size != sudoku.sudoku().getSize()) throw new IllegalArgumentException("Les sudokus ne font pas tous la même taille");
+            // on teste le placement du sudoku
+            for (PlacedSudoku testedSudoku : testedSudokus) {
+                if (testedSudoku.line() == sudoku.line() && testedSudoku.column() == sudoku.column()) {
+                    throw new IllegalArgumentException("Les sudokus ne peuvent pas être placés au même endroit");
+                }
+            }
+            testedSudokus.add(sudoku);
+            // on met à jour la taille de la grille
             if (sudoku.line() + size > gridSize) gridSize = sudoku.line() + size;
             if (sudoku.column() + size > gridSize) gridSize = sudoku.column() + size;
         }
@@ -48,7 +58,7 @@ public class Multidoku implements Puzzle {
      * Constructeur de la classe, avec les symboles
      * @param sudokus La liste des sudokus constituant le multidoku
      * @param symbols Les symboles utilisés lors de l'affichage du multidoku
-     * @throws IllegalArgumentException Si les sudokus ne font pas la même taille
+     * @throws IllegalArgumentException Si deux des sudokus ne font pas la même taille, ou sont placés au même endroit, ou si les symboles ne sont pas corrects
      */
     public Multidoku(ArrayList<PlacedSudoku> sudokus, HashMap<Integer, String> symbols) throws IllegalArgumentException {
         this(sudokus);
@@ -85,16 +95,31 @@ public class Multidoku implements Puzzle {
     }
 
     /**
+     * Getter d'un sudoku du multidoku en fonction d'une case qui y appartient
+     * @param c La case censée appartenir au sudoku
+     * @return Le sudoku auquel appartient la case, s'il existe
+     * @throws IllegalArgumentException Si la case n'appartient pas au multidoku
+     */
+    public PlacedSudoku getSudoku(Case c) throws IllegalArgumentException{
+        for (PlacedSudoku sudoku : this.sudokus) {
+            if (sudoku.sudoku().getCase(c.getLine(), c.getColumn()) == c) {
+                return sudoku;
+            }
+        }
+        throw new IllegalArgumentException("La case n'appartient pas au multidoku");
+    }
+
+    /**
      * Getter d'un sudoku du multidoku en fonction de sa position dans la grille du multidoku
      * @param line La ligne du sudoku dans la grille du multidoku
      * @param column La colonne du sudoku dans la grille du multidoku
      * @return Le sudoku demandé, s'il existe
      * Si les arguments passés n'obtiennent pas un sudoku valide
      */
-    public Sudoku getSudoku(int line, int column) throws IllegalArgumentException {
+    public PlacedSudoku getSudoku(int line, int column) throws IllegalArgumentException {
         for (PlacedSudoku sudoku : this.sudokus) {
             if (sudoku.line() == line && sudoku.column() == column) {
-                return sudoku.sudoku();
+                return sudoku;
             }
         }
         throw new IllegalArgumentException("Le multidoku ne contient pas de sudoku à la ligne " + line + " et colonne " + column);
@@ -134,18 +159,31 @@ public class Multidoku implements Puzzle {
         return null;
     }
 
+    /**
+     * Retourne les contraintes internes appliquées sur une case du multidoku
+     * @param c La case sur laquelle les contraintes sont appliquées
+     * @return La liste des contraintes appliquées sur cette case
+     */
     @Override
     public ArrayList<SudokuConstraint> constraintsOnCase(Case c) {
         //TODO
         return null;
     }
 
+    /**
+     * Retourne la liste des cases constituant le multidoku, toujours dans le même ordre
+     * @return La liste des cases constituant le multidoku
+     */
     @Override
     public ArrayList<Case> casesList() {
         //TODO
         return null;
     }
 
+    /**
+     * Crée une copie du multidoku, qui ne comporte aucune référence vers le multidoku originel
+     * @return Une copie du multidoku
+     */
     @Override
     public Puzzle copy() {
         //TODO

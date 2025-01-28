@@ -235,53 +235,61 @@ public class Sudoku implements Puzzle {
                 // contrainte entre la case j de la ligne i et la ligne i
                 toInsert = new ArrayList<>(Arrays.asList(this.getLigne(i)).subList(0, this.size));
                 toInsert.remove(this.getLigne(i)[j]);
-                newConstraint = new NotEqualConstraint(this.getLigne(i)[j], toInsert);
+                newConstraint = new NotEqualConstraint(this.getLigne(i)[j], toInsert, this);
                 constraints.add(newConstraint);
 
                 // contrainte entre la case j de la colonne i et la colonne i
                 toInsert = new ArrayList<>(Arrays.asList(this.getColonne(i)).subList(0, this.size));
                 toInsert.remove(this.getColonne(i)[j]);
-                newConstraint = new NotEqualConstraint(this.getColonne(i)[j], toInsert);
+                newConstraint = new NotEqualConstraint(this.getColonne(i)[j], toInsert, this);
                 constraints.add(newConstraint);
 
                 // contrainte entre la case j du bloc i et le bloc i
                 toInsert = new ArrayList<>(Arrays.asList(this.getBloc(i).cases()).subList(0, this.size));
                 toInsert.remove(this.getBloc(i).getCase(j));
-                newConstraint = new NotEqualConstraint(this.getBloc(i).getCase(j), toInsert);
+                newConstraint = new NotEqualConstraint(this.getBloc(i).getCase(j), toInsert, this);
                 constraints.add(newConstraint);
             }
         }
         return constraints;
     }
 
+    /**
+     * Retourne les contraintes internes appliquées sur une case du sudoku
+     * @param c La case sur laquelle les contraintes sont appliquées
+     * @return La liste des contraintes appliquées sur cette case
+     */
     @Override
     public ArrayList<SudokuConstraint> constraintsOnCase(Case c) {
         ArrayList<SudokuConstraint> constraints = new ArrayList<>();
         NotEqualConstraint newConstraint;
         ArrayList<Case> toInsert;
-        int i = c.getLine();
-        int j = c.getColumn();
-        int k = c.getBlocIndex();
-        // contrainte entre la case et la ligne i
-        toInsert = new ArrayList<>(Arrays.asList(this.getLigne(i)).subList(0, this.size));
+
+        // contrainte entre la case et sa ligne
+        toInsert = new ArrayList<>(Arrays.asList(this.getLigne(c.getLine())).subList(0, this.size));
         toInsert.remove(c);
-        newConstraint = new NotEqualConstraint(c, toInsert);
+        newConstraint = new NotEqualConstraint(c, toInsert, this);
         constraints.add(newConstraint);
 
         // contrainte entre la case et la colonne j
-        toInsert = new ArrayList<>(Arrays.asList(this.getColonne(j)).subList(0, this.size));
+        toInsert = new ArrayList<>(Arrays.asList(this.getColonne(c.getColumn())).subList(0, this.size));
         toInsert.remove(c);
-        newConstraint = new NotEqualConstraint(c, toInsert);
+        newConstraint = new NotEqualConstraint(c, toInsert, this);
         constraints.add(newConstraint);
 
         // contrainte entre la case et le bloc k
-        toInsert = new ArrayList<>(Arrays.asList(this.getBloc(k).cases()).subList(0, this.size));
+        toInsert = new ArrayList<>(Arrays.asList(this.getBloc(c.getBlocIndex()).cases()).subList(0, this.size));
         toInsert.remove(c);
-        newConstraint = new NotEqualConstraint(c, toInsert);
+        newConstraint = new NotEqualConstraint(c, toInsert, this);
         constraints.add(newConstraint);
+
         return constraints;
     }
 
+    /**
+     * Retourne la liste des cases constituant le sudoku, toujours dans le même ordre
+     * @return La liste des cases constituant le sudoku
+     */
     @Override
     public ArrayList<Case> casesList() {
         ArrayList<Case> cases = new ArrayList<>();
@@ -294,8 +302,8 @@ public class Sudoku implements Puzzle {
     }
 
     /**
-     * Crée une copie du sudoku, qui ne comporte aucune référence vers le Sudoku originel
-     * @return Une copie du Sudoku
+     * Crée une copie du sudoku, qui ne comporte aucune référence vers le sudoku originel
+     * @return Une copie du sudoku
      */
     @Override
     public Sudoku copy() {

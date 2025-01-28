@@ -5,9 +5,12 @@ import java.util.HashSet;
  */
 public class Case {
     /**
-     * La valeur que contient la case, entre 0 et (taille du sudoku - 1), ou -1 pour indiquer que la case est vide
+     * La valeur que contient la case, la valeur -1 indique que la case est vide
      */
     private int value;
+    /**
+     * Une valeur temporaire attribuée à la case, un peu comme quand on écrit au crayon à papier
+     */
     private int testValue;
     /**
      * La ligne sur laquelle est placée cette case dans le sudoku
@@ -83,8 +86,37 @@ public class Case {
         }
     }
 
-    public void tryValue(int value) {
-        this.testValue = value;
+    /**
+     * Attribue à la case une valeur temporaire qui doit faire partie de ses valeurs possibles, comme si on l'écrivait au crayon à papier
+     * @param testValue La valeur temporaire à attribuer
+     * @throws IllegalArgumentException Si la valeur ne peut pas être attribuée à la case
+     */
+    public void tryTestValue(int testValue) throws IllegalArgumentException {
+        if (this.possibleValues.contains(testValue)) {
+            this.testValue = testValue;
+        }
+        else {
+            throw new IllegalArgumentException("La case ne peut pas avoir la valeur " + value);
+        }
+    }
+
+    /**
+     * Enlève toute valeur temporaire présente sur cette case, comme si on la gommait
+     */
+    public void scrapTestValue() {
+        this.testValue = -1;
+    }
+
+    /**
+     * Confirme la valeur temporaire écrite sur la case, comme si on la repassait au stylo
+     * @throws RuntimeException Si la case n'avait pas de valeur temporaire
+     */
+    public void confirmTestValue() throws RuntimeException {
+        if (this.testValue == -1) {
+            throw new RuntimeException("La case n'avait pas de valeur de test");
+        }
+        this.setValue(this.testValue);
+        this.testValue = -1;
     }
 
     /**
@@ -99,13 +131,17 @@ public class Case {
     }
 
     /**
-     * Indique si la case respecte toujours ses contraintes
+     * Indique si la case respecte toujours ses contraintes internes
      * @return true si elle a au moins une valeur possible, false sinon
      */
     public boolean isValid() {
         return !this.possibleValues.isEmpty();
     }
 
+    /**
+     * Indique si la case contient déjà une valeur ou pas
+     * @return Si la case contient déjà une valeur
+     */
     public boolean hasValue() {
         return this.value != -1;
     }
@@ -119,7 +155,7 @@ public class Case {
     }
 
     /**
-     * Getter de la valeur de la case
+     * Getter de la valeur de la case, temporaire ou non
      * @return La valeur de la case
      */
     public int getValue() {

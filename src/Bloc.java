@@ -5,7 +5,7 @@
  */
 public record Bloc(Case[] cases) {
     /**
-     * Constructeur de la classe
+     * Constructeur
      *
      * @param cases Les cases contenues dans le bloc
      */

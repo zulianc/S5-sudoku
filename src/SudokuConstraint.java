@@ -9,8 +9,21 @@ public interface SudokuConstraint {
     boolean setNewPossibleValues();
 
     /**
+     * Une implémentation de cette méthode doit indiquer si la case respecte toujours les contraintes
+     * @return Si la case respecte toujours les contraintes
+     */
+    boolean isConstraintValid();
+
+    /**
      * Une implémentation de cette méthode doit indiquer si la case sur laquelle sont appliquées les contraintes a été résolue
      * @return Si la case a été résolue
      */
-    boolean isValidated();
+    boolean hasBeenResolved();
+
+    /**
+     * Une implémentation de cette méthode doit créer une contrainte identique, mais ayant lieu sur le puzzle passé en paramètre
+     * @param newPuzzle Le puzzle sur lequel la nouvelle contrainte doit s'appliquer
+     * @return Une copie de cette contrainte qui référence le nouveau puzzle
+     */
+    SudokuConstraint copy(Puzzle newPuzzle);
 }

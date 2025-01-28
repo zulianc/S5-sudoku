@@ -10,9 +10,22 @@ public interface Puzzle {
      */
     ArrayList<SudokuConstraint> defaultConstraints();
 
+    /**
+     * Une implémentation de cette méthode doit retourner les contraintes internes du puzzle qui s'appliquent sur une case donnée
+     * @param c La case sur laquelle les contraintes sont appliquées
+     * @return La liste des contraintes appliquées sur cette case
+     */
     ArrayList<SudokuConstraint> constraintsOnCase(Case c);
 
+    /**
+     * Une implémentation de cette méthode doit retourner l'ensemble des cases constituant le puzzle, toujours dans le même ordre
+     * @return La liste des cases constituant le puzzle
+     */
     ArrayList<Case> casesList();
 
+    /**
+     * Une implémentation de cette méthode doit retourner une copie de ce puzzle, qui n'a aucun lien envers le puzzle originel, cette méthode autorise cependant de recopier les valeurs temporaires des cases en valeurs définitives
+     * @return Une copie de ce puzzle
+     */
     Puzzle copy();
 }
