@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Une classe qui permet de résoudre un puzzle en utilisant simplement les règles de déduction
@@ -114,7 +115,7 @@ public abstract class Solver {
                 // on vérifie si la case est encore résolvable
                 if (!c.isValid()) return null;
                 // on essaie une de ses valeurs possibles
-                value = c.possibleValues().iterator().next();
+                value = (int) c.possibleValues().toArray()[ThreadLocalRandom.current().nextInt(0, c.possibleValues().size())];
                 c.tryTestValue(value);
                 // on vérifie si les contraintes sont toujours respectées
                 isValid = true;
