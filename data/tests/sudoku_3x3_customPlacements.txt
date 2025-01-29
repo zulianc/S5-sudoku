@@ -1,0 +1,19 @@
+puzzleType:
+sudoku
+useCustomPlacements:
+true
+useCustomSymbols:
+false
+size:
+3
+values:
+1 0 0
+0 2 0
+0 0 0
+placements:
+1 2 2
+3 1 2
+3 3 1
+symbols:
+additionalConstraints:
+end

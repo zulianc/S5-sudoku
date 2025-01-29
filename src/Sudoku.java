@@ -340,9 +340,10 @@ public class Sudoku implements Puzzle {
     /**
      * Crée une copie du sudoku, qui ne comporte aucune référence vers le sudoku originel
      * @return Une copie du sudoku
+     * @throws IllegalArgumentException Si une erreur arrive durant la recopie
      */
     @Override
-    public Sudoku copy() {
+    public Sudoku copy() throws IllegalArgumentException {
         // on copie les placements
         int[][] placements = new int[this.size][this.size];
         for (int i = 0; i < this.size; i++) {
@@ -367,6 +368,13 @@ public class Sudoku implements Puzzle {
                 }
             }
         }
+
+        // on copie les contraintes additionnelles
+        ArrayList<SudokuConstraint> newConstraints = new ArrayList<>();
+        for (SudokuConstraint constraint : this.addedConstraints) {
+            newConstraints.add(constraint.copy(newSudoku));
+        }
+        newSudoku.setAddedConstraints(newConstraints);
 
         return newSudoku;
     }

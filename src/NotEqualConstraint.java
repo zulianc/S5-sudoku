@@ -164,10 +164,10 @@ public class NotEqualConstraint implements SudokuConstraint {
         // type de contrainte
         sb.append("!= ");
         // case contrainte
-        sb.append(this.constrainedCase.getLine()).append(" ").append(this.constrainedCase.getColumn()).append(" ");
+        sb.append(this.constrainedCase.getLine() + 1).append(" ").append(this.constrainedCase.getColumn() + 1).append(" ");
         // cases contraignantes
         for (Case caseToCompare : this.casesToCompareTo) {
-            sb.append(caseToCompare.getLine()).append(" ").append(caseToCompare.getColumn()).append(" ");
+            sb.append(caseToCompare.getLine() + 1).append(" ").append(caseToCompare.getColumn() + 1).append(" ");
         }
         return sb.toString();
     }

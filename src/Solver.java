@@ -27,7 +27,7 @@ public abstract class Solver {
                 return false;
             }
             // failsafe au cas où l'algorithme serait dans une boucle infinie
-            notChangedInARow = (constraintsNumber != constraints.size()) ? notChangedInARow + 1 : 0;
+            notChangedInARow = (constraintsNumber == constraints.size()) ? notChangedInARow + 1 : 0;
             if (notChangedInARow > 10) {
                 return false;
             }
@@ -187,7 +187,10 @@ public abstract class Solver {
      */
     private static Puzzle applyBoth(Puzzle puzzle, ArrayList<SudokuConstraint> constraints) {
         // on récupère les contraintes
-        ArrayList<SudokuConstraint> everyConstraints = Objects.requireNonNullElseGet(constraints, ArrayList::new);
+        ArrayList<SudokuConstraint> everyConstraints = new ArrayList<>();
+        if (constraints != null) {
+            everyConstraints.addAll(constraints);
+        }
         everyConstraints.addAll(puzzle.defaultConstraints());
 
         // on applique les contraintes une fois

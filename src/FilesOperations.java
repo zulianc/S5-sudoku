@@ -214,10 +214,10 @@ public abstract class FilesOperations {
                 if (elements.length < 3 || elements.length % 2 != 1) {
                     throw new IOException("Une ligne de contrainte ne respecte pas le bon format : " + line);
                 }
-                Case caseHasContraint = sudoku.getCase(Integer.parseInt(elements[1]), Integer.parseInt(elements[2]));
+                Case caseHasContraint = sudoku.getCase(Integer.parseInt(elements[1]) - 1, Integer.parseInt(elements[2]) - 1);
                 ArrayList<Case> casesToCompareTo = new ArrayList<>();
                 for (int i = 3; i < elements.length; i += 2) {
-                    casesToCompareTo.add(sudoku.getCase(Integer.parseInt(elements[i]), Integer.parseInt(elements[i+1])));
+                    casesToCompareTo.add(sudoku.getCase(Integer.parseInt(elements[i]) - 1, Integer.parseInt(elements[i+1]) - 1));
                 }
                 if (elements[0].equals("!=")) {
                     constraints.add(new NotEqualConstraint(caseHasContraint, casesToCompareTo, sudoku));

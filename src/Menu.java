@@ -303,8 +303,8 @@ public abstract class Menu {
         ArrayList<SudokuConstraint> constraints = null;
         System.out.println("----------");
         System.out.println("Voulez-vous spécifier des règles supplémentaires ?");
-        choice = askYesOrNo();
-        if (choice == 1) {
+        int choiceConstraints = askYesOrNo();
+        if (choiceConstraints == 1) {
             constraints = getCustomRules(puzzle);
         }
 

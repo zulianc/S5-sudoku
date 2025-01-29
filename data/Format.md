@@ -2,6 +2,7 @@
 On a à chaque fois une ligne "header" suivi d'une ou plusieurs lignes de valeurs.  
 Tous les headers sont obligatoires, mais certains n'ont pas forcément besoin de valeurs.  
 Pour vous aider, il y a plusieurs fichiers d'exemple dans data/tests.
+### Tout les indices dans les fichiers commencent à 1 au lieu de 0 dans le code, pour faciliter la lecture
 ## Headers obligatoires dans un sudoku :  
 ```
 puzzleType:
@@ -59,3 +60,4 @@ Une contrainte s'écrit sur une ligne, elle est composées de 3 parties :
 Les types de contraintes actuellement reconnues par l'application sont : `=` et `!=`.  
 On définit chaque case par sa position, donc `(ligne) + " " + (colonne)`.  
 Si c'est une contrainte de multidoku, on ajoute également la position du sudoku auquel appartient la case.
+### Le format des contraintes est le même dans les fichiers et dans le menu textuel

@@ -7,5 +7,5 @@
 et le dossier tests contient juste des exemples et ne sont pas accessibles depuis l'application)
 
 Pour démarrer le projet, lancez la classe Main dans le dossier src.  
-Pour utiliser les sudokus de test, copiez-les dans le bon dossier. Le fichier data/Format.md contient le format des sudokus, multidokus, et contraintes.  
-Pour plus d'informations voir le rapport dans le dossier doc.  
+Pour utiliser les sudokus et multidokus de test, copiez-les dans le bon dossier. Le fichier data/Format.md contient le format des sudokus, multidokus, et contraintes.  
+Pour plus d'informations sur la méthodologie et les extensions réalisées voir le rapport dans le dossier doc.  
