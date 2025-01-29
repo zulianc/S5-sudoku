@@ -141,7 +141,7 @@ public class Multidoku implements Puzzle {
                 return sudoku;
             }
         }
-        throw new IllegalArgumentException("Le multidoku ne contient pas de sudoku à la ligne " + line + " et colonne " + column);
+        throw new IllegalArgumentException("Le multidoku ne contient pas de sudoku à la ligne " + (line + 1) + " et colonne " + (column + 1));
     }
 
     /**

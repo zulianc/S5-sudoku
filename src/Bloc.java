@@ -33,7 +33,7 @@ public record Bloc(Case[] cases) {
         if (index >= 0 && index < this.cases.length) {
             return this.cases[index];
         }
-        throw new IllegalArgumentException("Le bloc ne contient pas de case numéroté " + index);
+        throw new IllegalArgumentException("Le bloc ne contient pas de case numéroté " + (index + 1));
     }
 
     /**
@@ -50,7 +50,7 @@ public record Bloc(Case[] cases) {
                 return c;
             }
         }
-        throw new IllegalArgumentException("Le bloc ne contient pas de case étant à la ligne " + ligne + " et colonne " + colonne);
+        throw new IllegalArgumentException("Le bloc ne contient pas de case étant à la ligne " + (ligne + 1) + " et colonne " + (colonne + 1));
     }
 
     /**

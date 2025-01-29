@@ -86,7 +86,7 @@ public class Case {
             this.possibleValues.add(value);
         }
         else {
-            throw new IllegalArgumentException("La case ne peut pas avoir la valeur " + value);
+            throw new IllegalArgumentException("La case ne peut pas avoir la valeur " + (value + 1));
         }
     }
 
@@ -114,7 +114,7 @@ public class Case {
             this.testValue = testValue;
         }
         else {
-            throw new IllegalArgumentException("La case ne peut pas avoir la valeur " + value);
+            throw new IllegalArgumentException("La case ne peut pas avoir la valeur " + (testValue + 1));
         }
     }
 

@@ -20,13 +20,13 @@ Les dernières grosses étapes ont été l'implémentation des multidoku, la gé
 Une fois le code commencé, la javadoc et les diagrammes ont été réalisés au fur et à mesure du code.
 ## Avancement du tronc commun
 ### Algo de résolution
-Les 3 types d'algos ont été implémentés et testés sur plusieurs grilles.
+Les trois types d'algos ont été implémentés et testés sur plusieurs grilles.
 ### Algo de génération
-Pas encore implémenté.
+A été implémenté et testé sur plusieurs tailles de grilles.
 ### Loguer les opérations de résolution
 Pas encore implémenté.
 ### Menu textuel
-En cours de création.
+Complètement fonctionnel, sauf pour les Multidoku.
 ### Affichage
 On peut afficher les sudokus depuis le menu, mais pas encore les multidokus.
 ### Rentrer un sudoku à la main
@@ -48,8 +48,8 @@ ou en rajouter juste pour la durée d'un algo.
 ### Grilles avec multiples solutions
 Pas réalisé pour l'instant.
 ### Rajout de contrainte
-N'a pas été rajouté explicitement, mais la conception permet de le faire facilement.
+N'a pas été rajouté explicitement, mais la conception permet de le faire relativement facilement.
 Il suffit de créer une nouvelle classe implémentant SudokuConstraint
-et de rajouter son symbole dans les fonctions de FilesOperations et Menu.
+et de l'ajouter à la lecture de contraintes dans Menu.java et FilesOperations.java.
 ### Résolution par l’humain
 Pas réalisé.

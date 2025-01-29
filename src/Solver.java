@@ -240,8 +240,8 @@ public abstract class Solver {
                 throw new IllegalArgumentException("Le puzzle doit être résolu !");
             }
         }
-        if (difficulty < 0 || difficulty > 2) {
-            throw new IllegalArgumentException("La difficulté doit être comprise entre 0 et 2 !");
+        if (difficulty < 1 || difficulty > 3) {
+            throw new IllegalArgumentException("La difficulté doit être comprise entre 1 et 3 !");
         }
         // on applique l'algo
         return tryToRemoveValue(puzzle, additionalConstraints, 0, difficulty);

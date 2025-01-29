@@ -12,18 +12,6 @@ public abstract class Menu {
      */
     private static final Scanner scanner = new Scanner(System.in);
 
-    private static void separator() {
-        System.out.println("--------------------");
-    }
-
-    private static void important(String message) {
-        System.out.println("\033[38;2;34;167;240m" + message + "\033[38;2;255;255;255m");
-    }
-
-    private static void error(String message) {
-        System.out.println("\033[38;2;255;0;0m" + message + "\033[38;2;255;255;255m");
-    }
-
     /**
      * La méthode à appeler pour démarrer le menu, propose les grands choix du menu
      */
@@ -224,6 +212,7 @@ public abstract class Menu {
         }
         catch (IllegalArgumentException e) {
             error("La grille spécifié n'a pas pu être utilisée pour générer une nouvelle grille résolue !");
+            error(e.getMessage());
             return;
         }
 
@@ -262,7 +251,7 @@ public abstract class Menu {
         try {
             boolean valid = Solver.generateNewSolvedPuzzle(puzzle, constraints);
             if (valid) {
-                valid = Solver.generateNewPuzzleToSolve(puzzle, constraints, difficulty - 1);
+                valid = Solver.generateNewPuzzleToSolve(puzzle, constraints, difficulty);
                 System.out.println("Une nouvelle grille a été créée !");
                 if (!valid) {
                     important("L'algorithme n'a pas pu générer de grille plus dure que celle-ci !");
@@ -274,6 +263,7 @@ public abstract class Menu {
         }
         catch (IllegalArgumentException e) {
             error("La grille spécifié n'a pas pu être utilisé pour générer une nouvelle grille à résoudre !");
+            error(e.getMessage());
             return;
         }
 
@@ -386,6 +376,7 @@ public abstract class Menu {
         }
         catch (IllegalArgumentException e) {
             error("Le sudoku créé n'est pas valide !");
+            error(e.getMessage());
             return null;
         }
 
@@ -671,5 +662,28 @@ public abstract class Menu {
             choice = getIntFromUser(false);
         } while (choice < 1 || choice > 2);
         return choice;
+    }
+
+    /**
+     * Print une ligne séparatrice dans le terminal
+     */
+    public static void separator() {
+        System.out.println("--------------------");
+    }
+
+    /**
+     * Print un message en bleu dans le terminal
+     * @param message Le message à print
+     */
+    public static void important(String message) {
+        System.out.println("\033[38;2;34;167;240m" + message + "\033[38;2;255;255;255m");
+    }
+
+    /**
+     * Print un message en rouge dans le terminal
+     * @param message Le message en rouge
+     */
+    public static void error(String message) {
+        System.out.println("\033[38;2;255;0;0m" + message + "\033[38;2;255;255;255m");
     }
 }

@@ -70,7 +70,7 @@ public class Sudoku implements Puzzle {
             for (int j = 0; j < size; j++) {
                 int bloc = placements[i][j];
                 if (bloc < 0 || bloc >= size) {
-                    throw new IllegalArgumentException("Le bloc " + bloc + " n'existe pas");
+                    throw new IllegalArgumentException("Le bloc " + (bloc + 1) + " n'existe pas");
                 }
 
                 // on doit créer un nouveau set à chaque fois sinon modifier celui d'une case modifiera celui de toutes les cases
@@ -159,7 +159,7 @@ public class Sudoku implements Puzzle {
      */
     public Case[] getLigne(int ligne) throws IllegalArgumentException {
         if (ligne < 0 || ligne >= this.size) {
-            throw new IllegalArgumentException("La ligne " + ligne + " n'existe pas");
+            throw new IllegalArgumentException("La ligne " + (ligne + 1) + " n'existe pas");
         }
         return this.cases[ligne];
     }
@@ -172,7 +172,7 @@ public class Sudoku implements Puzzle {
      */
     public Case[] getColonne(int colonne) throws IllegalArgumentException {
         if (colonne < 0 || colonne >= this.size) {
-            throw new IllegalArgumentException("La colonne " + colonne + " n'existe pas");
+            throw new IllegalArgumentException("La colonne " + (colonne + 1) + " n'existe pas");
         }
         Case[] col = new Case[this.size];
         for (int i = 0; i < this.size; i++) {
@@ -190,7 +190,7 @@ public class Sudoku implements Puzzle {
      */
     public Case getCase(int ligne, int colonne) throws IllegalArgumentException {
         if (ligne < 0 || ligne >= this.size || colonne < 0 || colonne >= this.size) {
-            throw new IllegalArgumentException("Le sudoku ne contient pas de case était à la ligne " + ligne + " et colonne " + colonne);
+            throw new IllegalArgumentException("Le sudoku ne contient pas de case était à la ligne " + (ligne + 1) + " et colonne " + (colonne + 1));
         }
         return this.cases[ligne][colonne];
     }
@@ -211,7 +211,7 @@ public class Sudoku implements Puzzle {
      */
     public Bloc getBloc(int bloc) {
         if (bloc < 0 || bloc >= this.size) {
-            throw new IllegalArgumentException("Le bloc " + bloc + " n'existe pas");
+            throw new IllegalArgumentException("Le bloc " + (bloc + 1) + " n'existe pas");
         }
         return this.blocs[bloc];
     }
@@ -406,7 +406,7 @@ public class Sudoku implements Puzzle {
             }
         }
         for (Integer key : symbolsToPrint.keySet()) {
-            for (int i = 0; i < maxSize - symbolsToPrint.get(key).length(); i++) {
+            for (int i = symbolsToPrint.get(key).length(); i < maxSize; i++) {
                 symbolsToPrint.replace(key, " " + symbolsToPrint.get(key));
             }
         }

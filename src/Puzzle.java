@@ -24,7 +24,7 @@ public interface Puzzle {
     ArrayList<Case> casesList();
 
     /**
-     * Une implémentation de cette méthode doit retourner une copie de ce puzzle, qui n'a aucun lien envers le puzzle originel, cette méthode autorise cependant de recopier les valeurs temporaires des cases en valeurs définitives
+     * Une implémentation de cette méthode doit retourner une copie de ce puzzle, qui n'a aucun lien envers le puzzle originel, cette méthode a également pour effet secondaire de recopier les valeurs temporaires des cases comme les "vraies valeurs"
      * @return Une copie de ce puzzle
      */
     Puzzle copy();
