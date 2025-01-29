@@ -3,33 +3,61 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
+/**
+ * La classe qui gère l'interface entre l'utilisateur et l'application
+ */
 public abstract class Menu {
+    /**
+     * L'objet qui sert à lire les input de l'utilisateur
+     */
     private static final Scanner scanner = new Scanner(System.in);
 
+    /**
+     * La méthode à appeler pour démarrer le menu, propose les grands choix du menu
+     */
     public static void startMenu() {
+        System.out.println("\033[38;2;34;167;240m");
+        System.out.println("----------\nBIENVENUE DANS L'APPLICATION DE SUDOKUS !\n----------\n");
+        System.out.println("\033[38;2;255;255;255m");
+
         int choice;
         boolean stop = false;
         while (!stop) {
             System.out.println("----------");
             do {
                 System.out.println("MENU PRINCIPAL");
-                System.out.println("1. Créer un sudoku");
-                System.out.println("2. Résoudre un sudoku");
-                System.out.println("3. Quitter");
+                System.out.println("1. Afficher une grille enregistrée");
+                System.out.println("2. Créer une grille");
+                System.out.println("3. Résoudre une grille");
+                System.out.println("4. Générer une grille résolue");
+                System.out.println("5. Générer une grille à résoudre");
+                System.out.println("6. Quitter");
                 System.out.print("Choix : ");
                 choice = getIntFromUser(false);
-            } while (choice < 1 || choice > 3);
+            } while (choice < 1 || choice > 6);
 
             switch (choice) {
                 case 1: {
-                    createSudokuSubMenu();
+                    seePuzzleSubMenu();
                     break;
                 }
                 case 2: {
-                    solveSudokuSubMenu();
+                    createPuzzleSubMenu();
                     break;
                 }
                 case 3: {
+                    solvePuzzleSubMenu();
+                    break;
+                }
+                case 4: {
+                    generateSolvedPuzzleSubMenu();
+                    break;
+                }
+                case 5: {
+                    generatePuzzleToSolveSubMenu();
+                    break;
+                }
+                case 6: {
                     stop = true;
                     break;
                 }
@@ -40,61 +68,131 @@ public abstract class Menu {
         }
     }
 
-    private static void createSudokuSubMenu() {
-        Sudoku sudoku = createSudoku();
-        askToSaveSudoku(sudoku);
+    /**
+     * Un des sous-menus principaux, qui permet de voir un des puzzles enregistré
+     */
+    private static void seePuzzleSubMenu() {
+        System.out.println("----------");
+        System.out.println("Quel type de grille enregistrée voir ?");
+        int choice = askSudokuOrMultidoku();
 
+        String filename = askWhichFileToImport((choice == 2));
+
+        if (filename != null) {
+            Puzzle puzzle = null;
+            if (choice == 1) {
+                puzzle = FilesOperations.readSudokuFromFile(filename);
+            }
+            if (choice == 2) {
+                puzzle = FilesOperations.readMultidokuFromFile(filename);
+            }
+            if (puzzle != null) {
+                System.out.println(puzzle);
+            }
+        }
+    }
+
+    /**
+     * Un des sous-menus principaux, qui permet de créer un nouveau puzzle
+     */
+    private static void createPuzzleSubMenu() {
+        System.out.println("----------");
+        System.out.println("Quel type de grille créer ?");
+        int choice = askSudokuOrMultidoku();
+
+        Puzzle puzzle = null;
+        if (choice == 1) {
+            puzzle = createSudoku();
+        }
+        if (choice == 2) {
+            puzzle = createMultidoku();
+        }
+        askToSavePuzzle(puzzle);
+
+        System.out.println("----------");
+        System.out.println("Voulez-vous résoudre cette grille ?");
+        choice = askYesOrNo();
+
+        if (choice == 1) {
+            solvePuzzle(puzzle);
+            askToSavePuzzle(puzzle);
+        }
+    }
+
+    /**
+     * Un des sous-menus principaux, qui permet de résoudre un puzzle
+     */
+    private static void solvePuzzleSubMenu() {
         System.out.println("----------");
         int choice;
         do {
-            System.out.println("1. Résoudre ce sudoku");
-            System.out.println("2. Quitter");
+            System.out.println("1. Créer une grille et la résoudre");
+            System.out.println("2. Importer une grille et la résoudre");
             System.out.print("Choix : ");
             choice = getIntFromUser(false);
         } while (choice < 1 || choice > 2);
 
+        Puzzle puzzle = null;
         if (choice == 1) {
-            solveSudoku(sudoku);
-            askToSaveSudoku(sudoku);
-        }
-    }
-
-    private static void solveSudokuSubMenu() {
-        System.out.println("----------");
-        int choice;
-        do {
-            System.out.println("1. Créer un sudoku et le résoudre");
-            System.out.println("2. Importer un sudoku et le résoudre");
-            System.out.println("3. Quitter");
-            System.out.print("Choix : ");
-            choice = getIntFromUser(false);
-        } while (choice < 1 || choice > 3);
-        if (choice == 3) {
-            return;
-        }
-
-        Sudoku sudoku = null;
-        if (choice == 1) {
-            sudoku = createSudoku();
-            askToSaveSudoku(sudoku);
+            System.out.println("----------");
+            System.out.println("Quel type de grille créer ?");
+            choice = askSudokuOrMultidoku();
+            if (choice == 1) {
+                puzzle = createSudoku();
+            }
+            if (choice == 2) {
+                puzzle = createMultidoku();
+            }
+            if (puzzle == null) {
+                return;
+            }
+            askToSavePuzzle(puzzle);
         }
         if (choice == 2) {
-            String filename = askWhichFileToImport(false);
+            System.out.println("----------");
+            System.out.println("Quel type de grille importer ?");
+            choice = askSudokuOrMultidoku();
+            String filename = askWhichFileToImport((choice == 2));
             if (filename == null) {
                 return;
             }
-            sudoku = FilesOperations.readSudokuFromFile(filename);
-            if (sudoku == null) {
-                System.out.println("Erreur lors de la lecture du sudoku !");
+            if (choice == 1) {
+                puzzle = FilesOperations.readSudokuFromFile(filename);
+            }
+            if (choice == 2) {
+                puzzle = FilesOperations.readMultidokuFromFile(filename);
+            }
+            if (puzzle == null) {
                 return;
             }
-            System.out.println("Sudoku importé : ");
-            System.out.println(sudoku);
+            System.out.println("Grille importée : ");
+            System.out.println(puzzle);
         }
-        solveSudoku(sudoku);
-        askToSaveSudoku(sudoku);
+
+        solvePuzzle(puzzle);
+        askToSavePuzzle(puzzle);
     }
 
+    /**
+     * Un des sous-menus principaux, qui permet de générer un puzzle résolu
+     */
+    public static void generateSolvedPuzzleSubMenu() {
+        //TODO
+        System.out.println("Pas encore implémenté");
+    }
+
+    /**
+     * Un des sous-menus principaux, qui permet de générer un puzzle à résoudre
+     */
+    public static void generatePuzzleToSolveSubMenu() {
+        //TODO
+        System.out.println("Pas encore implémenté");
+    }
+
+    /**
+     * Demande à l'utilisateur de créer un sudoku et le renvoie
+     * @return Le sudoku créé par l'utilisateur
+     */
     private static Sudoku createSudoku() {
         System.out.println("----------");
         System.out.println("Veuillez remplir les informations du sudoku");
@@ -108,10 +206,6 @@ public abstract class Menu {
         System.out.println("Voulez-vous spécifier la position des blocs ?");
         int input = askYesOrNo();
         boolean hasCustomPlacement = (input == 1);
-
-        System.out.println("Voulez-vous spécifier les symboles utilisés ?");
-        input = askYesOrNo();
-        boolean hascustomSymbols = (input == 1);
 
         System.out.println("Si une case est vide, rentrez 0 ou rien");
         for (int i = 0; i < size; i++) {
@@ -146,20 +240,22 @@ public abstract class Menu {
                         sudoku.getCase(i, j).setValue(values[i][j]);
                 }
             }
+
+            System.out.println("Voulez-vous spécifier les symboles utilisés ?");
+            input = askYesOrNo();
+            if ((input == 1)) {
+                HashMap<Integer, String> symbols = new HashMap<>();
+                for (int i = 0; i < size; i++) {
+                    System.out.print("Veuillez rentrer le symbole pour le chiffre " + (i+1) + " : ");
+                    String symbol = scanner.nextLine();
+                    symbols.put(i, symbol);
+                }
+                sudoku.setSymbols(symbols);
+            }
         }
-        catch (Exception e) {
+        catch (IllegalArgumentException e) {
             System.out.println("Le sudoku créé n'est pas valide !");
             return null;
-        }
-
-        if (hascustomSymbols) {
-            HashMap<Integer, String> symbols = new HashMap<>();
-            for (int i = 0; i < size; i++) {
-                System.out.print("Veuillez rentrer le symbole pour le chiffre " + (i+1) + " : ");
-                String symbol = scanner.nextLine();
-                symbols.put(i, symbol);
-            }
-            sudoku.setSymbols(symbols);
         }
 
         System.out.println("Sudoku créé : ");
@@ -168,38 +264,107 @@ public abstract class Menu {
         return sudoku;
     }
 
-    private static void solveSudoku(Sudoku sudoku) {
-        boolean solved = Solver.solveWithBacktracking(sudoku, null);
+    /**
+     * Demande à l'utilisateur de créer un multidoku et le renvoie
+     * @return Le sudoku créé par l'utilisateur
+     */
+    private static Multidoku createMultidoku() {
+        //TODO
+        System.out.println("Pas encore implémenté");
+        return null;
+    }
+
+    /**
+     * Résout un puzzle passé en paramètre, en demandant à l'utilisateur l'algo utilisé et les règles supplémentaires
+     * @param puzzle Le puzzle à résoudre
+     */
+    private static void solvePuzzle(Puzzle puzzle) {
+        System.out.println("----------");
+        int choice;
+        do {
+            System.out.println("1. Résoudre avec simplement les contraintes");
+            System.out.println("2. Résoudre avec le backtracking");
+            System.out.println("3. Résoudre avec l'algo mixte");
+            System.out.print("Choix : ");
+            choice = getIntFromUser(false);
+        } while (choice < 1 || choice > 3);
+
+        ArrayList<SudokuConstraint> constraints = null;
+        System.out.println("----------");
+        System.out.println("Voulez-vous spécifier des règles supplémentaires ?");
+        choice = askYesOrNo();
+        if (choice == 1) {
+            constraints = getCustomRules(puzzle);
+        }
+
+        boolean solved = false;
+        if (choice == 1) {
+            solved = Solver.solveWithConstraints(puzzle, constraints);
+        }
+        if (choice == 2) {
+            solved = Solver.solveWithBacktracking(puzzle, constraints);
+        }
+        if (choice == 3) {
+            solved = Solver.solveWithBoth(puzzle, constraints);
+        }
 
         System.out.println("----------");
         if (solved) {
-            System.out.println("Le sudoku a été résolu !");
+            System.out.println("La grille a été résolue !");
         } else {
-            System.out.println("Le sudoku n'est pas résolvable !");
+            System.out.println("La grille n'a pas pu être résolue !");
         }
-        System.out.println(sudoku);
+        System.out.println(puzzle);
     }
 
-    private static void askToSaveSudoku(Sudoku sudoku) {
+    /**
+     * Demande à l'utilisateur de spécifier des règles de résolutions supplémentaires sur un puzzle
+     * @param puzzle Le puzzle sur lequel appliquer des règles supplémentaires pour la résolution
+     * @return Une liste de contraintes sur ce puzzle
+     */
+    private static ArrayList<SudokuConstraint> getCustomRules(Puzzle puzzle) {
+        //TODO
+        System.out.println("Pas encore implémenté");
+        return null;
+    }
+
+    /**
+     * Demande à l'utilisateur s'il veut sauvegarder le puzzle passé en paramètre dans un fichier
+     * @param puzzle Le puzzle à sauvegarder dans un fichier
+     */
+    private static void askToSavePuzzle(Puzzle puzzle) {
         System.out.println("----------");
-        System.out.println("Enregistrer ce sudoku dans un fichier ?");
+        System.out.println("Enregistrer cette grille dans un fichier ?");
         int choice = askYesOrNo();
         if (choice == 1) {
-            String filename = askNewFileName(false);
-            FilesOperations.convertSudokuToFile(sudoku, filename);
-            System.out.println("Sudoku enregistré !");
+            String filename = askNewFileName((puzzle instanceof Multidoku));
+            if (puzzle instanceof Sudoku) {
+                FilesOperations.convertSudokuToFile((Sudoku) puzzle, filename);
+            }
+            else if (puzzle instanceof Multidoku) {
+                FilesOperations.convertMultidokuToFile((Multidoku) puzzle, filename);
+            }
+            else {
+                System.out.println("Type de grille inconnue !");
+                return;
+            }
+            System.out.println("Grille enregistrée !");
         }
     }
 
+    /**
+     * Demande à l'utilisateur quel fichier importer
+     * @param isMultidoku Si c'est un fichier de multidoku ou de sudoku
+     * @return Le nom du fichier choisi par l'utilisateur
+     */
     private static String askWhichFileToImport(boolean isMultidoku) {
-        System.out.println("----------");
-        
         String directoryPath = (isMultidoku) ? "./data/multidokus" : "./data/sudokus";
         File puzzleDirectory = new File(directoryPath);
         File[] puzzles = puzzleDirectory.listFiles();
         
         int validFilesCount = 0;
         String[] validFiles;
+        System.out.println("----------");
         System.out.println("Fichiers enregistrés : ");
         if (puzzles == null) {
             System.out.println("Pas de fichiers trouvés !");
@@ -230,9 +395,12 @@ public abstract class Menu {
         return validFiles[choice - 1];
     }
 
+    /**
+     * Demande à l'utilisateur un nom de fichier pour stocker un puzzle
+     * @param isMultidoku Si c'est un fichier de multidoku ou de sudoku
+     * @return Le nom du fichier spécifié par l'utilisateur
+     */
     private static String askNewFileName(boolean isMultidoku) {
-        System.out.println("----------");
-
         String directoryPath = (isMultidoku) ? "./data/multidokus" : "./data/sudokus";
         File puzzleDirectory = new File(directoryPath);
         File[] puzzles = puzzleDirectory.listFiles();
@@ -245,10 +413,11 @@ public abstract class Menu {
             }
         }
 
+        System.out.println("----------");
         String filename = null;
         boolean fileIsOK = false;
         while (!fileIsOK) {
-            System.out.println("Comment voulez-vous appeller le fichier ?");
+            System.out.println("Comment voulez-vous appeler le fichier ?");
             System.out.print("Nom : ");
             filename = scanner.nextLine();
 
@@ -270,6 +439,11 @@ public abstract class Menu {
         return filename;
     }
 
+    /**
+     * Demande un nombre entier à l'utilisateur, jusqu'à ce qu'il en donne un
+     * @param convertNothingToZero Si le fait que l'utilisateur ne rentre rien doit être interprété comme un 0
+     * @return L'entier rentré par l'utilisateur
+     */
     private static int getIntFromUser(boolean convertNothingToZero) {
         int value = -99;
         boolean validInput = false;
@@ -291,11 +465,30 @@ public abstract class Menu {
         return value;
     }
 
+    /**
+     * Demande à l'utilisateur un choix entre "Oui" ou "Non"
+     * @return 1 si l'utilisateur répond "Oui", 2 si "Non"
+     */
     private static int askYesOrNo() {
         int choice;
         do {
             System.out.println("1. Oui");
             System.out.println("2. Non");
+            System.out.print("Choix : ");
+            choice = getIntFromUser(false);
+        } while (choice < 1 || choice > 2);
+        return choice;
+    }
+
+    /**
+     * Demande à l'utilisateur un choix entre "Sudoku" ou "Multidoku"
+     * @return 1 si l'utilisateur répond "Sudoku", 2 si "Multidoku"
+     */
+    private static int askSudokuOrMultidoku() {
+        int choice;
+        do {
+            System.out.println("1. Sudoku");
+            System.out.println("2. Multidoku");
             System.out.print("Choix : ");
             choice = getIntFromUser(false);
         } while (choice < 1 || choice > 2);

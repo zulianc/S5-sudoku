@@ -25,7 +25,7 @@ public abstract class FilesOperations {
             bw.close();
             fw.close();
         } catch (IOException e) {
-            System.out.println("Exception lors de l'écriture du sudoku dans le fichier " + filepath + " : " + e.getMessage());
+            System.out.println("Erreur lors de l'écriture dans le fichier " + filepath);
         }
     }
 
@@ -110,11 +110,11 @@ public abstract class FilesOperations {
             return sudoku;
         }
         catch (IOException e) {
-            System.out.println("Exception lors de la lecture dans le fichier " + filepath + " : " + e.getMessage());
+            System.out.println("Erreur lors de la lecture dans le fichier " + filepath);
             return null;
         }
         catch (IllegalArgumentException e) {
-            System.out.println("Exception lors de la création du sudoku contenu dans le fichier " + filepath + " : " + e.getMessage());
+            System.out.println("Erreur lors de la création du sudoku contenu dans le fichier " + filepath);
             return null;
         }
     }

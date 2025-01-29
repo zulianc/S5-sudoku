@@ -154,7 +154,17 @@ public abstract class Solver {
         return backtrack;
     }
 
-    public static boolean solveWithBoth(Puzzle puzzle, ArrayList<SudokuConstraint> constraints) {
+    public static boolean solveWithBoth(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints) {
+        //TODO
+        return false;
+    }
+
+    public static boolean generateNewSolvedPuzzle(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints) {
+        //TODO
+        return false;
+    }
+
+    public static boolean generateNewPuzzleToSolve(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, int difficulty) {
         //TODO
         return false;
     }
