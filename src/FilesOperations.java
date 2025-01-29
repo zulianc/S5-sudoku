@@ -207,7 +207,7 @@ public abstract class FilesOperations {
         do {
             line = br.readLine();
             if (line.isEmpty()) {
-                throw new IOException("Une ligne de contrainte est vide");
+                throw new IOException("Une ligne de contrainte est vide !");
             }
             if (!line.equals("end")) {
                 String[] elements = line.split(" ");

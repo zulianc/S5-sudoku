@@ -35,6 +35,13 @@ public interface SudokuConstraint {
     boolean isConstraintOnCase(Case c);
 
     /**
+     * Une implémentation de cette méthode doit indiquer si elle applique des contraintes sur le puzzle passé en paramètre
+     * @param puzzle Lz puzzle sur lequel on veut savoir si la contrainte s'applique
+     * @return Si la contrainte s'applique sur le puzzle
+     */
+    boolean isConstraintOnPuzzle(Puzzle puzzle);
+
+    /**
      * Une implémentation de cette méthode doit retourner un String contenant un symbole identifiant le type de contrainte et des nombres identifiants les cases, tout sur une ligne et séparé par un espace
      * @return Un string représentant la contrainte
      */

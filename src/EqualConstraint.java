@@ -128,6 +128,40 @@ public class EqualConstraint implements SudokuConstraint {
     }
 
     /**
+     * Indique si la contrainte s'applique sur la même case que celle passée en paramètre
+     * @param puzzle La case sur laquelle on veut savoir si la contrainte s'applique
+     * @return Si la contrainte s'applique sur la case
+     */
+    @Override
+    public boolean isConstraintOnPuzzle(Puzzle puzzle) {
+        if (puzzle instanceof Sudoku) {
+            if (!(this.constrainedCase == ((Sudoku) puzzle).getCase(this.constrainedCase.getLine(), this.constrainedCase.getColumn()))) return false;
+            for (Case caseToCompare : this.casesToCompareTo) {
+                if (!(caseToCompare == ((Sudoku) puzzle).getCase(caseToCompare.getLine(), caseToCompare.getColumn()))) return false;
+            }
+        } else if (puzzle instanceof Multidoku) {
+            try {
+                ((Multidoku) this.puzzle).getSudoku(this.constrainedCase);
+            }
+            catch (IllegalArgumentException e) {
+                return false;
+            }
+            for (Case caseToCompare : this.casesToCompareTo) {
+                try {
+                    ((Multidoku) this.puzzle).getSudoku(caseToCompare);
+                }
+                catch (IllegalArgumentException e) {
+                    return false;
+                }
+            }
+        }
+        else {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Crée un string qui représente la case
      * @return Un string qui représente la case
      */

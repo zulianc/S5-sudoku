@@ -107,6 +107,9 @@ public abstract class Menu {
         if (choice == 2) {
             puzzle = createMultidoku();
         }
+        if (puzzle == null) {
+            return;
+        }
         askToSavePuzzle(puzzle);
 
         System.out.println("----------");
@@ -197,6 +200,7 @@ public abstract class Menu {
         System.out.println("----------");
         System.out.println("Veuillez remplir les informations du sudoku");
 
+        System.out.println("Attention, il est très fastidieux de créer un sudoku à la main dès 8 ou 9 de taille !");
         System.out.print("Taille du sudoku : ");
         int size = getIntFromUser(false);
 
@@ -251,6 +255,13 @@ public abstract class Menu {
                     symbols.put(i, symbol);
                 }
                 sudoku.setSymbols(symbols);
+            }
+
+            System.out.println("Voulez-vous spécifier des règles supplémentaires ?");
+            input = askYesOrNo();
+            if (input == 1) {
+                ArrayList<SudokuConstraint> constraints = getCustomRules(sudoku);
+                sudoku.setAddedConstraints(constraints);
             }
         }
         catch (IllegalArgumentException e) {
@@ -323,9 +334,55 @@ public abstract class Menu {
      * @return Une liste de contraintes sur ce puzzle
      */
     private static ArrayList<SudokuConstraint> getCustomRules(Puzzle puzzle) {
-        //TODO
-        System.out.println("Pas encore implémenté");
-        return null;
+        ArrayList<SudokuConstraint> constraints = new ArrayList<>();
+        boolean stop = false;
+        while (!stop) {
+            System.out.print("Rentrez une nouvelle contrainte : ");
+            String line = scanner.nextLine();
+            if (line.isEmpty()) {
+                System.out.println("Une contrainte ne peut pas être vide !");
+            }
+            else {
+                String[] elements = line.split(" ");
+                Case caseHasContraint = null;
+                ArrayList<Case> casesToCompareTo = new ArrayList<>();
+                boolean validFormat = true;
+                if (elements.length > 2 && elements.length % 2 == 1 && puzzle instanceof Sudoku) {
+                    caseHasContraint = ((Sudoku) puzzle).getCase(Integer.parseInt(elements[1]) - 1, Integer.parseInt(elements[2]) - 1);
+                    for (int i = 3; i < elements.length; i += 2) {
+                        casesToCompareTo.add(((Sudoku) puzzle).getCase(Integer.parseInt(elements[i]) - 1, Integer.parseInt(elements[i+1]) - 1));
+                    }
+                }
+                else if (elements.length > 4 && elements.length % 4 == 1 && puzzle instanceof Multidoku) {
+                    caseHasContraint = ((Multidoku) puzzle).getSudoku(Integer.parseInt(elements[1]) - 1, Integer.parseInt(elements[2]) - 1).sudoku().getCase(Integer.parseInt(elements[3]) - 1, Integer.parseInt(elements[4]) - 1);
+                    for (int i = 5; i < elements.length; i += 4) {
+                        casesToCompareTo.add(((Multidoku) puzzle).getSudoku(Integer.parseInt(elements[i]) - 1, Integer.parseInt(elements[i+1]) - 1).sudoku().getCase(Integer.parseInt(elements[i+2]) - 1, Integer.parseInt(elements[i+3]) - 1));
+                    }
+                }
+                else {
+                    System.out.println("La contrainte ne respecte pas un format connu !");
+                    validFormat = false;
+                }
+
+                SudokuConstraint constraint = null;
+                if (validFormat) {
+                    if (elements[0].equals("!=")) {
+                        constraint = new NotEqualConstraint(caseHasContraint, casesToCompareTo, puzzle);
+                    }
+                    else if (elements[0].equals("=")) {
+                        constraint = new EqualConstraint(caseHasContraint, casesToCompareTo, puzzle);
+                    }
+                    if (constraint != null && constraint.isConstraintOnPuzzle(puzzle)) {
+                        constraints.add(constraint);
+                    }
+                }
+            }
+
+            System.out.println("Ajouter une autre contrainte ? ");
+            int choice = askYesOrNo();
+            stop = (choice == 2);
+        }
+        return constraints;
     }
 
     /**
