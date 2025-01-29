@@ -33,4 +33,11 @@ public interface SudokuConstraint {
      * @return Si la contrainte s'applique sur la case
      */
     boolean isConstraintOnCase(Case c);
+
+    /**
+     * Une implémentation de cette méthode doit retourner un String contenant un symbole identifiant le type de contrainte et des nombres identifiants les cases, tout sur une ligne et séparé par un espace
+     * @return Un string représentant la contrainte
+     */
+    @Override
+    String toString();
 }

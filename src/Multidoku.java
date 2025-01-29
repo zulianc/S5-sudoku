@@ -169,6 +169,14 @@ public class Multidoku implements Puzzle {
     }
 
     /**
+     * Getter des contraintes additionnelles du multidoku
+     * @return Les contraintes additionnelles du multidoku
+     */
+    public ArrayList<SudokuConstraint> getAddedConstraints() {
+        return this.addedConstraints;
+    }
+
+    /**
      * Retourne les contraintes internes entre les cases du multidoku
      * @return Une liste de contraintes entre cases
      */

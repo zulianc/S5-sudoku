@@ -126,4 +126,22 @@ public class EqualConstraint implements SudokuConstraint {
     public boolean isConstraintOnCase(Case c) {
         return this.constrainedCase == c;
     }
+
+    /**
+     * Crée un string qui représente la case
+     * @return Un string qui représente la case
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        // type de contrainte
+        sb.append("= ");
+        // case contrainte
+        sb.append(this.constrainedCase.getLine()).append(" ").append(this.constrainedCase.getColumn()).append(" ");
+        // cases contraignantes
+        for (Case caseToCompare : this.casesToCompareTo) {
+            sb.append(caseToCompare.getLine()).append(" ").append(caseToCompare.getColumn()).append(" ");
+        }
+        return sb.toString();
+    }
 }

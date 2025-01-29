@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -81,6 +82,13 @@ public abstract class FilesOperations {
                 bw.append(sudoku.getSymbols().get(i)).append("\n");
             }
         }
+
+        // on remplit les contraintes additionnelles sur le sudoku
+        bw.append("additionalConstraints:\n");
+        for (SudokuConstraint constraint : sudoku.getAddedConstraints()) {
+            bw.append(constraint.toString()).append("\n");
+        }
+        bw.append("end\n");
     }
 
     /**
@@ -191,6 +199,38 @@ public abstract class FilesOperations {
                     sudoku.getCase(i, j).setValue(values[i][j]);
             }
         }
+
+        // on lit les contraintes additionnelles
+        br.readLine();
+        String line;
+        ArrayList<SudokuConstraint> constraints = new ArrayList<>();
+        do {
+            line = br.readLine();
+            if (line.isEmpty()) {
+                throw new IOException("Une ligne de contrainte est vide");
+            }
+            if (!line.equals("end")) {
+                String[] elements = line.split(" ");
+                if (elements.length < 3 || elements.length % 2 != 1) {
+                    throw new IOException("Une ligne de contrainte ne respecte pas le bon format : " + line);
+                }
+                Case caseHasContraint = sudoku.getCase(Integer.parseInt(elements[1]), Integer.parseInt(elements[2]));
+                ArrayList<Case> casesToCompareTo = new ArrayList<>();
+                for (int i = 3; i < elements.length; i += 2) {
+                    casesToCompareTo.add(sudoku.getCase(Integer.parseInt(elements[i]), Integer.parseInt(elements[i+1])));
+                }
+                if (elements[0].equals("!=")) {
+                    constraints.add(new NotEqualConstraint(caseHasContraint, casesToCompareTo, sudoku));
+                }
+                else if (elements[0].equals("=")) {
+                    constraints.add(new EqualConstraint(caseHasContraint, casesToCompareTo, sudoku));
+                }
+                else {
+                    throw new IOException("Type de contrainte inconnu : " + elements[0]);
+                }
+            }
+        } while (!line.equals("end"));
+        sudoku.setAddedConstraints(constraints);
 
         return sudoku;
     }

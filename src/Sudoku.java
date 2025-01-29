@@ -241,6 +241,14 @@ public class Sudoku implements Puzzle {
     }
 
     /**
+     * Getter des contraintes additionnelles du sudoku
+     * @return Les contraintes additionnelles du sudoku
+     */
+    public ArrayList<SudokuConstraint> getAddedConstraints() {
+        return this.addedConstraints;
+    }
+
+    /**
      * Retourne les contraintes internes entre les cases du sudoku
      * @return Une liste de contraintes entre cases
      */
@@ -305,7 +313,7 @@ public class Sudoku implements Puzzle {
         constraints.add(newConstraint);
 
         // contraintes supplémentaires s'appliquant sur cette case
-        for (SudokuConstraint constraint : constraints) {
+        for (SudokuConstraint constraint : this.addedConstraints) {
             if (constraint.isConstraintOnCase(c)) {
                 constraints.add(constraint);
             }
