@@ -23,6 +23,10 @@ public class Multidoku implements Puzzle {
      * Les symboles utilisés pour remplacer les nombres lors de l'affichage du multidoku, s'ils sont définis
      */
     private HashMap<Integer, String> symbols;
+    /**
+     * Une liste de contraintes spécifiées sur le sudoku en plus des contraintes de base (lignes, colonnes, blocs)
+     */
+    private ArrayList<SudokuConstraint> addedConstraints;
 
     /**
      * Constructeur de la classe, sans les symboles
@@ -52,6 +56,7 @@ public class Multidoku implements Puzzle {
         this.sizeSudokus = size;
         this.sizeMultidokuGrid = gridSize;
         this.symbols = null;
+        this.addedConstraints = new ArrayList<>();
     }
 
     /**
@@ -84,6 +89,20 @@ public class Multidoku implements Puzzle {
         else {
             throw new IllegalArgumentException("Les symboles n'ont pas les bons numéros");
         }
+    }
+
+    /**
+     * Ajoute au multidoku des nouvelles contraintes
+     * @param constraints Les contraintes à ajouter
+     * @throws IllegalArgumentException Si les contraintes ne s'appliquent pas sur ce multidoku
+     */
+    public void setAddedConstraints(ArrayList<SudokuConstraint> constraints) throws IllegalArgumentException {
+        for (SudokuConstraint constraint : constraints) {
+            if (constraint.copy(this) != constraint) {
+                throw new IllegalArgumentException("La contrainte ne s'applique pas sur ce multidoku !");
+            }
+        }
+        this.addedConstraints = constraints;
     }
 
     /**

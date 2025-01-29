@@ -64,14 +64,10 @@ public abstract class Solver {
      * @return Un booléen qui indique si le puzzle est résolvable
      */
     public static boolean solveWithBacktracking(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints) {
-        // on met à jour les contraintes additionnels sur la copie du puzzle
+        // on crée une copie du puzzle
         Puzzle newPuzzle = puzzle.copy();
-        ArrayList<SudokuConstraint> newConstraints = new ArrayList<>();
-        if (additionalConstraints != null) {
-            for (SudokuConstraint constraint : additionalConstraints) {
-                newConstraints.add(constraint.copy(newPuzzle));
-            }
-        }
+        ArrayList<SudokuConstraint> newConstraints = copyConstraints(newPuzzle, additionalConstraints);
+
 
         // on applique le backtracking
         Puzzle backtrack = applyBacktracking(newPuzzle, newConstraints, true);
@@ -119,12 +115,14 @@ public abstract class Solver {
                 // on vérifie si les contraintes sont toujours respectées
                 isValid = true;
                 for (SudokuConstraint constraint : puzzle.constraintsOnCase(c)) {
-                    if (!constraint.isConstraintValid())
+                    if (!constraint.isConstraintValid()) {
                         isValid = false;
+                    }
                 }
                 for (SudokuConstraint constraint : constraints) {
-                    if (!constraint.isConstraintValid())
+                    if (!constraint.isConstraintValid()) {
                         isValid = false;
+                    }
                 }
                 if (!isValid) {
                     // si elles ne les sont pas alors la valeur n'était pas la bonne
@@ -134,10 +132,7 @@ public abstract class Solver {
 
             // on met à jour les contraintes additionnels sur la copie du puzzle
             Puzzle newPuzzle = puzzle.copy();
-            ArrayList<SudokuConstraint> newConstraints = new ArrayList<>();
-            for (SudokuConstraint constraint : constraints) {
-                newConstraints.add(constraint.copy(newPuzzle));
-            }
+            ArrayList<SudokuConstraint> newConstraints = copyConstraints(newPuzzle, constraints);
 
             // on teste la valeur candidate
             if (isRecursive) {
@@ -158,15 +153,16 @@ public abstract class Solver {
         return backtrack;
     }
 
+    /**
+     * Essaie de résoudre un puzzle à l'aide des règles de contraintes et du backtracking
+     * @param puzzle Le puzzle qu'on veut résoudre
+     * @param additionalConstraints Des contraintes supplémentaires si on veut en rajouter
+     * @return Un booléen qui indique si le puzzle est résolvable
+     */
     public static boolean solveWithBoth(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints) {
-        // on met à jour les contraintes additionnels sur la copie du puzzle
+        // on crée une copie du puzzle
         Puzzle newPuzzle = puzzle.copy();
-        ArrayList<SudokuConstraint> newConstraints = new ArrayList<>();
-        if (additionalConstraints != null) {
-            for (SudokuConstraint constraint : additionalConstraints) {
-                newConstraints.add(constraint.copy(newPuzzle));
-            }
-        }
+        ArrayList<SudokuConstraint> newConstraints = copyConstraints(newPuzzle, additionalConstraints);
 
         // on applique l'algorithme
         Puzzle backtrack = applyBoth(newPuzzle, newConstraints);
@@ -183,6 +179,12 @@ public abstract class Solver {
         return true;
     }
 
+    /**
+     * Applique l'algo mixte pour une copie d'un puzzle et des contraintes sur ce puzzle
+     * @param puzzle Une copie d'un puzzle
+     * @param constraints Des contraintes additionnelles sur le puzzle
+     * @return Le puzzle résolu s'il est résolvable, null sinon
+     */
     private static Puzzle applyBoth(Puzzle puzzle, ArrayList<SudokuConstraint> constraints) {
         // on récupère les contraintes
         ArrayList<SudokuConstraint> everyConstraints = Objects.requireNonNullElseGet(constraints, ArrayList::new);
@@ -198,13 +200,47 @@ public abstract class Solver {
         return applyBacktracking(puzzle, constraints, false);
     }
 
-    public static boolean generateNewSolvedPuzzle(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints) {
-        //TODO
-        return false;
+    /**
+     * Crée une solution possible pour un puzzle vide passé en paramètre
+     * @param puzzle Le puzzle sur lequel créé la solution, qui doit être vide
+     * @param additionalConstraints Des contraintes supplémentaires si on veut en rajouter
+     * @return Un booléen qui indique si le puzzle ne peut pas avoir de solutions
+     * @throws IllegalArgumentException Si le puzzle donné n'est pas vide
+     */
+    public static boolean generateNewSolvedPuzzle(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints) throws IllegalArgumentException{
+        ArrayList<Case> cases = puzzle.casesList();
+        for (Case c : cases) {
+            if (!(c.getValue() == -1)) {
+                throw new IllegalArgumentException("Le puzzle doit être vide !");
+            }
+        }
+        return solveWithBacktracking(puzzle, additionalConstraints);
     }
 
-    public static boolean generateNewPuzzleToSolve(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, int difficulty) {
+    /**
+     * Crée un puzzle à résoudre à partir d'un puzzle résolu passé en paramètre
+     * @param puzzle Le puzzle sur lequel créé une grille à résoudre, qui doit être résolu
+     * @param additionalConstraints Des contraintes supplémentaires si on veut en rajouter
+     * @param difficulty La difficulté qu'aura le puzzle, soit 0 (facile), 1 (moyen) ou 2 (difficile)
+     * @throws IllegalArgumentException Si le puzzle donné n'est pas résolu
+     */
+    public static void generateNewPuzzleToSolve(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, int difficulty) throws IllegalArgumentException{
         //TODO
-        return false;
+    }
+
+    /**
+     * Copie une liste de contraintes faisant référence à un ancien puzzle en des contraintes faisant référence à un nouveau puzzle
+     * @param newPuzzle Le nouveau puzzle auquel faire référence
+     * @param constraints Les contraintes à copier
+     * @return Une copie de la liste de contraintes faisant référence au nouveau puzzle
+     */
+    private static ArrayList<SudokuConstraint> copyConstraints(Puzzle newPuzzle, ArrayList<SudokuConstraint> constraints) {
+        ArrayList<SudokuConstraint> newConstraints = new ArrayList<>();
+        if (constraints != null) {
+            for (SudokuConstraint constraint : constraints) {
+                newConstraints.add(constraint.copy(newPuzzle));
+            }
+        }
+        return newConstraints;
     }
 }

@@ -24,6 +24,10 @@ public class Sudoku implements Puzzle {
      * Indique si les blocs utilisent la forme par défaut ou non, si c'est le cas ils formeront un rectangle le plus carré possible, avec une hauteur plus grand ou égale à la largeur
      */
     private final Boolean useDefaultPlacements;
+    /**
+     * Une liste de contraintes spécifiées sur le sudoku en plus des contraintes de base (lignes, colonnes, blocs)
+     */
+    private ArrayList<SudokuConstraint> addedConstraints;
 
     /**
      * Constructeur de la classe, sans symboles
@@ -41,6 +45,7 @@ public class Sudoku implements Puzzle {
         this.blocs = new Bloc[size];
         this.symbols = null;
         this.useDefaultPlacements = (placements == null);
+        this.addedConstraints = new ArrayList<>();
 
         if (this.useDefaultPlacements) {
             placements = new int[size][size];
@@ -122,6 +127,20 @@ public class Sudoku implements Puzzle {
         else {
             throw new IllegalArgumentException("Les symboles n'ont pas les bons numéros");
         }
+    }
+
+    /**
+     * Ajoute au sudoku des nouvelles contraintes
+     * @param constraints Les contraintes à ajouter
+     * @throws IllegalArgumentException Si les contraintes ne s'appliquent pas sur ce sudoku
+     */
+    public void setAddedConstraints(ArrayList<SudokuConstraint> constraints) throws IllegalArgumentException {
+        for (SudokuConstraint constraint : constraints) {
+            if (constraint.copy(this) != constraint) {
+                throw new IllegalArgumentException("La contrainte ne s'applique pas sur ce sudoku !");
+            }
+        }
+        this.addedConstraints = constraints;
     }
 
     /**
@@ -251,6 +270,8 @@ public class Sudoku implements Puzzle {
                 constraints.add(newConstraint);
             }
         }
+        // contraintes supplémentaires
+        constraints.addAll(this.addedConstraints);
         return constraints;
     }
 
@@ -282,6 +303,13 @@ public class Sudoku implements Puzzle {
         toInsert.remove(c);
         newConstraint = new NotEqualConstraint(c, toInsert, this);
         constraints.add(newConstraint);
+
+        // contraintes supplémentaires s'appliquant sur cette case
+        for (SudokuConstraint constraint : constraints) {
+            if (constraint.isConstraintOnCase(c)) {
+                constraints.add(constraint);
+            }
+        }
 
         return constraints;
     }

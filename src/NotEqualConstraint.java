@@ -109,4 +109,14 @@ public class NotEqualConstraint implements SudokuConstraint {
 
         return new NotEqualConstraint(newConstrainedCase, newCasesToCompareTo, newPuzzle);
     }
+
+    /**
+     * Indique si la contrainte s'applique sur la même case que celle passée en paramètre
+     * @param c La case sur laquelle on veut savoir si la contrainte s'applique
+     * @return Si la contrainte s'applique sur la case
+     */
+    @Override
+    public boolean isConstraintOnCase(Case c) {
+        return this.constrainedCase == c;
+    }
 }

@@ -35,8 +35,17 @@ public class EqualConstraint implements SudokuConstraint {
      */
     @Override
     public boolean setNewPossibleValues() {
-        //TODO
-        return false;
+        for (Case caseToCompare : this.casesToCompareTo) {
+            try {
+                if (caseToCompare.getValue() != -1) {
+                    constrainedCase.setValue(caseToCompare.getValue());
+                }
+            }
+            catch (IllegalArgumentException e) {
+                return false;
+            }
+        }
+        return this.constrainedCase.isValid();
     }
 
     /**
@@ -45,8 +54,14 @@ public class EqualConstraint implements SudokuConstraint {
      */
     @Override
     public boolean isConstraintValid() {
-        //TODO
-        return false;
+        for (Case caseToCompare : this.casesToCompareTo) {
+            if (caseToCompare.getValue() != -1) {
+                if (constrainedCase.getValue() != caseToCompare.getValue()) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -55,8 +70,7 @@ public class EqualConstraint implements SudokuConstraint {
      */
     @Override
     public boolean hasBeenResolved() {
-        //TODO
-        return false;
+        return (this.constrainedCase.getValue() != -1 && this.constrainedCase.isValid());
     }
 
     /**
@@ -101,5 +115,15 @@ public class EqualConstraint implements SudokuConstraint {
         }
 
         return new EqualConstraint(newConstrainedCase, newCasesToCompareTo, newPuzzle);
+    }
+
+    /**
+     * Indique si la contrainte s'applique sur la même case que celle passée en paramètre
+     * @param c La case sur laquelle on veut savoir si la contrainte s'applique
+     * @return Si la contrainte s'applique sur la case
+     */
+    @Override
+    public boolean isConstraintOnCase(Case c) {
+        return this.constrainedCase == c;
     }
 }

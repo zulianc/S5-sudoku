@@ -26,4 +26,11 @@ public interface SudokuConstraint {
      * @return Une copie de cette contrainte qui référence le nouveau puzzle
      */
     SudokuConstraint copy(Puzzle newPuzzle);
+
+    /**
+     * Une implémentation de cette méthode doit indiquer si elle applique des contraintes sur la même case que celle passée en paramètre
+     * @param c La case sur laquelle on veut savoir si la contrainte s'applique
+     * @return Si la contrainte s'applique sur la case
+     */
+    boolean isConstraintOnCase(Case c);
 }
