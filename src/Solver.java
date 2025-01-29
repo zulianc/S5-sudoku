@@ -194,10 +194,14 @@ public abstract class Solver {
         everyConstraints.addAll(puzzle.defaultConstraints());
 
         // on applique les contraintes une fois
-        boolean isValid = applyConstraints(everyConstraints);
-        if (!isValid) {
-            return null;
-        }
+        int size;
+        do {
+            size = everyConstraints.size();
+            boolean isValid = applyConstraints(everyConstraints);
+            if (!isValid) {
+                return null;
+            }
+        } while (everyConstraints.size() != size);
 
         // on applique le backtracking une fois
         return applyBacktracking(puzzle, constraints, false);
@@ -207,7 +211,7 @@ public abstract class Solver {
      * Crée une solution possible pour un puzzle vide passé en paramètre
      * @param puzzle Le puzzle sur lequel créé la solution, qui doit être vide
      * @param additionalConstraints Des contraintes supplémentaires si on veut en rajouter
-     * @return Un booléen qui indique si le puzzle ne peut pas avoir de solutions
+     * @return Un booléen qui indique si le puzzle est résolvable
      * @throws IllegalArgumentException Si le puzzle donné n'est pas vide
      */
     public static boolean generateNewSolvedPuzzle(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints) throws IllegalArgumentException{
@@ -217,18 +221,78 @@ public abstract class Solver {
                 throw new IllegalArgumentException("Le puzzle doit être vide !");
             }
         }
-        return solveWithBacktracking(puzzle, additionalConstraints);
+        // on utilise l'algo mixte, car il est plus rapide que l'algo de backtracking pur
+        return solveWithBoth(puzzle, additionalConstraints);
     }
 
     /**
      * Crée un puzzle à résoudre à partir d'un puzzle résolu passé en paramètre
      * @param puzzle Le puzzle sur lequel créé une grille à résoudre, qui doit être résolu
      * @param additionalConstraints Des contraintes supplémentaires si on veut en rajouter
-     * @param difficulty La difficulté qu'aura le puzzle, soit 0 (facile), 1 (moyen) ou 2 (difficile)
-     * @throws IllegalArgumentException Si le puzzle donné n'est pas résolu
+     * @param difficulty La difficulté qu'aura le puzzle, soit 1 (facile), 2 (moyen) ou 3 (difficile)
+     * @return Un booléen qui indique si on a enlevé assez de cases pour atteindre la difficulté souhaitée
+     * @throws IllegalArgumentException Si le puzzle donné n'est pas résolu ou la difficulté n'existe pas
      */
-    public static void generateNewPuzzleToSolve(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, int difficulty) throws IllegalArgumentException{
-        //TODO
+    public static boolean generateNewPuzzleToSolve(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, int difficulty) throws IllegalArgumentException{
+        ArrayList<SudokuConstraint> constraints = puzzle.defaultConstraints();
+        for (SudokuConstraint constraint : constraints) {
+            if (!(constraint.hasBeenResolved())) {
+                throw new IllegalArgumentException("Le puzzle doit être résolu !");
+            }
+        }
+        if (difficulty < 0 || difficulty > 2) {
+            throw new IllegalArgumentException("La difficulté doit être comprise entre 0 et 2 !");
+        }
+        // on applique l'algo
+        return tryToRemoveValue(puzzle, additionalConstraints, 0, difficulty);
+    }
+
+    /**
+     * Applique l'algo de création de puzzle à résoudre sur un puzzle passé en paramètre
+     * @param puzzle Le puzzle auquel on essaye d'enlever des cases
+     * @param constraints Des contraintes supplémentaires sur le puzzle si on veut en spécifier
+     * @param removedCases Le nombre de cases enlevées sur le puzzle donné
+     * @param difficulty La difficulté que l'on souhaite avoir sur le puzzle, soit 1 (facile), 2 (moyen) ou 3 (difficile)
+     * @return Un booléen qui indique si on a enlevé assez de cases pour atteindre la difficulté souhaitée
+     */
+    private static boolean tryToRemoveValue(Puzzle puzzle, ArrayList<SudokuConstraint> constraints, int removedCases, int difficulty) {
+        ArrayList<Case> casesList =  puzzle.casesList();
+        // si assez de cases ont été enlevées on retourne le puzzle
+        // facile = 50%, moyen = 67%, difficile = 75%
+        if ((casesList.size() - removedCases) * (difficulty + 1) < casesList.size()) {
+            return true;
+        }
+        // on cherche une case à supprimer au hasard
+        int candidateNumber = ThreadLocalRandom.current().nextInt(0, casesList.size());
+        Case candidate;
+        int i = 0;
+        do {
+            // si la case n'est pas déjà vide alors on cache sa valeur et on regarde si le puzzle est résolvable
+            if (!(casesList.get(candidateNumber).getValue() == -1)) {
+                candidate = casesList.get(candidateNumber);
+                candidate.hideValue();
+                Puzzle newPuzzle = puzzle.copy();
+                ArrayList<SudokuConstraint> newConstraints = copyConstraints(newPuzzle, constraints);
+                // on utilise l'algo par contraintes, car on est sûr qu'une bonne solution est unique
+                boolean isSolvable = solveWithConstraints(newPuzzle, newConstraints);
+                // si le puzzle est résolvable alors on essaye d'enlever une autre case
+                if (isSolvable) {
+                    boolean hasWorked = tryToRemoveValue(puzzle, constraints, removedCases + 1, difficulty);
+                    // si l'algo a marché
+                    if (hasWorked) {
+                        return true;
+                    }
+                }
+                // sinon, on remontre la valeur de la case et on passe à la suivante
+                else {
+                    candidate.showValue();
+                }
+            }
+            i++;
+            candidateNumber = (candidateNumber + 1) % casesList.size();
+        } while (i < casesList.size());
+        // si on a testé toutes les cases et qu'aucune ne marche, c'est qu'on ne peut pas en enlever plus
+        return false;
     }
 
     /**

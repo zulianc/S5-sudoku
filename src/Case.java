@@ -13,6 +13,10 @@ public class Case {
      */
     private int testValue;
     /**
+     * Indique si la valeur de la case doit être cachée du monde extérieur, la case apparaitra alors toujours vide
+     */
+    private boolean valueIsHidden;
+    /**
      * La ligne sur laquelle est placée cette case dans le sudoku
      */
     private final int line;
@@ -84,6 +88,20 @@ public class Case {
         else {
             throw new IllegalArgumentException("La case ne peut pas avoir la valeur " + value);
         }
+    }
+
+    /**
+     * Rend la valeur actuelle de la case invisible du monde extérieur
+     */
+    public void hideValue() {
+        this.valueIsHidden = true;
+    }
+
+    /**
+     * Rend la valeur actuelle de la case visible du monde extérieur à nouveau
+     */
+    public void showValue() {
+        this.valueIsHidden = false;
     }
 
     /**
@@ -159,6 +177,9 @@ public class Case {
      * @return La valeur de la case
      */
     public int getValue() {
+        if (this.valueIsHidden) {
+            return -1;
+        }
         if (this.value == -1) {
             return this.testValue;
         }

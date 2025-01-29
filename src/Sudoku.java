@@ -386,7 +386,30 @@ public class Sudoku implements Puzzle {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        int colorDivision = (255 * 3) / this.size;
+        final int colorDivision = (255 * 3) / this.size;
+
+        // on change les symboles utilisés pour qu'ils soient tous de la même taille
+        HashMap<Integer, String> symbolsToPrint = new HashMap<>();
+        if (this.symbols != null) {
+            symbolsToPrint.putAll(this.symbols);
+        }
+        else {
+            for (int i = 0; i < this.size; i++) {
+                symbolsToPrint.put(i, Integer.toString(i + 1));
+            }
+        }
+        symbolsToPrint.put(-1, " ");
+        int maxSize = 0;
+        for (Integer key : symbolsToPrint.keySet()) {
+            if (symbolsToPrint.get(key).length() > maxSize) {
+                maxSize = symbolsToPrint.get(key).length();
+            }
+        }
+        for (Integer key : symbolsToPrint.keySet()) {
+            for (int i = 0; i < maxSize - symbolsToPrint.get(key).length(); i++) {
+                symbolsToPrint.replace(key, " " + symbolsToPrint.get(key));
+            }
+        }
 
         for (int i = 0; i < this.size; i++) {
             for (int j = 0; j < this.size; j++) {
@@ -415,18 +438,7 @@ public class Sudoku implements Puzzle {
 
                 // insère la case
                 sb.append("[");
-                if (this.cases[i][j].getValue() == -1) {
-                    sb.append(" ");
-                }
-                else {
-                    int num = this.cases[i][j].getValue();
-                    if (this.symbols != null) {
-                        sb.append(this.symbols.get(num));
-                    }
-                    else {
-                        sb.append(num + 1);
-                    }
-                }
+                sb.append(symbolsToPrint.get(this.cases[i][j].getValue()));
                 sb.append("]");
             }
             if (!(i == this.size - 1))
