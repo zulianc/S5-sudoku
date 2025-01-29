@@ -15,7 +15,7 @@ Après avoir demandé l'avis du prof, on a commencé à coder.
 La première étape a été les classes de bases (Sudoku, Cases, etc.).
 Puis, on a commencé le menu et le solver. C'est à ce moment-là qu'on a décidé de
 l'implantation des choses qui restaient encore floues.
-Les deux dernières grosses étapes ont été l'implémentation des multidoku et la génération de grille.
+Les deux dernières grosses étapes ont été l'implémentation des multidoku, la génération de grille et les logs des opérations.
 
 Une fois le code commencé, la javadoc et les diagrammes ont été réalisés au fur et à mesure du code.
 ## Avancement du tronc commun

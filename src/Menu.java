@@ -16,9 +16,9 @@ public abstract class Menu {
      * La méthode à appeler pour démarrer le menu, propose les grands choix du menu
      */
     public static void startMenu() {
-        System.out.println("\033[38;2;34;167;240m");
+        System.out.print("\033[38;2;34;167;240m");
         System.out.println("----------\nBIENVENUE DANS L'APPLICATION DE SUDOKUS !\n----------\n");
-        System.out.println("\033[38;2;255;255;255m");
+        System.out.print("\033[38;2;255;255;255m");
 
         int choice;
         boolean stop = false;

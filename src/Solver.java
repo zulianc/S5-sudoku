@@ -15,8 +15,7 @@ public abstract class Solver {
      */
     public static boolean solveWithConstraints(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints) {
         //on récupère les contraintes
-        ArrayList<SudokuConstraint> constraints;
-        constraints = Objects.requireNonNullElseGet(additionalConstraints, ArrayList::new);
+        ArrayList<SudokuConstraint> constraints = Objects.requireNonNullElseGet(additionalConstraints, ArrayList::new);
         constraints.addAll(puzzle.defaultConstraints());
 
         // on applique les contraintes tant qu'elles n'ont pas été toutes validées
@@ -65,7 +64,7 @@ public abstract class Solver {
      * @return Un booléen qui indique si le puzzle est résolvable
      */
     public static boolean solveWithBacktracking(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints) {
-        // on met à jour les contraintes additionnels sur la copie du sudoku
+        // on met à jour les contraintes additionnels sur la copie du puzzle
         Puzzle newPuzzle = puzzle.copy();
         ArrayList<SudokuConstraint> newConstraints = new ArrayList<>();
         if (additionalConstraints != null) {
@@ -75,7 +74,7 @@ public abstract class Solver {
         }
 
         // on applique le backtracking
-        Puzzle backtrack = applyBacktracking(newPuzzle, newConstraints);
+        Puzzle backtrack = applyBacktracking(newPuzzle, newConstraints, true);
         // si la backtracking a échoué
         if (backtrack == null) {
             return false;
@@ -95,7 +94,7 @@ public abstract class Solver {
      * @param constraints Des contraintes additionnelles sur le puzzle
      * @return Le puzzle résolu s'il est résolvable, null sinon
      */
-    private static Puzzle applyBacktracking(Puzzle puzzle, ArrayList<SudokuConstraint> constraints) {
+    private static Puzzle applyBacktracking(Puzzle puzzle, ArrayList<SudokuConstraint> constraints, boolean isRecursive) {
         // on cherche la première case non résolue
         int currentCase = 0;
         while (puzzle.casesList().get(currentCase).hasValue()) {
@@ -133,7 +132,7 @@ public abstract class Solver {
                 }
             } while (!isValid);
 
-            // on met à jour les contraintes additionnels sur la copie du sudoku
+            // on met à jour les contraintes additionnels sur la copie du puzzle
             Puzzle newPuzzle = puzzle.copy();
             ArrayList<SudokuConstraint> newConstraints = new ArrayList<>();
             for (SudokuConstraint constraint : constraints) {
@@ -141,7 +140,12 @@ public abstract class Solver {
             }
 
             // on teste la valeur candidate
-            backtrack = applyBacktracking(newPuzzle, newConstraints);
+            if (isRecursive) {
+                backtrack = applyBacktracking(newPuzzle, newConstraints, true);
+            }
+            else {
+                backtrack = applyBoth(newPuzzle, newConstraints);
+            }
             if (backtrack == null) {
                 // si l'algo n'a pas abouti, la valeur n'était donc pas la bonne
                 c.removePossibleValue(value);
@@ -155,8 +159,43 @@ public abstract class Solver {
     }
 
     public static boolean solveWithBoth(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints) {
-        //TODO
-        return false;
+        // on met à jour les contraintes additionnels sur la copie du puzzle
+        Puzzle newPuzzle = puzzle.copy();
+        ArrayList<SudokuConstraint> newConstraints = new ArrayList<>();
+        if (additionalConstraints != null) {
+            for (SudokuConstraint constraint : additionalConstraints) {
+                newConstraints.add(constraint.copy(newPuzzle));
+            }
+        }
+
+        // on applique l'algorithme
+        Puzzle backtrack = applyBoth(newPuzzle, newConstraints);
+        // si l'algo a échoué
+        if (backtrack == null) {
+            return false;
+        }
+        // sinon on copie le puzzle solvé dans le puzzle a solver
+        ArrayList<Case> originalCases = puzzle.casesList();
+        ArrayList<Case> backtrackCases = backtrack.casesList();
+        for (int i = 0; i < backtrackCases.size(); i++) {
+            originalCases.get(i).setValue(backtrackCases.get(i).getValue());
+        }
+        return true;
+    }
+
+    private static Puzzle applyBoth(Puzzle puzzle, ArrayList<SudokuConstraint> constraints) {
+        // on récupère les contraintes
+        ArrayList<SudokuConstraint> everyConstraints = Objects.requireNonNullElseGet(constraints, ArrayList::new);
+        everyConstraints.addAll(puzzle.defaultConstraints());
+
+        // on applique les contraintes une fois
+        boolean isValid = applyConstraints(everyConstraints);
+        if (!isValid) {
+            return null;
+        }
+
+        // on applique le backtracking une fois
+        return applyBacktracking(puzzle, constraints, false);
     }
 
     public static boolean generateNewSolvedPuzzle(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints) {
