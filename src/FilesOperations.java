@@ -37,7 +37,47 @@ public abstract class FilesOperations {
      * @param filename Le nom du fichier où stocker le multidoku
      */
     public static void convertMultidokuToFile(Multidoku multidoku, String filename) {
-        //TODO
+        String filepath = "./data/multidokus/" + filename + ".txt";
+        try {
+            // ouverture du fichier (ou création s'il n'existait pas)
+            FileWriter fw = new FileWriter(filepath);
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            // on écrit les informations de base du multidoku
+            boolean useCustomSymbols = (multidoku.getSymbols() != null);
+            bw.append("puzzleType:\nmultidoku\n");
+            bw.append("useCustomSymbols:\n").append(Boolean.toString(useCustomSymbols)).append("\n");
+            bw.append("sudokusCount:\n").append(Integer.toString(multidoku.getSudokus().size())).append("\n");
+
+            // on écrit les informations pour chaque sudoku
+            for (PlacedSudoku placedSudoku : multidoku.getSudokus()) {
+                bw.append("sudokuLine:\n").append(Integer.toString(placedSudoku.line())).append("\n");
+                bw.append("sudokuColumn:\n").append(Integer.toString(placedSudoku.column())).append("\n");
+                convertSudoku(placedSudoku.sudoku(), bw);
+            }
+
+            // on remplit les symboles utilisés par le multidoku, s'ils ont été spécifiés
+            bw.append("symbols:\n");
+            if (useCustomSymbols) {
+                for (int i = 0; i < multidoku.getSizeSudokus(); i++) {
+                    bw.append(multidoku.getSymbols().get(i)).append("\n");
+                }
+            }
+
+            // on remplit les contraintes additionnelles sur le sudoku
+            bw.append("additionalConstraints:\n");
+            for (SudokuConstraint constraint : multidoku.getAddedConstraints()) {
+                bw.append(constraint.toString()).append("\n");
+            }
+            bw.append("end\n");
+
+            // on écrit dans le fichier
+            bw.flush();
+            bw.close();
+            fw.close();
+        } catch (IOException e) {
+            Menu.error("Erreur lors de l'écriture dans le fichier " + filepath);
+        }
     }
 
     /**
@@ -114,6 +154,7 @@ public abstract class FilesOperations {
             // on lit le sudoku
             Sudoku sudoku = readSudoku(br);
 
+            // fermeture du fichier
             br.close();
             fr.close();
             return sudoku;
@@ -122,7 +163,7 @@ public abstract class FilesOperations {
             Menu.error("Erreur lors de la lecture dans le fichier " + filepath);
             return null;
         }
-        catch (IllegalArgumentException e) {
+        catch (RuntimeException e) {
             Menu.error("Erreur lors de la création du sudoku contenu dans le fichier " + filepath);
             Menu.error(e.getMessage());
             return null;
@@ -135,8 +176,103 @@ public abstract class FilesOperations {
      * @return Le multidoku créé depuis le fichier
      */
     public static Multidoku readMultidokuFromFile(String filename) {
-        //TODO
-        return null;
+        String filepath = "./data/multidokus/" + filename + ".txt";
+        try {
+            // ouverture du fichier
+            FileReader fr = new FileReader(filepath);
+            BufferedReader br = new BufferedReader(fr);
+
+            // on vérifie que c'est bien un fichier de sudoku
+            br.readLine();
+            String puzzleType = br.readLine();
+            if (!puzzleType.equals("multidoku")) {
+                throw new IllegalArgumentException("Le fichier " + filepath + " n'est pas un fichier de multidoku");
+            }
+
+            // on lit les informations de base sur le multidoku
+            br.readLine();
+            boolean hasCustomSymbols = Boolean.parseBoolean(br.readLine());
+            br.readLine();
+            int sudokusCount = Integer.parseInt(br.readLine());
+
+            // on lit les informations pour chaque sudoku
+            ArrayList<PlacedSudoku> placedSudokus = new ArrayList<>();
+            for (int i = 0; i < sudokusCount; i++) {
+                System.out.println(i);
+                br.readLine();
+                int sudokuLine = Integer.parseInt(br.readLine());
+                br.readLine();
+                int sudokuColumn = Integer.parseInt(br.readLine());
+                br.readLine();
+                puzzleType = br.readLine();
+                if (!puzzleType.equals("sudoku")) {
+                    throw new IllegalArgumentException("Le sudoku numéro " + (i + 1) + " dans " + filepath + " n'est pas un fichier de sudoku");
+                }
+                Sudoku sudoku = readSudoku(br);
+                placedSudokus.add(new PlacedSudoku(sudoku, sudokuLine, sudokuColumn));
+            }
+
+            // on lit les symboles du multidoku, s'ils sont spécifiés
+            br.readLine();
+            HashMap<Integer, String> symbols = null;
+            if (hasCustomSymbols) {
+                symbols = new HashMap<>();
+                for (int i = 0; i < placedSudokus.getFirst().sudoku().getSize(); i++) {
+                    symbols.put(i, br.readLine());
+                }
+            }
+
+            // on crée le multidoku
+            Multidoku multidoku = new Multidoku(placedSudokus, symbols);
+
+            // on lit les contraintes additionnelles
+            br.readLine();
+            String line;
+            ArrayList<SudokuConstraint> constraints = new ArrayList<>();
+            do {
+                line = br.readLine();
+                if (line.isEmpty()) {
+                    throw new IOException("Une ligne de contrainte est vide !");
+                }
+                if (!line.equals("end")) {
+                    String[] elements = line.split(" ");
+                    if (elements.length < 5 || elements.length % 4 != 1) {
+                        throw new IOException("Une ligne de contrainte ne respecte pas le bon format : " + line);
+                    }
+                    PlacedSudoku placedSudokuHasConstraint = multidoku.getSudoku(Integer.parseInt(elements[1]) - 1, Integer.parseInt(elements[2]) - 1);
+                    Case caseHasContraint = placedSudokuHasConstraint.sudoku().getCase(Integer.parseInt(elements[3]) - 1, Integer.parseInt(elements[4]) - 1);
+                    ArrayList<Case> casesToCompareTo = new ArrayList<>();
+                    for (int i = 5; i < elements.length; i += 4) {
+                        PlacedSudoku placedSudokuToCompareTo = multidoku.getSudoku(Integer.parseInt(elements[i]) - 1, Integer.parseInt(elements[i+1]) - 1);
+                        casesToCompareTo.add(placedSudokuToCompareTo.sudoku().getCase(Integer.parseInt(elements[i+2]) - 1, Integer.parseInt(elements[i+3]) - 1));
+                    }
+                    if (elements[0].equals("!=")) {
+                        constraints.add(new NotEqualConstraint(caseHasContraint, casesToCompareTo, multidoku));
+                    }
+                    else if (elements[0].equals("=")) {
+                        constraints.add(new EqualConstraint(caseHasContraint, casesToCompareTo, multidoku));
+                    }
+                    else {
+                        throw new IOException("Type de contrainte inconnu : " + elements[0]);
+                    }
+                }
+            } while (!line.equals("end"));
+            multidoku.setAddedConstraints(constraints);
+
+            // fermeture du fichier
+            br.close();
+            fr.close();
+            return multidoku;
+        }
+        catch (IOException e) {
+            Menu.error("Erreur lors de la lecture dans le fichier " + filepath);
+            return null;
+        }
+        catch (RuntimeException e) {
+            Menu.error("Erreur lors de la création du multidoku contenu dans le fichier " + filepath);
+            Menu.error(e.getMessage());
+            return null;
+        }
     }
 
     /**

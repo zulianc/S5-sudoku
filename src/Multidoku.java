@@ -31,9 +31,13 @@ public class Multidoku implements Puzzle {
     /**
      * Constructeur de la classe, sans les symboles
      * @param sudokus La liste des sudokus constituant le multidoku
-     * @throws IllegalArgumentException Si deux des sudokus ne font pas la même taille, ou sont placés au même endroit
+     * @throws IllegalArgumentException Si les sudokus donnés ne permettent pas de créer un multidoku valide
      */
     public Multidoku(ArrayList<PlacedSudoku> sudokus) throws IllegalArgumentException {
+        if (sudokus == null || sudokus.isEmpty()) {
+            throw new IllegalArgumentException("Il doit y avoir au moins un sudoku dans un multidoku");
+        }
+
         int size = sudokus.getFirst().sudoku().getSize();
         int gridSize = size;
         ArrayList<PlacedSudoku> testedSudokus = new ArrayList<>();
@@ -63,7 +67,7 @@ public class Multidoku implements Puzzle {
      * Constructeur de la classe, avec les symboles
      * @param sudokus La liste des sudokus constituant le multidoku
      * @param symbols Les symboles utilisés lors de l'affichage du multidoku
-     * @throws IllegalArgumentException Si deux des sudokus ne font pas la même taille, ou sont placés au même endroit, ou si les symboles ne sont pas corrects
+     * @throws IllegalArgumentException Si les sudokus donnés ne permettent pas de créer un multidoku valide, ou si les symboles ne sont pas corrects
      */
     public Multidoku(ArrayList<PlacedSudoku> sudokus, HashMap<Integer, String> symbols) throws IllegalArgumentException {
         this(sudokus);

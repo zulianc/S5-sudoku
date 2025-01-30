@@ -175,7 +175,7 @@ public class EqualConstraint implements SudokuConstraint {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         // type de contrainte
-        sb.append("!= ");
+        sb.append("= ");
         // case contrainte
         if (this.puzzle instanceof Multidoku) {
             // position du sudoku

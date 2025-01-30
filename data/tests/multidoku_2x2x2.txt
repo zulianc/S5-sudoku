@@ -1,0 +1,47 @@
+puzzleType:
+multidoku
+useCustomSymbols:
+false
+sudokusCount:
+2
+sudokuLine:
+0
+sudokuColumn:
+0
+puzzleType:
+sudoku
+useCustomPlacements:
+false
+useCustomSymbols:
+false
+size:
+2
+values:
+1 0
+0 0
+placements:
+symbols:
+additionalConstraints:
+end
+sudokuLine:
+1
+sudokuColumn:
+1
+puzzleType:
+sudoku
+useCustomPlacements:
+false
+useCustomSymbols:
+false
+size:
+2
+values:
+0 0
+0 0
+placements:
+symbols:
+additionalConstraints:
+end
+symbols:
+additionalConstraints:
+end

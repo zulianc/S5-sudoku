@@ -101,7 +101,7 @@ public class Sudoku implements Puzzle {
      * @param size La taille du sudoku
      * @param placements Les blocs auxquels appartiennent les cases, s'il est null alors les blocs auront les formes par défaut
      * @param symbols Les symboles utilisés lors de l'affichage de la grille
-     * @throws IllegalArgumentException Si les arguments passés ne créent pas un sudoku valide
+     * @throws IllegalArgumentException Si les arguments passés ne créent pas un sudoku valide, ou si les symboles ne sont pas correctes
      */
     public Sudoku(int size, int[][] placements, HashMap<Integer, String> symbols) throws IllegalArgumentException {
         this(size, placements);
@@ -153,46 +153,46 @@ public class Sudoku implements Puzzle {
 
     /**
      * Getter d'une ligne du sudoku
-     * @param ligne La ligne du sudoku à récupérer
+     * @param line La ligne du sudoku à récupérer
      * @return Une ligne du sudoku
      * @throws IllegalArgumentException Si les arguments passés n'obtiennent pas une case valide
      */
-    public Case[] getLigne(int ligne) throws IllegalArgumentException {
-        if (ligne < 0 || ligne >= this.size) {
-            throw new IllegalArgumentException("La ligne " + (ligne + 1) + " n'existe pas");
+    public Case[] getLine(int line) throws IllegalArgumentException {
+        if (line < 0 || line >= this.size) {
+            throw new IllegalArgumentException("La ligne " + (line + 1) + " n'existe pas");
         }
-        return this.cases[ligne];
+        return this.cases[line];
     }
 
     /**
      * Getter d'une colonne du sudoku
-     * @param colonne La colonne du sudoku à récupérer
+     * @param column La colonne du sudoku à récupérer
      * @return Une colonne du sudoku
      * @throws IllegalArgumentException Si les arguments passés n'obtiennent pas une case valide
      */
-    public Case[] getColonne(int colonne) throws IllegalArgumentException {
-        if (colonne < 0 || colonne >= this.size) {
-            throw new IllegalArgumentException("La colonne " + (colonne + 1) + " n'existe pas");
+    public Case[] getColumn(int column) throws IllegalArgumentException {
+        if (column < 0 || column >= this.size) {
+            throw new IllegalArgumentException("La colonne " + (column + 1) + " n'existe pas");
         }
         Case[] col = new Case[this.size];
         for (int i = 0; i < this.size; i++) {
-            col[i] = this.cases[i][colonne];
+            col[i] = this.cases[i][column];
         }
         return col;
     }
 
     /**
      * Getter d'une case du sudoku
-     * @param ligne La ligne de la case
-     * @param colonne La colonne de la case
+     * @param line La ligne de la case
+     * @param column La colonne de la case
      * @return Une case du sudoku
      * @throws IllegalArgumentException Si les arguments passés n'obtiennent pas une case valide
      */
-    public Case getCase(int ligne, int colonne) throws IllegalArgumentException {
-        if (ligne < 0 || ligne >= this.size || colonne < 0 || colonne >= this.size) {
-            throw new IllegalArgumentException("Le sudoku ne contient pas de case était à la ligne " + (ligne + 1) + " et colonne " + (colonne + 1));
+    public Case getCase(int line, int column) throws IllegalArgumentException {
+        if (line < 0 || line >= this.size || column < 0 || column >= this.size) {
+            throw new IllegalArgumentException("Le sudoku ne contient pas de case était à la ligne " + (line + 1) + " et colonne " + (column + 1));
         }
-        return this.cases[ligne][colonne];
+        return this.cases[line][column];
     }
 
     /**
@@ -260,15 +260,15 @@ public class Sudoku implements Puzzle {
         for(int i = 0; i < this.size; i++) {
             for (int j = 0; j < this.size; j++) {
                 // contrainte entre la case j de la ligne i et la ligne i
-                toInsert = new ArrayList<>(Arrays.asList(this.getLigne(i)).subList(0, this.size));
-                toInsert.remove(this.getLigne(i)[j]);
-                newConstraint = new NotEqualConstraint(this.getLigne(i)[j], toInsert, this);
+                toInsert = new ArrayList<>(Arrays.asList(this.getLine(i)).subList(0, this.size));
+                toInsert.remove(this.getLine(i)[j]);
+                newConstraint = new NotEqualConstraint(this.getLine(i)[j], toInsert, this);
                 constraints.add(newConstraint);
 
                 // contrainte entre la case j de la colonne i et la colonne i
-                toInsert = new ArrayList<>(Arrays.asList(this.getColonne(i)).subList(0, this.size));
-                toInsert.remove(this.getColonne(i)[j]);
-                newConstraint = new NotEqualConstraint(this.getColonne(i)[j], toInsert, this);
+                toInsert = new ArrayList<>(Arrays.asList(this.getColumn(i)).subList(0, this.size));
+                toInsert.remove(this.getColumn(i)[j]);
+                newConstraint = new NotEqualConstraint(this.getColumn(i)[j], toInsert, this);
                 constraints.add(newConstraint);
 
                 // contrainte entre la case j du bloc i et le bloc i
@@ -295,13 +295,13 @@ public class Sudoku implements Puzzle {
         ArrayList<Case> toInsert;
 
         // contrainte entre la case et sa ligne
-        toInsert = new ArrayList<>(Arrays.asList(this.getLigne(c.getLine())).subList(0, this.size));
+        toInsert = new ArrayList<>(Arrays.asList(this.getLine(c.getLine())).subList(0, this.size));
         toInsert.remove(c);
         newConstraint = new NotEqualConstraint(c, toInsert, this);
         constraints.add(newConstraint);
 
         // contrainte entre la case et la colonne j
-        toInsert = new ArrayList<>(Arrays.asList(this.getColonne(c.getColumn())).subList(0, this.size));
+        toInsert = new ArrayList<>(Arrays.asList(this.getColumn(c.getColumn())).subList(0, this.size));
         toInsert.remove(c);
         newConstraint = new NotEqualConstraint(c, toInsert, this);
         constraints.add(newConstraint);

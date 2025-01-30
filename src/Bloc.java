@@ -39,18 +39,18 @@ public record Bloc(Case[] cases) {
     /**
      * Getter d'une case du bloc selon sa position dans le Sudoku
      *
-     * @param ligne   La ligne de la case souhaitée
-     * @param colonne La colonne de la case souhaitée
+     * @param line   La ligne de la case souhaitée
+     * @param column La colonne de la case souhaitée
      * @return La case souhaitée, si elle existe
      * @throws IllegalArgumentException Si les arguments passés n'obtiennent pas une case valide
      */
-    public Case getCase(int ligne, int colonne) throws IllegalArgumentException {
+    public Case getCase(int line, int column) throws IllegalArgumentException {
         for (Case c : this.cases) {
-            if (c.getLine() == ligne && c.getColumn() == colonne) {
+            if (c.getLine() == line && c.getColumn() == column) {
                 return c;
             }
         }
-        throw new IllegalArgumentException("Le bloc ne contient pas de case étant à la ligne " + (ligne + 1) + " et colonne " + (colonne + 1));
+        throw new IllegalArgumentException("Le bloc ne contient pas de case étant à la ligne " + (line + 1) + " et colonne " + (column + 1));
     }
 
     /**

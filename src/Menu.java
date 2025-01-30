@@ -217,7 +217,7 @@ public abstract class Menu {
                 error("Une nouvelle grille n'a pas pu être créée !");
             }
         }
-        catch (IllegalArgumentException e) {
+        catch (RuntimeException e) {
             error("La grille spécifié n'a pas pu être utilisée pour générer une nouvelle grille résolue !");
             error(e.getMessage());
         }
@@ -272,7 +272,7 @@ public abstract class Menu {
                 error("Une nouvelle grille n'a pas pu être créée !");
             }
         }
-        catch (IllegalArgumentException e) {
+        catch (RuntimeException e) {
             error("La grille spécifié n'a pas pu être utilisé pour générer une nouvelle grille à résoudre !");
             error(e.getMessage());
             return;
@@ -386,7 +386,7 @@ public abstract class Menu {
                 sudoku.setAddedConstraints(constraints);
             }
         }
-        catch (IllegalArgumentException e) {
+        catch (RuntimeException e) {
             error("Le sudoku créé n'est pas valide !");
             error(e.getMessage());
             return null;

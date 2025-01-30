@@ -51,7 +51,7 @@ additionalConstraints:
 //
 end
 ```
-- La partie dans laquelle on insère les sudokus comporte exactement les mêmes champs que si c'était un fichier de sudoku  
+- La partie dans laquelle on insère les sudokus comporte exactement les mêmes champs qu'un fichier de sudoku
 - ``sudokusCount``, ``sudokuLine``, et ``sudokuColumn`` sont tous des int  
 - ``sudokuLine`` et ``sudokuColumn`` référent à la place du sudoku sur la grille du multidoku  
 - Pour ``additionalConstraints``, il y a un format légèrement différent pour les multidokus  
