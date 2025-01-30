@@ -1,4 +1,5 @@
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -234,5 +235,99 @@ public abstract class FilesOperations {
         sudoku.setAddedConstraints(constraints);
 
         return sudoku;
+    }
+
+    /**
+     * Créer un nouveau fichier de logs à la date du jour
+     * @param logs La liste de logs à ajouter au fichier
+     * @param algorithm Le nom de l'algorithme utilisé qui a créé les logs
+     * @param puzzle Le puzzle sur lequel l'algorithme a été effectué
+     * @return Le nom du fichier de logs créé
+     */
+    public static String createNewLogFile(ArrayList<String> logs, String algorithm, Puzzle puzzle) {
+        try {
+            // on crée le nom du fichier à partir de la date actuelle
+            LocalDateTime date = java.time.LocalDateTime.now();
+            String filepath = "./data/logs/";
+            StringBuilder filename = new StringBuilder();
+            filename.append(date.getYear()).append("_").append(date.getMonthValue()).append("_").append(date.getDayOfMonth()).append("_").append(date.getHour()).append("_").append(date.getMinute()).append("_").append(date.getSecond());
+            while (new File(filepath + filename + ".txt").isFile()) {
+                filename.append("_bis");
+            }
+            filepath = filepath + filename + ".txt";
+
+            // on ouvre le fichier
+            FileWriter fw = new FileWriter(filepath);
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            // on rajoute le nom de l'algo
+            bw.append("algorithm:\n").append(algorithm).append("\n");
+
+            // on rajoute la taille du puzzle
+            if (puzzle instanceof Sudoku) {
+                bw.append("puzzleType:\nsudoku\n");
+                bw.append("size:\n").append(Integer.toString(((Sudoku) puzzle).getSize())).append("\n");
+            }
+            else if (puzzle instanceof Multidoku) {
+                bw.append("puzzleType:\nmultidoku\n");
+                bw.append("sudokusSize:\n").append(Integer.toString(((Multidoku) puzzle).getSizeSudokus())).append("\n");
+                bw.append("sudokusCount:\n").append(Integer.toString(((Multidoku) puzzle).getSudokus().size())).append("\n");
+                for (PlacedSudoku placedSudoku : (((Multidoku) puzzle).getSudokus())) {
+                    bw.append("sudokuLine:\n").append(Integer.toString(placedSudoku.line())).append("\n");
+                    bw.append("sudokuColumn:\n").append(Integer.toString(placedSudoku.column())).append("\n");
+                }
+            }
+            else {
+                throw new RuntimeException("Type de puzzle inconnu");
+            }
+
+            // on rajoute les logs
+            bw.append("logs:\n");
+            for (String line : logs) {
+                bw.append(line).append("\n");
+            }
+            bw.append("end\n");
+
+            // on ferme le fichier
+            bw.flush();
+            bw.close();
+            fw.close();
+            Menu.success("Logs enregistrés dans : " + filepath);
+            return filename.toString();
+        }
+        catch (Exception e) {
+            Menu.error("Erreur lors de l'écriture du fichier de logs !");
+            return null;
+        }
+    }
+
+    /**
+     * Affiche la suite de logs d'un fichier dans le terminal
+     * @param filename Le nom du fichier de logs
+     */
+    public static void printLogs(String filename) {
+        try {
+            // on ouvre le fichier
+            String filepath = "./data/logs/" + filename + ".txt";
+            FileReader fr = new FileReader(filepath);
+            BufferedReader br = new BufferedReader(fr);
+
+            // on cherche le début des logs
+            String line;
+            do {
+                line = br.readLine();
+            } while (!line.equals("logs:"));
+
+            // on affiche tout les logs
+            do {
+                line = br.readLine();
+                if (!line.equals("end")) {
+                    System.out.println(line);
+                }
+            } while (!line.equals("end"));
+        }
+        catch (Exception e) {
+            Menu.error("Erreur lors de la lecture du fichier de logs !");
+        }
     }
 }

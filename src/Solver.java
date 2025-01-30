@@ -8,13 +8,28 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public abstract class Solver {
     /**
+     * Une liste de string qui capture les opérations effectuées lors de la résolution
+     */
+    private static ArrayList<String> logs = new ArrayList<>();
+    /**
+     * Indique si l'algorithme doit momentanément cesser de logger l'opération
+     */
+    private static boolean stopLogging = false;
+
+    /**
      * Essaie de résoudre un puzzle à l'aide des règles de déduction uniquement
      * @param puzzle Le puzzle qu'on veut résoudre
      * @param additionalConstraints Des contraintes supplémentaires si on veut en rajouter
+     * @param menuLogs Une liste de logs à laquelle ajouter les logs de l'algorithme
      * @return Un booléen qui indique si le puzzle est résolvable
      */
-    public static boolean solveWithConstraints(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints) {
-        //on récupère les contraintes
+    public static boolean solveWithConstraints(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, ArrayList<String> menuLogs) {
+        // on initialise la liste des logs
+        if (menuLogs != null) {
+            logs = new ArrayList<>();
+        }
+
+        // on récupère les contraintes
         ArrayList<SudokuConstraint> constraints = Objects.requireNonNullElseGet(additionalConstraints, ArrayList::new);
         constraints.addAll(puzzle.defaultConstraints());
 
@@ -27,11 +42,18 @@ public abstract class Solver {
                 return false;
             }
             // failsafe au cas où l'algorithme serait dans une boucle infinie
+            // cette méthode ne revient jamais en arrière donc on peut juste prendre un gros nombre (10) pour être sûr
             notChangedInARow = (constraintsNumber == constraints.size()) ? notChangedInARow + 1 : 0;
             if (notChangedInARow > 10) {
                 return false;
             }
         }
+
+        // on donne les logs au menu
+        if (menuLogs != null) {
+            menuLogs.addAll(logs);
+        }
+
         return true;
     }
 
@@ -43,12 +65,13 @@ public abstract class Solver {
     private static boolean applyConstraints(ArrayList<SudokuConstraint> constraints) {
         Iterator<SudokuConstraint> it = constraints.iterator();
         while (it.hasNext()) {
-            SudokuConstraint c = it.next();
-            boolean validMove = c.setNewPossibleValues();
+            SudokuConstraint constraint = it.next();
+            boolean validMove = constraint.setNewPossibleValues();
+            log(constraint);
             if (!validMove) {
                 return false;
             }
-            boolean validated = c.hasBeenResolved();
+            boolean validated = constraint.hasBeenResolved();
             // si une règle a été validée, alors on la supprime
             if (validated) {
                 it.remove();
@@ -61,9 +84,15 @@ public abstract class Solver {
      * Essaie de résoudre un puzzle à l'aide du backtracking uniquement
      * @param puzzle Le puzzle qu'on veut résoudre
      * @param additionalConstraints Des contraintes supplémentaires si on veut en rajouter
+     * @param menuLogs Une liste de logs à laquelle ajouter les logs de l'algorithme
      * @return Un booléen qui indique si le puzzle est résolvable
      */
-    public static boolean solveWithBacktracking(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints) {
+    public static boolean solveWithBacktracking(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, ArrayList<String> menuLogs) {
+        // on initialise la liste des logs
+        if (menuLogs != null) {
+            logs = new ArrayList<>();
+        }
+
         // on crée une copie du puzzle
         Puzzle newPuzzle = puzzle.copy();
         ArrayList<SudokuConstraint> newConstraints = copyConstraints(newPuzzle, additionalConstraints);
@@ -81,6 +110,12 @@ public abstract class Solver {
         for (int i = 0; i < backtrackCases.size(); i++) {
             originalCases.get(i).setValue(backtrackCases.get(i).getValue());
         }
+
+        // on donne les logs au menu
+        if (menuLogs != null) {
+            menuLogs.addAll(logs);
+        }
+
         return true;
     }
 
@@ -112,6 +147,7 @@ public abstract class Solver {
                 // on essaie une de ses valeurs possibles
                 value = (int) c.possibleValues().toArray()[ThreadLocalRandom.current().nextInt(0, c.possibleValues().size())];
                 c.tryTestValue(value);
+                log(c, puzzle);
                 // on vérifie si les contraintes sont toujours respectées
                 isValid = true;
                 for (SudokuConstraint constraint : puzzle.constraintsOnCase(c)) {
@@ -145,9 +181,11 @@ public abstract class Solver {
                 // si l'algo n'a pas abouti, la valeur n'était donc pas la bonne
                 c.removePossibleValue(value);
                 c.scrapTestValue();
+                log(c, puzzle);
             } else {
                 // sinon, on confirme la valeur
                 c.confirmTestValue();
+                // pas besoin de log, car on ne change pas la valeur visible
             }
         } while (backtrack == null);
         return backtrack;
@@ -157,9 +195,15 @@ public abstract class Solver {
      * Essaie de résoudre un puzzle à l'aide des règles de contraintes et du backtracking
      * @param puzzle Le puzzle qu'on veut résoudre
      * @param additionalConstraints Des contraintes supplémentaires si on veut en rajouter
+     * @param menuLogs Une liste de logs à laquelle ajouter les logs de l'algorithme
      * @return Un booléen qui indique si le puzzle est résolvable
      */
-    public static boolean solveWithBoth(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints) {
+    public static boolean solveWithBoth(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, ArrayList<String> menuLogs) {
+        // on initialise la liste des logs
+        if (menuLogs != null) {
+            logs = new ArrayList<>();
+        }
+
         // on crée une copie du puzzle
         Puzzle newPuzzle = puzzle.copy();
         ArrayList<SudokuConstraint> newConstraints = copyConstraints(newPuzzle, additionalConstraints);
@@ -176,6 +220,12 @@ public abstract class Solver {
         for (int i = 0; i < backtrackCases.size(); i++) {
             originalCases.get(i).setValue(backtrackCases.get(i).getValue());
         }
+
+        // on donne les logs au menu
+        if (menuLogs != null) {
+            menuLogs.addAll(logs);
+        }
+
         return true;
     }
 
@@ -211,18 +261,33 @@ public abstract class Solver {
      * Crée une solution possible pour un puzzle vide passé en paramètre
      * @param puzzle Le puzzle sur lequel créé la solution, qui doit être vide
      * @param additionalConstraints Des contraintes supplémentaires si on veut en rajouter
+     * @param menuLogs Une liste de logs à laquelle ajouter les logs de l'algorithme
      * @return Un booléen qui indique si le puzzle est résolvable
      * @throws IllegalArgumentException Si le puzzle donné n'est pas vide
      */
-    public static boolean generateNewSolvedPuzzle(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints) throws IllegalArgumentException{
+    public static boolean generateNewSolvedPuzzle(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, ArrayList<String> menuLogs) throws IllegalArgumentException{
+        // on initialise la liste des logs
+        if (menuLogs != null) {
+            logs = new ArrayList<>();
+        }
+
+        // on vérifie les arguments
         ArrayList<Case> cases = puzzle.casesList();
         for (Case c : cases) {
             if (!(c.getValue() == -1)) {
                 throw new IllegalArgumentException("Le puzzle doit être vide !");
             }
         }
+
         // on utilise l'algo mixte, car il est plus rapide que l'algo de backtracking pur
-        return solveWithBoth(puzzle, additionalConstraints);
+        boolean returnValue = solveWithBoth(puzzle, additionalConstraints, null);
+
+        // on donne les logs au menu
+        if (menuLogs != null) {
+            menuLogs.addAll(logs);
+        }
+
+        return returnValue;
     }
 
     /**
@@ -230,10 +295,17 @@ public abstract class Solver {
      * @param puzzle Le puzzle sur lequel créé une grille à résoudre, qui doit être résolu
      * @param additionalConstraints Des contraintes supplémentaires si on veut en rajouter
      * @param difficulty La difficulté qu'aura le puzzle, soit 1 (facile), 2 (moyen) ou 3 (difficile)
+     * @param menuLogs Une liste de logs à laquelle ajouter les logs de l'algorithme
      * @return Un booléen qui indique si on a enlevé assez de cases pour atteindre la difficulté souhaitée
      * @throws IllegalArgumentException Si le puzzle donné n'est pas résolu ou la difficulté n'existe pas
      */
-    public static boolean generateNewPuzzleToSolve(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, int difficulty) throws IllegalArgumentException{
+    public static boolean generateNewPuzzleToSolve(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, int difficulty, ArrayList<String> menuLogs) throws IllegalArgumentException{
+        // on initialise la liste des logs
+        if (menuLogs != null) {
+            logs = new ArrayList<>();
+        }
+
+        // on vérifie les arguments
         ArrayList<SudokuConstraint> constraints = puzzle.defaultConstraints();
         for (SudokuConstraint constraint : constraints) {
             if (!(constraint.hasBeenResolved())) {
@@ -243,8 +315,16 @@ public abstract class Solver {
         if (difficulty < 1 || difficulty > 3) {
             throw new IllegalArgumentException("La difficulté doit être comprise entre 1 et 3 !");
         }
+
         // on applique l'algo
-        return tryToRemoveValue(puzzle, additionalConstraints, 0, difficulty);
+        boolean returnValue = tryToRemoveValue(puzzle, additionalConstraints, 0, difficulty);
+
+        // on donne les logs au menu
+        if (menuLogs != null) {
+            menuLogs.addAll(logs);
+        }
+
+        return returnValue;
     }
 
     /**
@@ -259,7 +339,7 @@ public abstract class Solver {
         ArrayList<Case> casesList =  puzzle.casesList();
         // si assez de cases ont été enlevées on retourne le puzzle
         // facile = 50%, moyen = 67%, difficile = 75%
-        if ((casesList.size() - removedCases) * (difficulty + 1) < casesList.size()) {
+        if ((casesList.size() - removedCases) * (difficulty + 1) <= casesList.size()) {
             return true;
         }
         // on cherche une case à supprimer au hasard
@@ -271,10 +351,14 @@ public abstract class Solver {
             if (!(casesList.get(candidateNumber).getValue() == -1)) {
                 candidate = casesList.get(candidateNumber);
                 candidate.hideValue();
+                log(candidate, puzzle);
+                // on met à jour les contraintes sur la copie du puzzle
                 Puzzle newPuzzle = puzzle.copy();
                 ArrayList<SudokuConstraint> newConstraints = copyConstraints(newPuzzle, constraints);
                 // on utilise l'algo par contraintes, car on est sûr qu'une bonne solution est unique
-                boolean isSolvable = solveWithConstraints(newPuzzle, newConstraints);
+                stopLogging = true;
+                boolean isSolvable = solveWithConstraints(newPuzzle, newConstraints, null);
+                stopLogging = false;
                 // si le puzzle est résolvable alors on essaye d'enlever une autre case
                 if (isSolvable) {
                     boolean hasWorked = tryToRemoveValue(puzzle, constraints, removedCases + 1, difficulty);
@@ -286,6 +370,7 @@ public abstract class Solver {
                 // sinon, on remontre la valeur de la case et on passe à la suivante
                 else {
                     candidate.showValue();
+                    log(candidate, puzzle);
                 }
             }
             i++;
@@ -309,5 +394,37 @@ public abstract class Solver {
             }
         }
         return newConstraints;
+    }
+
+    /**
+     * Rajoute un log à la suite dans la liste des logs
+     * @param c La case que l'on veut logger
+     * @param puzzle Le puzzle auquel appartient la case
+     */
+    private static void log(Case c, Puzzle puzzle) {
+        if (stopLogging) return;
+        StringBuilder sb = new StringBuilder();
+        if (puzzle instanceof Multidoku) {
+            // position du sudoku
+            PlacedSudoku placedSudoku = ((Multidoku) puzzle).getSudoku(c);
+            sb.append(placedSudoku.line() + 1).append(" ").append(placedSudoku.column() + 1).append(" ");
+        }
+        // position de la case
+        sb.append(c.getLine() + 1).append(" ").append(c.getColumn() + 1).append(" ");
+        // valeur de la case
+        sb.append("-> ").append(c.getValue() + 1);
+        logs.addLast(sb.toString());
+    }
+
+    /**
+     * Rajoute un log à la suite dans la liste des logs
+     * @param constraint La contrainte qui s'applique sur la case que l'on veut logger
+     */
+    private static void log(SudokuConstraint constraint) {
+        if (stopLogging) return;
+        String log = constraint.log();
+        if (log != null) {
+            logs.addLast(log);
+        }
     }
 }

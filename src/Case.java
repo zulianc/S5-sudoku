@@ -140,12 +140,15 @@ public class Case {
     /**
      * Indique à la case qu'elle ne doit pas prendre cette valeur, ce qui ne fait rien si cette valeur était déjà impossible
      * @param valeur La valeur à essayer d'enlever
+     * @return Si le fait d'enlever cette valeur a résolu la case
      */
-    public void removePossibleValue(int valeur) {
+    public boolean removePossibleValue(int valeur) {
         this.possibleValues.remove(valeur);
-        if (this.possibleValues.size() == 1) {
+        if (this.possibleValues.size() == 1 && this.value == -1) {
             this.value = possibleValues.iterator().next();
+            return true;
         }
+        return false;
     }
 
     /**

@@ -62,3 +62,39 @@ Les types de contraintes actuellement reconnues par l'application sont : `=` et 
 On définit chaque case par sa position, donc `(ligne) + " " + (colonne)`.  
 Si c'est une contrainte de multidoku, on ajoute également la position du sudoku auquel appartient la case.
 ### Le format des contraintes est le même dans les fichiers et dans le menu textuel
+# Format des logs
+Les logs sont enregistrés dans des fichiers à part des puzzles.  
+Un fichier de log représente simplement une suite d'instructions sur un puzzle,
+peu importe les valeurs qui auraient étés contenus dans ce puzzle auparavant.  
+Ils suivent le format suivant :
+```
+algorithm:
+//
+puzzleType:
+sudoku
+size:
+//
+logs:
+//
+end
+```
+```
+algorithm:
+//
+puzzleType:
+multidoku
+sudokusSize:
+//
+sudokusCount:
+//
+/* pour chaque sudoku dans multidoku */
+sudokuLine:
+//
+sudokuColumn:
+//
+/* fin pour */
+logs:
+//
+end
+```
+Les champs autres que ``logs`` sont les mêmes que dans les fichiers de sudokus/multidokus.

@@ -92,3 +92,4 @@ nb-configuration.xml
 
 data/multidokus/*.txt
 data/sudokus/*.txt
+data/logs/*.txt

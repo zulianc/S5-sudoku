@@ -93,9 +93,13 @@ public abstract class Menu {
             if (choice == 2) {
                 puzzle = FilesOperations.readMultidokuFromFile(filename);
             }
-            if (puzzle != null) {
-                System.out.println(puzzle);
+            if (puzzle == null) {
+                return;
             }
+
+            separator();
+            success("Grille importée !");
+            System.out.println(puzzle);
         }
     }
 
@@ -125,7 +129,6 @@ public abstract class Menu {
 
         if (choice == 1) {
             solvePuzzle(puzzle);
-            askToSavePuzzle(puzzle);
         }
     }
 
@@ -176,12 +179,12 @@ public abstract class Menu {
             if (puzzle == null) {
                 return;
             }
-            System.out.println("Grille importée : ");
+            separator();
+            success("Grille importée !");
             System.out.println(puzzle);
         }
 
         solvePuzzle(puzzle);
-        askToSavePuzzle(puzzle);
     }
 
     /**
@@ -201,10 +204,14 @@ public abstract class Menu {
             constraints = getCustomRules(puzzle);
         }
 
+        separator();
+        String filename = null;
         try {
-            boolean valid = Solver.generateNewSolvedPuzzle(puzzle, constraints);
+            ArrayList<String> logs = new ArrayList<>();
+            boolean valid = Solver.generateNewSolvedPuzzle(puzzle, constraints, logs);
+            filename = FilesOperations.createNewLogFile(logs, "solved", puzzle);
             if (valid) {
-                System.out.println("Une nouvelle grille a été créée !");
+                success("Nouvelle grille résolue créée !");
             }
             else {
                 error("Une nouvelle grille n'a pas pu être créée !");
@@ -213,10 +220,10 @@ public abstract class Menu {
         catch (IllegalArgumentException e) {
             error("La grille spécifié n'a pas pu être utilisée pour générer une nouvelle grille résolue !");
             error(e.getMessage());
-            return;
         }
 
         System.out.println(puzzle);
+        askToSeeLogs(filename);
         askToSavePuzzle(puzzle);
     }
 
@@ -248,11 +255,15 @@ public abstract class Menu {
             constraints = getCustomRules(puzzle);
         }
 
+        separator();
+        String filename = null;
         try {
-            boolean valid = Solver.generateNewSolvedPuzzle(puzzle, constraints);
+            boolean valid = Solver.generateNewSolvedPuzzle(puzzle, constraints, null);
             if (valid) {
-                valid = Solver.generateNewPuzzleToSolve(puzzle, constraints, difficulty);
-                System.out.println("Une nouvelle grille a été créée !");
+                ArrayList<String> logs = new ArrayList<>();
+                valid = Solver.generateNewPuzzleToSolve(puzzle, constraints, difficulty, logs);
+                filename = FilesOperations.createNewLogFile(logs, "toSolve-" + difficulty, puzzle);
+                success("Nouvelle grille à résoudre créée !");
                 if (!valid) {
                     important("L'algorithme n'a pas pu générer de grille plus dure que celle-ci !");
                 }
@@ -268,6 +279,7 @@ public abstract class Menu {
         }
 
         System.out.println(puzzle);
+        askToSeeLogs(filename);
         askToSavePuzzle(puzzle);
     }
 
@@ -302,7 +314,7 @@ public abstract class Menu {
             important("Attention, il est très fastidieux de créer un sudoku à la main au-delà de 6 de taille !");
         }
         else {
-            important("Attention, il peut être très long de générer des sudokus au-délà de 20 de taille !");
+            important("Attention, il peut être très long de générer des sudokus au-delà de 16 de taille !");
         }
         System.out.print("Taille du sudoku : ");
         int size = getIntFromUser(false);
@@ -380,7 +392,8 @@ public abstract class Menu {
             return null;
         }
 
-        System.out.println("Sudoku créé : ");
+        separator();
+        success("Nouveau sudoku créé !");
         System.out.println(sudoku);
 
         return sudoku;
@@ -405,9 +418,9 @@ public abstract class Menu {
         important("Quel algorithme utiliser pour résoudre la grille ?");
         int algoChoice;
         do {
-            System.out.println("1. Résoudre avec simplement les contraintes");
-            System.out.println("2. Résoudre avec simplement le backtracking");
-            System.out.println("3. Résoudre avec un mix des deux");
+            System.out.println("1. Résoudre avec simplement les contraintes (vitesse ++, efficacité -)");
+            System.out.println("2. Résoudre avec simplement le backtracking (vitesse --, efficacité ++)");
+            System.out.println("3. Résoudre avec un mix des deux (vitesse -+, efficacité ++)");
             System.out.print("Choix : ");
             algoChoice = getIntFromUser(false);
         } while (algoChoice < 1 || algoChoice > 3);
@@ -420,24 +433,32 @@ public abstract class Menu {
             constraints = getCustomRules(puzzle);
         }
 
+        separator();
+        ArrayList<String> logs = new ArrayList<>();
         boolean solved = false;
+        String filename = null;
         if (algoChoice == 1) {
-            solved = Solver.solveWithConstraints(puzzle, constraints);
+            solved = Solver.solveWithConstraints(puzzle, constraints, logs);
+            filename = FilesOperations.createNewLogFile(logs, "constraints", puzzle);
         }
         if (algoChoice == 2) {
-            solved = Solver.solveWithBacktracking(puzzle, constraints);
+            solved = Solver.solveWithBacktracking(puzzle, constraints, logs);
+            filename = FilesOperations.createNewLogFile(logs, "backtracking", puzzle);
         }
         if (algoChoice == 3) {
-            solved = Solver.solveWithBoth(puzzle, constraints);
+            solved = Solver.solveWithBoth(puzzle, constraints, logs);
+            filename = FilesOperations.createNewLogFile(logs, "mixed", puzzle);
         }
 
-        separator();
         if (solved) {
-            System.out.println("La grille a été résolue !");
+            success("La grille a été résolue !");
         } else {
             error("La grille n'a pas pu être résolue !");
         }
         System.out.println(puzzle);
+
+        askToSeeLogs(filename);
+        askToSavePuzzle(puzzle);
     }
 
     /**
@@ -490,7 +511,7 @@ public abstract class Menu {
                 }
             }
 
-            important("Ajouter une autre contrainte ? ");
+            important("Ajouter une autre contrainte ?");
             int choice = askYesOrNo();
             stop = (choice == 2);
         }
@@ -517,7 +538,21 @@ public abstract class Menu {
                 error("Type de grille inconnue !");
                 return;
             }
-            System.out.println("Grille enregistrée !");
+            success("Grille enregistrée !");
+        }
+    }
+
+    /**
+     * Demande à l'utilisateur s'il veut voir les logs d'un fichier passé en paramètre
+     * @param filename Le nom du fichier de logs
+     */
+    private static void askToSeeLogs(String filename) {
+        if (filename == null) return;
+        separator();
+        important("Voir les logs de l'algorithme ?");
+        int choice = askYesOrNo();
+        if (choice == 1) {
+            FilesOperations.printLogs(filename);
         }
     }
 
@@ -681,9 +716,17 @@ public abstract class Menu {
 
     /**
      * Print un message en rouge dans le terminal
-     * @param message Le message en rouge
+     * @param message Le message à print
      */
     public static void error(String message) {
         System.out.println("\033[38;2;255;0;0m" + message + "\033[38;2;255;255;255m");
+    }
+
+    /**
+     * Print un message en vert dans le terminal
+     * @param message Le message à print
+     */
+    public static void success(String message) {
+        System.out.println("\033[38;2;0;255;0m" + message + "\033[38;2;255;255;255m");
     }
 }

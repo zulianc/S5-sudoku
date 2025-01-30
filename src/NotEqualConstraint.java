@@ -16,6 +16,10 @@ public class NotEqualConstraint implements SudokuConstraint {
      * Le puzzle sur lequel s'applique la contrainte
      */
     private final Puzzle puzzle;
+    /**
+     * Indique si la contrainte a en effet modifié la case sur laquelle elle applique une contrainte
+     */
+    private boolean hasAppliedItsConstraint;
 
     /**
      * Le constructeur de la classe
@@ -27,6 +31,7 @@ public class NotEqualConstraint implements SudokuConstraint {
         this.constrainedCase = constrainedCase;
         this.casesToCompareTo = casesToCompareTo;
         this.puzzle = puzzle;
+        this.hasAppliedItsConstraint = false;
     }
 
     /**
@@ -37,7 +42,8 @@ public class NotEqualConstraint implements SudokuConstraint {
     public boolean setNewPossibleValues() {
         for (Case caseToCompare : this.casesToCompareTo) {
             if (caseToCompare.getValue() != -1) {
-                constrainedCase.removePossibleValue(caseToCompare.getValue());
+                if (constrainedCase.removePossibleValue(caseToCompare.getValue()))
+                    this.hasAppliedItsConstraint = true;
             }
         }
         return this.constrainedCase.isValid();
@@ -134,14 +140,14 @@ public class NotEqualConstraint implements SudokuConstraint {
             }
         } else if (puzzle instanceof Multidoku) {
             try {
-                ((Multidoku) this.puzzle).getSudoku(this.constrainedCase);
+                ((Multidoku) puzzle).getSudoku(this.constrainedCase);
             }
             catch (IllegalArgumentException e) {
                 return false;
             }
             for (Case caseToCompare : this.casesToCompareTo) {
                 try {
-                    ((Multidoku) this.puzzle).getSudoku(caseToCompare);
+                    ((Multidoku) puzzle).getSudoku(caseToCompare);
                 }
                 catch (IllegalArgumentException e) {
                     return false;
@@ -155,8 +161,8 @@ public class NotEqualConstraint implements SudokuConstraint {
     }
 
     /**
-     * Crée un string qui représente la case
-     * @return Un string qui représente la case
+     * Crée un string qui représente la contrainte
+     * @return Un string qui représente la contrainte
      */
     @Override
     public String toString() {
@@ -164,11 +170,41 @@ public class NotEqualConstraint implements SudokuConstraint {
         // type de contrainte
         sb.append("!= ");
         // case contrainte
+        if (this.puzzle instanceof Multidoku) {
+            // position du sudoku
+            PlacedSudoku placedSudoku = ((Multidoku) this.puzzle).getSudoku(this.constrainedCase);
+            sb.append(placedSudoku.line() + 1).append(" ").append(placedSudoku.column() + 1).append(" ");
+        }
         sb.append(this.constrainedCase.getLine() + 1).append(" ").append(this.constrainedCase.getColumn() + 1).append(" ");
         // cases contraignantes
         for (Case caseToCompare : this.casesToCompareTo) {
+            if (this.puzzle instanceof Multidoku) {
+                // position du sudoku
+                PlacedSudoku placedSudoku = ((Multidoku) this.puzzle).getSudoku(caseToCompare);
+                sb.append(placedSudoku.line() + 1).append(" ").append(placedSudoku.column() + 1).append(" ");
+            }
             sb.append(caseToCompare.getLine() + 1).append(" ").append(caseToCompare.getColumn() + 1).append(" ");
         }
+        return sb.toString();
+    }
+
+    /**
+     * Retourne un String qui log une contrainte récemment appliquée, ou null s'il y en a pas
+     * @return Un String qui log la dernière contrainte appliquée, ou null sinon
+     */
+    @Override
+    public String log() {
+        if (!this.hasAppliedItsConstraint) return null;
+        StringBuilder sb = new StringBuilder();
+        if (this.puzzle instanceof Multidoku) {
+            // position du sudoku
+            PlacedSudoku placedSudoku = ((Multidoku) this.puzzle).getSudoku(this.constrainedCase);
+            sb.append(placedSudoku.line() + 1).append(" ").append(placedSudoku.column() + 1).append(" ");
+        }
+        // position de la case
+        sb.append(this.constrainedCase.getLine() + 1).append(" ").append(this.constrainedCase.getColumn() + 1).append(" ");
+        // valeur de la case
+        sb.append("-> ").append(this.constrainedCase.getValue() + 1);
         return sb.toString();
     }
 }

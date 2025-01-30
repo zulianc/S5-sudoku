@@ -47,4 +47,10 @@ public interface SudokuConstraint {
      */
     @Override
     String toString();
+
+    /**
+     * Une implémentation de cette méthode doit retourner un String qui log une contrainte récemment appliquée, ou null s'il y en a pas
+     * @return Un String qui log la dernière contrainte appliquée, ou null sinon
+     */
+    String log();
 }

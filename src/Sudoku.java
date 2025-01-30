@@ -340,7 +340,7 @@ public class Sudoku implements Puzzle {
     /**
      * Crée une copie du sudoku, qui ne comporte aucune référence vers le sudoku originel
      * @return Une copie du sudoku
-     * @throws IllegalArgumentException Si une erreur arrive durant la recopie
+     * @throws IllegalArgumentException Si une erreur arrive durant la recopie du sudoku
      */
     @Override
     public Sudoku copy() throws IllegalArgumentException {
