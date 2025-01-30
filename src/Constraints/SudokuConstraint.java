@@ -1,3 +1,7 @@
+package Constraints;
+
+import Grids.*;
+
 /**
  * Les classes qui implémentent cette interface représentent une contrainte appliquée sur une case
  */

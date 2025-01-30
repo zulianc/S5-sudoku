@@ -1,3 +1,9 @@
+package TextUI;
+
+import Constraints.*;
+import Grids.*;
+import Operations.*;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -345,7 +351,7 @@ public abstract class Menu {
 
                 if (hasCustomPlacement) {
                     do {
-                        System.out.print("Bloc auquel appartient cette case : ");
+                        System.out.print("Grids.Bloc auquel appartient cette case : ");
                         val = getIntFromUser(false);
                     } while (val < 1 || val > size);
                     placements[i][j] = val - 1;
@@ -691,8 +697,8 @@ public abstract class Menu {
     private static int askSudokuOrMultidoku() {
         int choice;
         do {
-            System.out.println("1. Sudoku");
-            System.out.println("2. Multidoku");
+            System.out.println("1. Grids.Sudoku");
+            System.out.println("2. Grids.Multidoku");
             System.out.print("Choix : ");
             choice = getIntFromUser(false);
         } while (choice < 1 || choice > 2);

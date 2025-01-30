@@ -1,3 +1,5 @@
+package Grids;
+
 /**
  * Un Bloc représente un bloc de cases qui ne peuvent pas avoir la même valeur à l'intérieur d'un Sudoku, et ne doit pas exister sans faire partie d'un sudoku
  *
@@ -37,7 +39,7 @@ public record Bloc(Case[] cases) {
     }
 
     /**
-     * Getter d'une case du bloc selon sa position dans le Sudoku
+     * Getter d'une case du bloc selon sa position dans le Grids.Sudoku
      *
      * @param line   La ligne de la case souhaitée
      * @param column La colonne de la case souhaitée

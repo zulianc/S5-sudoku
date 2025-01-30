@@ -1,7 +1,10 @@
+package Grids;
+
+import Constraints.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Un Multidoku est un puzzle constitué de plusieurs sudokus qui peuvent se superposer les uns sur les autres
@@ -82,7 +85,7 @@ public class Multidoku implements Puzzle {
      * @throws IllegalArgumentException Si les arguments passés ne créent pas une liste de symboles valide
      */
     public void setSymbols(HashMap<Integer, String> symbols) throws IllegalArgumentException {
-        Set<Integer> set = new HashSet<>();
+        HashSet<Integer> set = new HashSet<>();
         for (int i = 0; i < this.sizeSudokus; i++) {
             set.add(i);
         }

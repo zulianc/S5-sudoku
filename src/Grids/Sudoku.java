@@ -1,7 +1,15 @@
-import java.util.*;
+package Grids;
+
+import Constraints.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+
 
 /**
- * Un Sudoku représente une grille de Sudoku, c'est-à-dire une grille carrée de cases et ayant des blocs de la même taille que la grille
+ * Un Sudoku représente une grille de sudoku, c'est-à-dire une grille carrée de cases et ayant des blocs de la même taille que la grille
  */
 public class Sudoku implements Puzzle {
     /**
@@ -13,7 +21,7 @@ public class Sudoku implements Puzzle {
      */
     private final Bloc[] blocs;
     /**
-     * La taille de la grille
+     * La taille de la grille, c'est-à-dire le nombre de cases dans une ligne, une colonne, ou un bloc
      */
     private final int size;
     /**
@@ -116,7 +124,7 @@ public class Sudoku implements Puzzle {
      * @throws IllegalArgumentException Si les arguments passés ne créent pas une liste de symboles valide
      */
     public void setSymbols(HashMap<Integer, String> symbols) throws IllegalArgumentException{
-        Set<Integer> set = new HashSet<>();
+        HashSet<Integer> set = new HashSet<>();
         for (int i = 0; i < this.size; i++) {
             set.add(i);
         }

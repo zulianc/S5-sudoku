@@ -1,3 +1,7 @@
+package Grids;
+
+import Constraints.*;
+
 import java.util.ArrayList;
 
 /**

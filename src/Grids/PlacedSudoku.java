@@ -1,3 +1,5 @@
+package Grids;
+
 /**
  * Un record ayant pour but de lier un sudoku constitutif d'un multidoku avec son placement sur la grille du multidoku
  * @param sudoku Le sudoku
