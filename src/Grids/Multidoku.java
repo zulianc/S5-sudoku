@@ -186,9 +186,10 @@ public class Multidoku implements Puzzle {
     /**
      * Retourne les contraintes internes entre les cases du multidoku
      * @return Une liste de contraintes entre cases
+     * @throws RuntimeException Si une erreur interne arrive
      */
     @Override
-    public ArrayList<SudokuConstraint> defaultConstraints() {
+    public ArrayList<SudokuConstraint> defaultConstraints() throws RuntimeException {
         //TODO
         return null;
     }
@@ -197,9 +198,10 @@ public class Multidoku implements Puzzle {
      * Retourne les contraintes internes appliquées sur une case du multidoku
      * @param c La case sur laquelle les contraintes sont appliquées
      * @return La liste des contraintes appliquées sur cette case
+     * @throws RuntimeException Si une erreur interne arrive
      */
     @Override
-    public ArrayList<SudokuConstraint> constraintsOnCase(Case c) {
+    public ArrayList<SudokuConstraint> constraintsOnCase(Case c) throws RuntimeException {
         //TODO
         return null;
     }
@@ -207,9 +209,10 @@ public class Multidoku implements Puzzle {
     /**
      * Retourne la liste des cases constituant le multidoku, toujours dans le même ordre
      * @return La liste des cases constituant le multidoku
+     * @throws RuntimeException Si une erreur interne arrive
      */
     @Override
-    public ArrayList<Case> casesList() {
+    public ArrayList<Case> casesList() throws RuntimeException {
         //TODO
         return null;
     }
@@ -217,9 +220,10 @@ public class Multidoku implements Puzzle {
     /**
      * Crée une copie du multidoku, qui ne comporte aucune référence vers le multidoku originel
      * @return Une copie du multidoku
+     * @throws RuntimeException Si une erreur interne arrive
      */
     @Override
-    public Puzzle copy() {
+    public Puzzle copy() throws RuntimeException {
         //TODO
         return null;
     }

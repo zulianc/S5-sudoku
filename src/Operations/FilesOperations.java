@@ -2,7 +2,6 @@ package Operations;
 
 import Constraints.*;
 import Grids.*;
-import TextUI.*;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -17,73 +16,70 @@ public abstract class FilesOperations {
      * Prend un sudoku en entrée et le stocke dans un fichier
      * @param sudoku Le sudoku à stocker
      * @param filename Le nom du fichier où stocker le sudoku
+     * @throws IOException S'il y a une erreur lors de l'écriture dans le fichier
+     * @throws IllegalArgumentException Si les données du sudoku sont invalides
      */
-    public static void convertSudokuToFile(Sudoku sudoku, String filename) {
+    public static void convertSudokuToFile(Sudoku sudoku, String filename) throws IOException, IllegalArgumentException {
+        // ouverture du fichier (ou création s'il n'existait pas)
         String filepath = "./data/sudokus/" + filename + ".txt";
-        try {
-            // ouverture du fichier (ou création s'il n'existait pas)
-            FileWriter fw = new FileWriter(filepath);
-            BufferedWriter bw = new BufferedWriter(fw);
+        FileWriter fw = new FileWriter(filepath);
+        BufferedWriter bw = new BufferedWriter(fw);
 
-            // on récupère ce qu'on doit écrire dans le fichier
-            convertSudoku(sudoku, bw);
+        // on récupère ce qu'on doit écrire dans le fichier
+        convertSudoku(sudoku, bw);
 
-            // on écrit dans le fichier
-            bw.flush();
-            bw.close();
-            fw.close();
-        } catch (IOException e) {
-            Menu.error("Erreur lors de l'écriture dans le fichier " + filepath);
-        }
+        // on écrit dans le fichier
+        bw.flush();
+        bw.close();
+        fw.close();
     }
 
     /**
      * Prend un multidoku en entrée et le stocke dans un fichier
      * @param multidoku Le multidoku à stocker
      * @param filename Le nom du fichier où stocker le multidoku
+     * @throws IOException S'il y a une erreur lors de l'écriture dans le fichier
+     * @throws IllegalArgumentException Si les données du multidoku sont invalides
      */
-    public static void convertMultidokuToFile(Multidoku multidoku, String filename) {
+    public static void convertMultidokuToFile(Multidoku multidoku, String filename) throws IOException, IllegalArgumentException {
+
+        // ouverture du fichier (ou création s'il n'existait pas)
         String filepath = "./data/multidokus/" + filename + ".txt";
-        try {
-            // ouverture du fichier (ou création s'il n'existait pas)
-            FileWriter fw = new FileWriter(filepath);
-            BufferedWriter bw = new BufferedWriter(fw);
+        FileWriter fw = new FileWriter(filepath);
+        BufferedWriter bw = new BufferedWriter(fw);
 
-            // on écrit les informations de base du multidoku
-            boolean useCustomSymbols = (multidoku.getSymbols() != null);
-            bw.append("puzzleType:\nmultidoku\n");
-            bw.append("useCustomSymbols:\n").append(Boolean.toString(useCustomSymbols)).append("\n");
-            bw.append("sudokusCount:\n").append(Integer.toString(multidoku.getSudokus().size())).append("\n");
+        // on écrit les informations de base du multidoku
+        boolean useCustomSymbols = (multidoku.getSymbols() != null);
+        bw.append("puzzleType:\nmultidoku\n");
+        bw.append("useCustomSymbols:\n").append(Boolean.toString(useCustomSymbols)).append("\n");
+        bw.append("sudokusCount:\n").append(Integer.toString(multidoku.getSudokus().size())).append("\n");
 
-            // on écrit les informations pour chaque sudoku
-            for (PlacedSudoku placedSudoku : multidoku.getSudokus()) {
-                bw.append("sudokuLine:\n").append(Integer.toString(placedSudoku.line())).append("\n");
-                bw.append("sudokuColumn:\n").append(Integer.toString(placedSudoku.column())).append("\n");
-                convertSudoku(placedSudoku.sudoku(), bw);
-            }
-
-            // on remplit les symboles utilisés par le multidoku, s'ils ont été spécifiés
-            bw.append("symbols:\n");
-            if (useCustomSymbols) {
-                for (int i = 0; i < multidoku.getSizeSudokus(); i++) {
-                    bw.append(multidoku.getSymbols().get(i)).append("\n");
-                }
-            }
-
-            // on remplit les contraintes additionnelles sur le sudoku
-            bw.append("additionalConstraints:\n");
-            for (SudokuConstraint constraint : multidoku.getAddedConstraints()) {
-                bw.append(constraint.toString()).append("\n");
-            }
-            bw.append("end\n");
-
-            // on écrit dans le fichier
-            bw.flush();
-            bw.close();
-            fw.close();
-        } catch (IOException e) {
-            Menu.error("Erreur lors de l'écriture dans le fichier " + filepath);
+        // on écrit les informations pour chaque sudoku
+        for (PlacedSudoku placedSudoku : multidoku.getSudokus()) {
+            bw.append("sudokuLine:\n").append(Integer.toString(placedSudoku.line())).append("\n");
+            bw.append("sudokuColumn:\n").append(Integer.toString(placedSudoku.column())).append("\n");
+            convertSudoku(placedSudoku.sudoku(), bw);
         }
+
+        // on remplit les symboles utilisés par le multidoku, s'ils ont été spécifiés
+        bw.append("symbols:\n");
+        if (useCustomSymbols) {
+            for (int i = 0; i < multidoku.getSizeSudokus(); i++) {
+                bw.append(multidoku.getSymbols().get(i)).append("\n");
+            }
+        }
+
+        // on remplit les contraintes additionnelles sur le sudoku
+        bw.append("additionalConstraints:\n");
+        for (SudokuConstraint constraint : multidoku.getAddedConstraints()) {
+            bw.append(constraint.toString()).append("\n");
+        }
+        bw.append("end\n");
+
+        // on écrit dans le fichier
+        bw.flush();
+        bw.close();
+        fw.close();
     }
 
     /**
@@ -91,8 +87,9 @@ public abstract class FilesOperations {
      * @param sudoku Le sudoku à convertir
      * @param bw Le BufferedWriter où écrire
      * @throws IOException S'il y a une erreur lors de l'écriture
+     * @throws IllegalArgumentException Si les données du sudoku sont invalides
      */
-    private static void convertSudoku(Sudoku sudoku, BufferedWriter bw) throws IOException {
+    private static void convertSudoku(Sudoku sudoku, BufferedWriter bw) throws IOException, IllegalArgumentException {
         boolean useCustomPlacements = !(sudoku.isUsingDefaultPlacements());
         boolean useCustomSymbols = (sudoku.getSymbols() != null);
 
@@ -142,119 +139,101 @@ public abstract class FilesOperations {
      * Lit un sudoku depuis un fichier et renvoie une nouvelle instance de ce sudoku
      * @param filename Le fichier dans lequel est stocké le sudoku
      * @return Le sudoku créé depuis le fichier
+     * @throws IOException S'il y a une erreur lors de la lecture
+     * @throws RuntimeException S'il y a une erreur lors de la création du sudoku
      */
-    public static Sudoku readSudokuFromFile(String filename) {
+    public static Sudoku readSudokuFromFile(String filename) throws IOException, IllegalArgumentException {
+        // ouverture du fichier
         String filepath = "./data/sudokus/" + filename + ".txt";
-        try {
-            // ouverture du fichier
-            FileReader fr = new FileReader(filepath);
-            BufferedReader br = new BufferedReader(fr);
+        FileReader fr = new FileReader(filepath);
+        BufferedReader br = new BufferedReader(fr);
 
-            // on vérifie que c'est bien un fichier de sudoku
-            br.readLine();
-            String puzzleType = br.readLine();
-            if (!puzzleType.equals("sudoku")) {
-                throw new IllegalArgumentException("Le fichier " + filepath + " n'est pas un fichier de sudoku");
-            }
+        // on vérifie que c'est bien un fichier de sudoku
+        br.readLine();
+        String puzzleType = br.readLine();
+        if (!puzzleType.equals("sudoku")) {
+            throw new IllegalArgumentException("Le fichier " + filepath + " n'est pas un fichier de sudoku");
+        }
 
-            // on lit le sudoku
-            Sudoku sudoku = readSudoku(br);
+        // on lit le sudoku
+        Sudoku sudoku = readSudoku(br);
 
-            // fermeture du fichier
-            br.close();
-            fr.close();
-            return sudoku;
-        }
-        catch (IOException e) {
-            Menu.error("Erreur lors de la lecture dans le fichier " + filepath);
-            return null;
-        }
-        catch (RuntimeException e) {
-            Menu.error("Erreur lors de la création du sudoku contenu dans le fichier " + filepath);
-            Menu.error(e.getMessage());
-            return null;
-        }
+        // fermeture du fichier
+        br.close();
+        fr.close();
+        return sudoku;
     }
 
     /**
      * Lit un multidoku depuis un fichier et renvoie une nouvelle instance de ce multidoku
      * @param filename Le fichier dans lequel est stocké le multidoku
      * @return Le multidoku créé depuis le fichier
+     * @throws IOException S'il y a une erreur lors de la lecture
+     * @throws RuntimeException S'il y a une erreur lors de la création du multidoku
      */
-    public static Multidoku readMultidokuFromFile(String filename) {
+    public static Multidoku readMultidokuFromFile(String filename) throws IOException, RuntimeException {
+        // ouverture du fichier
         String filepath = "./data/multidokus/" + filename + ".txt";
-        try {
-            // ouverture du fichier
-            FileReader fr = new FileReader(filepath);
-            BufferedReader br = new BufferedReader(fr);
+        FileReader fr = new FileReader(filepath);
+        BufferedReader br = new BufferedReader(fr);
 
-            // on vérifie que c'est bien un fichier de sudoku
-            br.readLine();
-            String puzzleType = br.readLine();
-            if (!puzzleType.equals("multidoku")) {
-                throw new IllegalArgumentException("Le fichier " + filepath + " n'est pas un fichier de multidoku");
-            }
-
-            // on lit les informations de base sur le multidoku
-            br.readLine();
-            boolean hasCustomSymbols = Boolean.parseBoolean(br.readLine());
-            br.readLine();
-            int sudokusCount = Integer.parseInt(br.readLine());
-
-            // on lit les informations pour chaque sudoku
-            ArrayList<PlacedSudoku> placedSudokus = new ArrayList<>();
-            for (int i = 0; i < sudokusCount; i++) {
-                br.readLine();
-                int sudokuLine = Integer.parseInt(br.readLine()) - 1;
-                br.readLine();
-                int sudokuColumn = Integer.parseInt(br.readLine()) - 1;
-                br.readLine();
-                puzzleType = br.readLine();
-                if (!puzzleType.equals("sudoku")) {
-                    throw new IllegalArgumentException("Le sudoku numéro " + (i + 1) + " dans " + filepath + " n'est pas un fichier de sudoku");
-                }
-                Sudoku sudoku = readSudoku(br);
-                placedSudokus.add(new PlacedSudoku(sudoku, sudokuLine, sudokuColumn));
-            }
-
-            // on lit les symboles du multidoku, s'ils sont spécifiés
-            br.readLine();
-            HashMap<Integer, String> symbols = null;
-            if (hasCustomSymbols) {
-                symbols = new HashMap<>();
-                for (int i = 0; i < placedSudokus.getFirst().sudoku().getSize(); i++) {
-                    symbols.put(i, br.readLine());
-                }
-            }
-
-            // on crée le multidoku
-            Multidoku multidoku = new Multidoku(placedSudokus, symbols);
-
-            // on lit les contraintes additionnelles
-            br.readLine();
-            String line;
-            ArrayList<SudokuConstraint> constraints = new ArrayList<>();
-            do {
-                line = br.readLine();
-                if (!line.equals("end"))
-                    constraints.add(readConstraint(line, multidoku));
-            } while (!line.equals("end"));
-            multidoku.setAddedConstraints(constraints);
-
-            // fermeture du fichier
-            br.close();
-            fr.close();
-            return multidoku;
+        // on vérifie que c'est bien un fichier de sudoku
+        br.readLine();
+        String puzzleType = br.readLine();
+        if (!puzzleType.equals("multidoku")) {
+            throw new IllegalArgumentException("Le fichier " + filepath + " n'est pas un fichier de multidoku");
         }
-        catch (IOException e) {
-            Menu.error("Erreur lors de la lecture dans le fichier " + filepath);
-            return null;
+
+        // on lit les informations de base sur le multidoku
+        br.readLine();
+        boolean hasCustomSymbols = Boolean.parseBoolean(br.readLine());
+        br.readLine();
+        int sudokusCount = Integer.parseInt(br.readLine());
+
+        // on lit les informations pour chaque sudoku
+        ArrayList<PlacedSudoku> placedSudokus = new ArrayList<>();
+        for (int i = 0; i < sudokusCount; i++) {
+            br.readLine();
+            int sudokuLine = Integer.parseInt(br.readLine()) - 1;
+            br.readLine();
+            int sudokuColumn = Integer.parseInt(br.readLine()) - 1;
+            br.readLine();
+            puzzleType = br.readLine();
+            if (!puzzleType.equals("sudoku")) {
+                throw new IllegalArgumentException("Le sudoku numéro " + (i + 1) + " dans " + filepath + " n'est pas un fichier de sudoku");
+            }
+            Sudoku sudoku = readSudoku(br);
+            placedSudokus.add(new PlacedSudoku(sudoku, sudokuLine, sudokuColumn));
         }
-        catch (RuntimeException e) {
-            Menu.error("Erreur lors de la création du multidoku contenu dans le fichier " + filepath);
-            Menu.error(e.getMessage());
-            return null;
+
+        // on lit les symboles du multidoku, s'ils sont spécifiés
+        br.readLine();
+        HashMap<Integer, String> symbols = null;
+        if (hasCustomSymbols) {
+            symbols = new HashMap<>();
+            for (int i = 0; i < placedSudokus.getFirst().sudoku().getSize(); i++) {
+                symbols.put(i, br.readLine());
+            }
         }
+
+        // on crée le multidoku
+        Multidoku multidoku = new Multidoku(placedSudokus, symbols);
+
+        // on lit les contraintes additionnelles
+        br.readLine();
+        String line;
+        ArrayList<SudokuConstraint> constraints = new ArrayList<>();
+        do {
+            line = br.readLine();
+            if (!line.equals("end"))
+                constraints.add(readConstraint(line, multidoku));
+        } while (!line.equals("end"));
+        multidoku.setAddedConstraints(constraints);
+
+        // fermeture du fichier
+        br.close();
+        fr.close();
+        return multidoku;
     }
 
     /**
@@ -390,91 +369,82 @@ public abstract class FilesOperations {
      * @param algorithm Le nom de l'algorithme utilisé qui a créé les logs
      * @param puzzle Le puzzle sur lequel l'algorithme a été effectué
      * @return Le nom du fichier de logs créé
+     * @throws RuntimeException Si le puzzle n'est pas pris en charge
+     * @throws Exception S'il y a une erreur lors de l'écriture dans le fichier
      */
-    public static String createNewLogFile(ArrayList<String> logs, String algorithm, Puzzle puzzle) {
-        try {
-            // on crée le nom du fichier à partir de la date actuelle
-            LocalDateTime date = java.time.LocalDateTime.now();
-            String filepath = "./data/logs/";
-            StringBuilder filename = new StringBuilder();
-            filename.append(date.getYear()).append("_").append(date.getMonthValue()).append("_").append(date.getDayOfMonth()).append("_").append(date.getHour()).append("_").append(date.getMinute()).append("_").append(date.getSecond());
-            while (new File(filepath + filename + ".txt").isFile()) {
-                filename.append("_bis");
-            }
-            filepath = filepath + filename + ".txt";
-
-            // on ouvre le fichier
-            FileWriter fw = new FileWriter(filepath);
-            BufferedWriter bw = new BufferedWriter(fw);
-
-            // on rajoute le nom de l'algo
-            bw.append("algorithm:\n").append(algorithm).append("\n");
-
-            // on rajoute la taille du puzzle
-            if (puzzle instanceof Sudoku) {
-                bw.append("puzzleType:\nsudoku\n");
-                bw.append("size:\n").append(Integer.toString(((Sudoku) puzzle).getSize())).append("\n");
-            }
-            else if (puzzle instanceof Multidoku) {
-                bw.append("puzzleType:\nmultidoku\n");
-                bw.append("sudokusSize:\n").append(Integer.toString(((Multidoku) puzzle).getSizeSudokus())).append("\n");
-                bw.append("sudokusCount:\n").append(Integer.toString(((Multidoku) puzzle).getSudokus().size())).append("\n");
-                for (PlacedSudoku placedSudoku : (((Multidoku) puzzle).getSudokus())) {
-                    bw.append("sudokuLine:\n").append(Integer.toString(placedSudoku.line())).append("\n");
-                    bw.append("sudokuColumn:\n").append(Integer.toString(placedSudoku.column())).append("\n");
-                }
-            }
-            else {
-                throw new RuntimeException("Type de puzzle inconnu");
-            }
-
-            // on rajoute les logs
-            bw.append("logs:\n");
-            for (String line : logs) {
-                bw.append(line).append("\n");
-            }
-            bw.append("end\n");
-
-            // on ferme le fichier
-            bw.flush();
-            bw.close();
-            fw.close();
-            Menu.success("Logs enregistrés dans : " + filepath);
-            return filename.toString();
+    public static String createNewLogFile(ArrayList<String> logs, String algorithm, Puzzle puzzle) throws RuntimeException, Exception {
+        // on crée le nom du fichier à partir de la date actuelle
+        LocalDateTime date = java.time.LocalDateTime.now();
+        String filepath = "./data/logs/";
+        StringBuilder filename = new StringBuilder();
+        filename.append(date.getYear()).append("_").append(date.getMonthValue()).append("_").append(date.getDayOfMonth()).append("_").append(date.getHour()).append("_").append(date.getMinute()).append("_").append(date.getSecond());
+        while (new File(filepath + filename + ".txt").isFile()) {
+            filename.append("_bis");
         }
-        catch (Exception e) {
-            Menu.error("Erreur lors de l'écriture du fichier de logs !");
-            return null;
+        filepath = filepath + filename + ".txt";
+
+        // on ouvre le fichier
+        FileWriter fw = new FileWriter(filepath);
+        BufferedWriter bw = new BufferedWriter(fw);
+
+        // on rajoute le nom de l'algo
+        bw.append("algorithm:\n").append(algorithm).append("\n");
+
+        // on rajoute la taille du puzzle
+        if (puzzle instanceof Sudoku) {
+            bw.append("puzzleType:\nsudoku\n");
+            bw.append("size:\n").append(Integer.toString(((Sudoku) puzzle).getSize())).append("\n");
         }
+        else if (puzzle instanceof Multidoku) {
+            bw.append("puzzleType:\nmultidoku\n");
+            bw.append("sudokusSize:\n").append(Integer.toString(((Multidoku) puzzle).getSizeSudokus())).append("\n");
+            bw.append("sudokusCount:\n").append(Integer.toString(((Multidoku) puzzle).getSudokus().size())).append("\n");
+            for (PlacedSudoku placedSudoku : (((Multidoku) puzzle).getSudokus())) {
+                bw.append("sudokuLine:\n").append(Integer.toString(placedSudoku.line())).append("\n");
+                bw.append("sudokuColumn:\n").append(Integer.toString(placedSudoku.column())).append("\n");
+            }
+        }
+        else {
+            throw new RuntimeException("Type de puzzle inconnu");
+        }
+
+        // on rajoute les logs
+        bw.append("logs:\n");
+        for (String line : logs) {
+            bw.append(line).append("\n");
+        }
+        bw.append("end\n");
+
+        // on ferme le fichier
+        bw.flush();
+        bw.close();
+        fw.close();
+        return filename.toString();
     }
 
     /**
      * Affiche la suite de logs d'un fichier dans le terminal
      * @param filename Le nom du fichier de logs
+     * @throws IOException S'il y a une erreur lors de la lecture dans le fichier
      */
-    public static void printLogs(String filename) {
-        try {
-            // on ouvre le fichier
-            String filepath = "./data/logs/" + filename + ".txt";
-            FileReader fr = new FileReader(filepath);
-            BufferedReader br = new BufferedReader(fr);
+    public static void printLogs(String filename) throws IOException {
+        // on ouvre le fichier
+        String filepath = "./data/logs/" + filename + ".txt";
+        FileReader fr = new FileReader(filepath);
+        BufferedReader br = new BufferedReader(fr);
 
-            // on cherche le début des logs
-            String line;
-            do {
-                line = br.readLine();
-            } while (!line.equals("logs:"));
+        // on cherche le début des logs
+        String line;
+        do {
+            line = br.readLine();
+        } while (!line.equals("logs:"));
 
-            // on affiche tout les logs
-            do {
-                line = br.readLine();
-                if (!line.equals("end")) {
-                    System.out.println(line);
-                }
-            } while (!line.equals("end"));
-        }
-        catch (Exception e) {
-            Menu.error("Erreur lors de la lecture du fichier de logs !");
-        }
+        // on affiche tout les logs
+        do {
+            line = br.readLine();
+            if (!line.equals("end")) {
+                System.out.println(line);
+            }
+        } while (!line.equals("end"));
     }
 }

@@ -259,132 +259,155 @@ public class Sudoku implements Puzzle {
     /**
      * Retourne les contraintes internes entre les cases du sudoku
      * @return Une liste de contraintes entre cases
+     * @throws RuntimeException Si une erreur interne arrive
      */
     @Override
-    public ArrayList<SudokuConstraint> defaultConstraints() {
-        ArrayList<SudokuConstraint> constraints = new ArrayList<>();
-        NotEqualConstraint newConstraint;
-        ArrayList<Case> toInsert;
-        for(int i = 0; i < this.size; i++) {
-            for (int j = 0; j < this.size; j++) {
-                // contrainte entre la case j de la ligne i et la ligne i
-                toInsert = new ArrayList<>(Arrays.asList(this.getLine(i)).subList(0, this.size));
-                toInsert.remove(this.getLine(i)[j]);
-                newConstraint = new NotEqualConstraint(this.getLine(i)[j], toInsert, this);
-                constraints.add(newConstraint);
+    public ArrayList<SudokuConstraint> defaultConstraints() throws RuntimeException {
+        try {
+            ArrayList<SudokuConstraint> constraints = new ArrayList<>();
+            NotEqualConstraint newConstraint;
+            ArrayList<Case> toInsert;
+            for (int i = 0; i < this.size; i++) {
+                for (int j = 0; j < this.size; j++) {
+                    // contrainte entre la case j de la ligne i et la ligne i
+                    toInsert = new ArrayList<>(Arrays.asList(this.getLine(i)).subList(0, this.size));
+                    toInsert.remove(this.getLine(i)[j]);
+                    newConstraint = new NotEqualConstraint(this.getLine(i)[j], toInsert, this);
+                    constraints.add(newConstraint);
 
-                // contrainte entre la case j de la colonne i et la colonne i
-                toInsert = new ArrayList<>(Arrays.asList(this.getColumn(i)).subList(0, this.size));
-                toInsert.remove(this.getColumn(i)[j]);
-                newConstraint = new NotEqualConstraint(this.getColumn(i)[j], toInsert, this);
-                constraints.add(newConstraint);
+                    // contrainte entre la case j de la colonne i et la colonne i
+                    toInsert = new ArrayList<>(Arrays.asList(this.getColumn(i)).subList(0, this.size));
+                    toInsert.remove(this.getColumn(i)[j]);
+                    newConstraint = new NotEqualConstraint(this.getColumn(i)[j], toInsert, this);
+                    constraints.add(newConstraint);
 
-                // contrainte entre la case j du bloc i et le bloc i
-                toInsert = new ArrayList<>(Arrays.asList(this.getBloc(i).cases()).subList(0, this.size));
-                toInsert.remove(this.getBloc(i).getCase(j));
-                newConstraint = new NotEqualConstraint(this.getBloc(i).getCase(j), toInsert, this);
-                constraints.add(newConstraint);
+                    // contrainte entre la case j du bloc i et le bloc i
+                    toInsert = new ArrayList<>(Arrays.asList(this.getBloc(i).cases()).subList(0, this.size));
+                    toInsert.remove(this.getBloc(i).getCase(j));
+                    newConstraint = new NotEqualConstraint(this.getBloc(i).getCase(j), toInsert, this);
+                    constraints.add(newConstraint);
+                }
             }
+            // contraintes supplémentaires
+            constraints.addAll(this.addedConstraints);
+            return constraints;
         }
-        // contraintes supplémentaires
-        constraints.addAll(this.addedConstraints);
-        return constraints;
+        catch (IllegalArgumentException e) {
+            throw new RuntimeException("Erreur interne : " + e);
+        }
     }
 
     /**
      * Retourne les contraintes internes appliquées sur une case du sudoku
      * @param c La case sur laquelle les contraintes sont appliquées
      * @return La liste des contraintes appliquées sur cette case
+     * @throws RuntimeException Si une erreur interne arrive
      */
     @Override
-    public ArrayList<SudokuConstraint> constraintsOnCase(Case c) {
-        ArrayList<SudokuConstraint> constraints = new ArrayList<>();
-        NotEqualConstraint newConstraint;
-        ArrayList<Case> toInsert;
+    public ArrayList<SudokuConstraint> constraintsOnCase(Case c) throws RuntimeException {
+        try {
+            ArrayList<SudokuConstraint> constraints = new ArrayList<>();
+            NotEqualConstraint newConstraint;
+            ArrayList<Case> toInsert;
 
-        // contrainte entre la case et sa ligne
-        toInsert = new ArrayList<>(Arrays.asList(this.getLine(c.getLine())).subList(0, this.size));
-        toInsert.remove(c);
-        newConstraint = new NotEqualConstraint(c, toInsert, this);
-        constraints.add(newConstraint);
+            // contrainte entre la case et sa ligne
+            toInsert = new ArrayList<>(Arrays.asList(this.getLine(c.getLine())).subList(0, this.size));
+            toInsert.remove(c);
+            newConstraint = new NotEqualConstraint(c, toInsert, this);
+            constraints.add(newConstraint);
 
-        // contrainte entre la case et la colonne j
-        toInsert = new ArrayList<>(Arrays.asList(this.getColumn(c.getColumn())).subList(0, this.size));
-        toInsert.remove(c);
-        newConstraint = new NotEqualConstraint(c, toInsert, this);
-        constraints.add(newConstraint);
+            // contrainte entre la case et la colonne j
+            toInsert = new ArrayList<>(Arrays.asList(this.getColumn(c.getColumn())).subList(0, this.size));
+            toInsert.remove(c);
+            newConstraint = new NotEqualConstraint(c, toInsert, this);
+            constraints.add(newConstraint);
 
-        // contrainte entre la case et le bloc k
-        toInsert = new ArrayList<>(Arrays.asList(this.getBloc(c.getBlocIndex()).cases()).subList(0, this.size));
-        toInsert.remove(c);
-        newConstraint = new NotEqualConstraint(c, toInsert, this);
-        constraints.add(newConstraint);
+            // contrainte entre la case et le bloc k
+            toInsert = new ArrayList<>(Arrays.asList(this.getBloc(c.getBlocIndex()).cases()).subList(0, this.size));
+            toInsert.remove(c);
+            newConstraint = new NotEqualConstraint(c, toInsert, this);
+            constraints.add(newConstraint);
 
-        // contraintes supplémentaires s'appliquant sur cette case
-        for (SudokuConstraint constraint : this.addedConstraints) {
-            if (constraint.isConstraintOnCase(c)) {
-                constraints.add(constraint);
+            // contraintes supplémentaires s'appliquant sur cette case
+            for (SudokuConstraint constraint : this.addedConstraints) {
+                if (constraint.isConstraintOnCase(c)) {
+                    constraints.add(constraint);
+                }
             }
-        }
 
-        return constraints;
+            return constraints;
+        }
+        catch (IllegalArgumentException e) {
+            throw new RuntimeException("Erreur interne : " + e);
+        }
     }
 
     /**
      * Retourne la liste des cases constituant le sudoku, toujours dans le même ordre
      * @return La liste des cases constituant le sudoku
+     * @throws RuntimeException Si une erreur interne arrive
      */
     @Override
-    public ArrayList<Case> casesList() {
-        ArrayList<Case> cases = new ArrayList<>();
-        for (int i = 0; i < this.size; i++) {
-            for (int j = 0; j < this.size; j++) {
-                cases.add(this.getCase(i, j));
+    public ArrayList<Case> casesList() throws RuntimeException {
+        try {
+            ArrayList<Case> cases = new ArrayList<>();
+            for (int i = 0; i < this.size; i++) {
+                for (int j = 0; j < this.size; j++) {
+                    cases.add(this.getCase(i, j));
+                }
             }
+            return cases;
         }
-        return cases;
+        catch (IllegalArgumentException e) {
+            throw new RuntimeException("Erreur interne : " + e);
+        }
     }
 
     /**
      * Crée une copie du sudoku, qui ne comporte aucune référence vers le sudoku originel
      * @return Une copie du sudoku
-     * @throws IllegalArgumentException Si une erreur arrive durant la recopie du sudoku
+     * @throws RuntimeException Si une erreur interne arrive
      */
     @Override
-    public Sudoku copy() throws IllegalArgumentException {
-        // on copie les placements
-        int[][] placements = new int[this.size][this.size];
-        for (int i = 0; i < this.size; i++) {
-            for (int j = 0; j < this.size; j++) {
-                placements[i][j] = this.cases[i][j].getBlocIndex();
-            }
-        }
-
-        // on copie les symboles
-        HashMap<Integer, String> symbols = null;
-        if (this.symbols != null) {
-            symbols = new HashMap<>(this.symbols);
-        }
-
-        Sudoku newSudoku = new Sudoku(this.size, placements, symbols);
-
-        // on copie les valeurs des cases
-        for (int i = 0; i < this.size; i++) {
-            for (int j = 0; j < this.size; j++) {
-                if (this.cases[i][j].getValue() != -1) {
-                    newSudoku.getCase(i, j).setValue(this.cases[i][j].getValue());
+    public Sudoku copy() throws RuntimeException {
+        try {
+            // on copie les placements
+            int[][] placements = new int[this.size][this.size];
+            for (int i = 0; i < this.size; i++) {
+                for (int j = 0; j < this.size; j++) {
+                    placements[i][j] = this.cases[i][j].getBlocIndex();
                 }
             }
-        }
 
-        // on copie les contraintes additionnelles
-        ArrayList<SudokuConstraint> newConstraints = new ArrayList<>();
-        for (SudokuConstraint constraint : this.addedConstraints) {
-            newConstraints.add(constraint.copy(newSudoku));
-        }
-        newSudoku.setAddedConstraints(newConstraints);
+            // on copie les symboles
+            HashMap<Integer, String> symbols = null;
+            if (this.symbols != null) {
+                symbols = new HashMap<>(this.symbols);
+            }
 
-        return newSudoku;
+            Sudoku newSudoku = new Sudoku(this.size, placements, symbols);
+
+            // on copie les valeurs des cases
+            for (int i = 0; i < this.size; i++) {
+                for (int j = 0; j < this.size; j++) {
+                    if (this.cases[i][j].getValue() != -1) {
+                        newSudoku.getCase(i, j).setValue(this.cases[i][j].getValue());
+                    }
+                }
+            }
+
+            // on copie les contraintes additionnelles
+            ArrayList<SudokuConstraint> newConstraints = new ArrayList<>();
+            for (SudokuConstraint constraint : this.addedConstraints) {
+                newConstraints.add(constraint.copy(newSudoku));
+            }
+            newSudoku.setAddedConstraints(newConstraints);
+
+            return newSudoku;
+        }
+        catch (IllegalArgumentException e) {
+            throw new RuntimeException("Erreur interne : " + e);
+        }
     }
 
     /**

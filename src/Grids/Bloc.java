@@ -2,13 +2,11 @@ package Grids;
 
 /**
  * Un Bloc représente un bloc de cases qui ne peuvent pas avoir la même valeur à l'intérieur d'un Sudoku, et ne doit pas exister sans faire partie d'un sudoku
- *
  * @param cases Les cases contenues dans le bloc
  */
 public record Bloc(Case[] cases) {
     /**
      * Constructeur
-     *
      * @param cases Les cases contenues dans le bloc
      */
     public Bloc {
@@ -16,7 +14,6 @@ public record Bloc(Case[] cases) {
 
     /**
      * Getter des cases du bloc
-     *
      * @return Les cases du bloc
      */
     @Override
@@ -26,7 +23,6 @@ public record Bloc(Case[] cases) {
 
     /**
      * Getter de la i-ème case contenue dans le bloc
-     *
      * @param index La position de la case dans le bloc
      * @return La case dans le bloc, si elle existe
      * @throws IllegalArgumentException Si les arguments passés n'obtiennent pas une case valide
@@ -39,9 +35,8 @@ public record Bloc(Case[] cases) {
     }
 
     /**
-     * Getter d'une case du bloc selon sa position dans le Grids.Sudoku
-     *
-     * @param line   La ligne de la case souhaitée
+     * Getter d'une case du bloc selon sa position dans le Sudoku
+     * @param line La ligne de la case souhaitée
      * @param column La colonne de la case souhaitée
      * @return La case souhaitée, si elle existe
      * @throws IllegalArgumentException Si les arguments passés n'obtiennent pas une case valide
@@ -57,7 +52,6 @@ public record Bloc(Case[] cases) {
 
     /**
      * Getter de la taille du bloc
-     *
      * @return La taille du bloc
      */
     public int getSize() {

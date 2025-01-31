@@ -5,9 +5,11 @@ import Grids.*;
 import Operations.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * La classe qui gère l'interface entre l'utilisateur et l'application
@@ -92,20 +94,7 @@ public abstract class Menu {
         String filename = askWhichFileToImport((choice == 2));
 
         if (filename != null) {
-            Puzzle puzzle = null;
-            if (choice == 1) {
-                puzzle = FilesOperations.readSudokuFromFile(filename);
-            }
-            if (choice == 2) {
-                puzzle = FilesOperations.readMultidokuFromFile(filename);
-            }
-            if (puzzle == null) {
-                return;
-            }
-
-            separator();
-            success("Grille importée !");
-            System.out.println(puzzle);
+            importPuzzle();
         }
     }
 
@@ -132,7 +121,6 @@ public abstract class Menu {
         separator();
         important("Voulez-vous résoudre cette grille ?");
         choice = askYesOrNo();
-
         if (choice == 1) {
             solvePuzzle(puzzle);
         }
@@ -169,25 +157,10 @@ public abstract class Menu {
             askToSavePuzzle(puzzle);
         }
         if (choice == 2) {
-            separator();
-            important("Quel type de grille importer ?");
-            choice = askSudokuOrMultidoku();
-            String filename = askWhichFileToImport((choice == 2));
-            if (filename == null) {
-                return;
-            }
-            if (choice == 1) {
-                puzzle = FilesOperations.readSudokuFromFile(filename);
-            }
-            if (choice == 2) {
-                puzzle = FilesOperations.readMultidokuFromFile(filename);
-            }
+            puzzle = importPuzzle();
             if (puzzle == null) {
                 return;
             }
-            separator();
-            success("Grille importée !");
-            System.out.println(puzzle);
         }
 
         solvePuzzle(puzzle);
@@ -197,11 +170,13 @@ public abstract class Menu {
      * Un des sous-menus principaux, qui permet de générer un puzzle résolu
      */
     public static void generateSolvedPuzzleSubMenu() {
+        // on crée le puzzle
         Puzzle puzzle = createEmptyPuzzle();
         if (puzzle == null) {
             return;
         }
 
+        // on demande les contraintes supplémentaires
         ArrayList<SudokuConstraint> constraints = null;
         separator();
         important("Voulez-vous spécifier des règles supplémentaires ?");
@@ -210,12 +185,13 @@ public abstract class Menu {
             constraints = getCustomRules(puzzle);
         }
 
+        // on applique l'algorithme
         separator();
         String filename = null;
         try {
             ArrayList<String> logs = new ArrayList<>();
             boolean valid = Solver.generateNewSolvedPuzzle(puzzle, constraints, logs);
-            filename = FilesOperations.createNewLogFile(logs, "solved", puzzle);
+            filename = logOperations(logs, "solved", puzzle);
             if (valid) {
                 success("Nouvelle grille résolue créée !");
             }
@@ -228,6 +204,7 @@ public abstract class Menu {
             error(e.getMessage());
         }
 
+        // on affiche le résultat
         System.out.println(puzzle);
         askToSeeLogs(filename);
         askToSavePuzzle(puzzle);
@@ -237,11 +214,13 @@ public abstract class Menu {
      * Un des sous-menus principaux, qui permet de générer un puzzle à résoudre
      */
     public static void generatePuzzleToSolveSubMenu() {
+        // on crée un puzzle vide
         Puzzle puzzle = createEmptyPuzzle();
         if (puzzle == null) {
             return;
         }
 
+        // on demande la difficulté
         separator();
         important("Quelle sera la difficulté pour résoudre la grille ?");
         int difficulty;
@@ -253,6 +232,7 @@ public abstract class Menu {
             difficulty = getIntFromUser(false);
         } while (difficulty < 1 || difficulty > 3);
 
+        // on demande les contraintes supplémentaires
         ArrayList<SudokuConstraint> constraints = null;
         separator();
         important("Voulez-vous spécifier des règles supplémentaires ?");
@@ -261,6 +241,7 @@ public abstract class Menu {
             constraints = getCustomRules(puzzle);
         }
 
+        // on applique l'algorithme
         separator();
         String filename = null;
         try {
@@ -268,7 +249,7 @@ public abstract class Menu {
             if (valid) {
                 ArrayList<String> logs = new ArrayList<>();
                 valid = Solver.generateNewPuzzleToSolve(puzzle, constraints, difficulty, logs);
-                filename = FilesOperations.createNewLogFile(logs, "toSolve-" + difficulty, puzzle);
+                filename = logOperations(logs, "toSolve-" + difficulty, puzzle);
                 success("Nouvelle grille à résoudre créée !");
                 if (!valid) {
                     important("L'algorithme n'a pas pu générer de grille plus dure que celle-ci !");
@@ -284,9 +265,80 @@ public abstract class Menu {
             return;
         }
 
+        // on affiche le résultat
         System.out.println(puzzle);
         askToSeeLogs(filename);
         askToSavePuzzle(puzzle);
+    }
+
+    /**
+     * Demande à l'utilisateur d'importer un puzzle
+     * @return Le puzzle choisi par l'utilisateur, ou null si un puzzle n'a pas pu être importé
+     */
+    private static Puzzle importPuzzle() {
+        separator();
+        important("Quel type de grille importer ?");
+        int choice = askSudokuOrMultidoku();
+        String filename = askWhichFileToImport((choice == 2));
+        if (filename == null) {
+            return null;
+        }
+        try {
+            Puzzle puzzle = null;
+            if (choice == 1) {
+                puzzle = FilesOperations.readSudokuFromFile(filename);
+            }
+            if (choice == 2) {
+                puzzle = FilesOperations.readMultidokuFromFile(filename);
+            }
+            if (puzzle == null) {
+                return null;
+            }
+            separator();
+            success("Grille importée !");
+            System.out.println(puzzle);
+            return puzzle;
+        }
+        catch (IOException e) {
+            error("Erreur lors de la lecture dans le fichier");
+            return null;
+        }
+        catch (RuntimeException e) {
+            error("Erreur lors de la lecture dans le fichier");
+            error(e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Demande à l'utilisateur s'il veut sauvegarder le puzzle passé en paramètre dans un fichier
+     * @param puzzle Le puzzle à sauvegarder dans un fichier
+     */
+    private static void askToSavePuzzle(Puzzle puzzle) {
+        separator();
+        important("Enregistrer cette grille dans un fichier ?");
+        int choice = askYesOrNo();
+        if (choice == 1) {
+            try {
+                String filename = askNewFileName((puzzle instanceof Multidoku));
+                if (puzzle instanceof Sudoku) {
+                    FilesOperations.convertSudokuToFile((Sudoku) puzzle, filename);
+                } else if (puzzle instanceof Multidoku) {
+                    FilesOperations.convertMultidokuToFile((Multidoku) puzzle, filename);
+                } else {
+                    error("Type de grille inconnue !");
+                    return;
+                }
+                success("Grille enregistrée !");
+            }
+            catch (IOException e) {
+                error("Erreur lors de l'écriture dans le fichier !");
+            }
+            catch (RuntimeException e) {
+                error("Le sudoku n'a pas pu être écrit dans un fichier !");
+                error(e.getMessage());
+            }
+        }
     }
 
     /**
@@ -318,6 +370,7 @@ public abstract class Menu {
         separator();
         System.out.println("Veuillez remplir les informations du sudoku");
 
+        // choix de la taille du sudoku
         int size;
         if (specifiedSize == null) {
             if (!isEmpty) {
@@ -336,6 +389,7 @@ public abstract class Menu {
         int[][] values = new int[size][size];
         int[][] placements = new int[size][size];
 
+        // choix des positions et valeurs des cases
         important("Voulez-vous spécifier la position des blocs ?");
         int input = askYesOrNo();
         boolean hasCustomPlacement = (input == 1);
@@ -366,12 +420,12 @@ public abstract class Menu {
                 }
             }
         }
-
         if (!hasCustomPlacement) {
             placements = null;
         }
 
         try {
+            // création du sudoku
             Sudoku sudoku = new Sudoku(size, placements);
             for (int i = 0; i < size; i++) {
                 for (int j = 0; j < size; j++) {
@@ -380,6 +434,7 @@ public abstract class Menu {
                 }
             }
 
+            // choix des symboles utilisés
             important("Voulez-vous spécifier les symboles utilisés ?");
             input = askYesOrNo();
             if (input == 1) {
@@ -392,6 +447,7 @@ public abstract class Menu {
                 sudoku.setSymbols(symbols);
             }
 
+            // choix des contraintes sur le sudoku
             important("Voulez-vous ajouter des règles internes au sudoku ?");
             input = askYesOrNo();
             if (input == 1) {
@@ -399,6 +455,7 @@ public abstract class Menu {
                 sudoku.setAddedConstraints(constraints);
             }
 
+            // affichage du sudoku créé
             separator();
             success("Nouveau sudoku créé !");
             System.out.println(sudoku);
@@ -417,6 +474,7 @@ public abstract class Menu {
      * @return Le sudoku créé par l'utilisateur
      */
     private static Multidoku createMultidoku(boolean isEmpty) {
+        // choix de la taille des sudokus
         separator();
         System.out.println("Veuillez remplir les informations du sudoku");
         if (!isEmpty) {
@@ -428,6 +486,7 @@ public abstract class Menu {
         System.out.print("Taille des sudokus : ");
         int sizeSudokus = getIntFromUser(false);
 
+        // création des sudokus
         ArrayList<PlacedSudoku> placedSudokus = new ArrayList<>();
         for (int i = 0; i < sizeSudokus; i++) {
             separator();
@@ -441,8 +500,10 @@ public abstract class Menu {
         }
 
         try {
+            // création du multidoku
             Multidoku multidoku = new Multidoku(placedSudokus);
 
+            // choix des symboles utilisés
             important("Voulez-vous spécifier les symboles utilisés ?");
             int input = askYesOrNo();
             if (input == 1) {
@@ -455,12 +516,18 @@ public abstract class Menu {
                 multidoku.setSymbols(symbols);
             }
 
+            // choix des contraintes sur le multidoku
             important("Voulez-vous ajouter des règles internes au multidoku ?");
             input = askYesOrNo();
             if (input == 1) {
                 ArrayList<SudokuConstraint> constraints = getCustomRules(multidoku);
                 multidoku.setAddedConstraints(constraints);
             }
+
+            // affichage du multidoku créé
+            separator();
+            success("Nouveau multidoku créé !");
+            System.out.println(multidoku);
 
             return multidoku;
         }
@@ -476,6 +543,7 @@ public abstract class Menu {
      * @param puzzle Le puzzle à résoudre
      */
     private static void solvePuzzle(Puzzle puzzle) {
+        // on demande l'algorithme à utiliser
         separator();
         important("Quel algorithme utiliser pour résoudre la grille ?");
         int algoChoice;
@@ -487,6 +555,7 @@ public abstract class Menu {
             algoChoice = getIntFromUser(false);
         } while (algoChoice < 1 || algoChoice > 3);
 
+        // on demande les contraintes supplémentaires
         ArrayList<SudokuConstraint> constraints = null;
         separator();
         important("Voulez-vous spécifier des règles supplémentaires ?");
@@ -495,23 +564,31 @@ public abstract class Menu {
             constraints = getCustomRules(puzzle);
         }
 
+        // on applique l'algorithme
         separator();
         ArrayList<String> logs = new ArrayList<>();
         boolean solved = false;
         String filename = null;
-        if (algoChoice == 1) {
-            solved = Solver.solveWithConstraints(puzzle, constraints, logs);
-            filename = FilesOperations.createNewLogFile(logs, "constraints", puzzle);
+        try {
+            if (algoChoice == 1) {
+                solved = Solver.solveWithConstraints(puzzle, constraints, logs);
+                filename = logOperations(logs, "constraints", puzzle);
+            }
+            if (algoChoice == 2) {
+                solved = Solver.solveWithBacktracking(puzzle, constraints, logs);
+                filename = logOperations(logs, "backtracking", puzzle);
+            }
+            if (algoChoice == 3) {
+                solved = Solver.solveWithBoth(puzzle, constraints, logs);
+                filename = logOperations(logs, "mixed", puzzle);
+            }
         }
-        if (algoChoice == 2) {
-            solved = Solver.solveWithBacktracking(puzzle, constraints, logs);
-            filename = FilesOperations.createNewLogFile(logs, "backtracking", puzzle);
-        }
-        if (algoChoice == 3) {
-            solved = Solver.solveWithBoth(puzzle, constraints, logs);
-            filename = FilesOperations.createNewLogFile(logs, "mixed", puzzle);
+        catch (RuntimeException e) {
+            error("L'algorithme a échoué !");
+            error(e.getMessage());
         }
 
+        // on affiche le résultat
         if (solved) {
             success("La grille a été résolue !");
         } else {
@@ -551,26 +628,26 @@ public abstract class Menu {
     }
 
     /**
-     * Demande à l'utilisateur s'il veut sauvegarder le puzzle passé en paramètre dans un fichier
-     * @param puzzle Le puzzle à sauvegarder dans un fichier
+     * Crée un nouveau fichier de logs
+     * @param logs La suite d'opération à loguer
+     * @param algorithm Le nom de l'algorithme utilisé
+     * @param puzzle Le puzzle sur lequel a été réalisé l'algorithme
+     * @return Le nom du fichier de logs créé, ou null s'il y a une erreur
      */
-    private static void askToSavePuzzle(Puzzle puzzle) {
-        separator();
-        important("Enregistrer cette grille dans un fichier ?");
-        int choice = askYesOrNo();
-        if (choice == 1) {
-            String filename = askNewFileName((puzzle instanceof Multidoku));
-            if (puzzle instanceof Sudoku) {
-                FilesOperations.convertSudokuToFile((Sudoku) puzzle, filename);
-            }
-            else if (puzzle instanceof Multidoku) {
-                FilesOperations.convertMultidokuToFile((Multidoku) puzzle, filename);
-            }
-            else {
-                error("Type de grille inconnue !");
-                return;
-            }
-            success("Grille enregistrée !");
+    private static String logOperations(ArrayList<String> logs, String algorithm, Puzzle puzzle) {
+        try {
+            String filename = FilesOperations.createNewLogFile(logs, algorithm, puzzle);
+            success("Logs enregistrés dans : S5-sudoku/data/logs/" + filename + ".txt");
+            return filename;
+        }
+        catch (RuntimeException e) {
+            error("Erreur lors de l'écriture du fichier de logs !");
+            error(e.getMessage());
+            return null;
+        }
+        catch (Exception e) {
+            error("Erreur lors de l'écriture du fichier de logs !");
+            return null;
         }
     }
 
@@ -584,7 +661,12 @@ public abstract class Menu {
         important("Voir les logs de l'algorithme ?");
         int choice = askYesOrNo();
         if (choice == 1) {
-            FilesOperations.printLogs(filename);
+            try {
+                FilesOperations.printLogs(filename);
+            }
+            catch (IOException e) {
+                error("Erreur lors de la lecture du fichier de logs !");
+            }
         }
     }
 
@@ -594,19 +676,28 @@ public abstract class Menu {
      * @return Le nom du fichier choisi par l'utilisateur
      */
     private static String askWhichFileToImport(boolean isMultidoku) {
-        String directoryPath = (isMultidoku) ? "./data/multidokus" : "./data/sudokus";
-        File puzzleDirectory = new File(directoryPath);
-        File[] puzzles = puzzleDirectory.listFiles();
-        
+        // récupère la liste des fichiers
+        File[] puzzles = null;
+        try {
+            String directoryPath = (isMultidoku) ? "./data/multidokus" : "./data/sudokus";
+            File puzzleDirectory = new File(directoryPath);
+            puzzles = puzzleDirectory.listFiles();
+        }
+        catch (Exception e) {
+            error("Erreur lors de l'accès aux grilles enregistrées !");
+        }
+
         int validFilesCount = 0;
         String[] validFiles;
         separator();
         important("Fichiers enregistrés : ");
+        // si il y a aucun fichier
         if (puzzles == null) {
             System.out.println("Pas de fichiers trouvés !");
             return null;
         }
 
+        // on liste les fichiers .txt enregistrés
         validFiles = new String[puzzles.length];
         for (File puzzle : puzzles) {
             if (puzzle.getName().endsWith(".txt")) {
@@ -616,11 +707,13 @@ public abstract class Menu {
             }
         }
 
+        // si il y a aucun fichier .txt
         if (validFilesCount == 0) {
             System.out.println("Pas de fichiers trouvés !");
             return null;
         }
 
+        // on demande quel fichier importer
         important("Importer quel fichier ?");
         int choice;
         do {
@@ -637,9 +730,18 @@ public abstract class Menu {
      * @return Le nom du fichier spécifié par l'utilisateur
      */
     private static String askNewFileName(boolean isMultidoku) {
-        String directoryPath = (isMultidoku) ? "./data/multidokus" : "./data/sudokus";
-        File puzzleDirectory = new File(directoryPath);
-        File[] puzzles = puzzleDirectory.listFiles();
+        // récupère la liste des fichiers
+        File[] puzzles = null;
+        try {
+            String directoryPath = (isMultidoku) ? "./data/multidokus" : "./data/sudokus";
+            File puzzleDirectory = new File(directoryPath);
+            puzzles = puzzleDirectory.listFiles();
+        }
+        catch (Exception e) {
+            error("Erreur lors de l'accès aux grilles enregistrées !");
+        }
+
+        // on récupère le nom des fichiers .txt
         ArrayList<String> filesNames = new ArrayList<>();
         if (puzzles != null) {
             for (File puzzle : puzzles) {
@@ -649,6 +751,7 @@ public abstract class Menu {
             }
         }
 
+        // on demande comment nommer le fichier
         separator();
         String filename = null;
         boolean fileIsOK = false;
@@ -656,19 +759,24 @@ public abstract class Menu {
             important("Comment voulez-vous appeler le fichier ?");
             System.out.print("Nom : ");
             filename = scanner.nextLine();
-
-            if (!filename.matches("[A-Za-z0-9_-]+")) {
-                error("Nom invalide ! Caractères autorisés : lettres sans accents, chiffres, _, -");
+            try {
+                // si le fichier n'a pas un nom valide
+                if (!filename.matches("[A-Za-z0-9_-]+")) {
+                    error("Nom invalide ! Caractères autorisés : lettres sans accents, chiffres, _, -");
+                }
+                // si le fichier existe déjà
+                else if (filesNames.contains(filename)) {
+                    important("Ce fichier existe déjà, écraser le fichier ?");
+                    int choice = askYesOrNo();
+                    fileIsOK = (choice == 1);
+                }
+                // si tout va bien
+                else {
+                    fileIsOK = true;
+                }
             }
-
-            else if (filesNames.contains(filename)) {
-                important("Ce fichier existe déjà, écraser le fichier ?");
-                int choice = askYesOrNo();
-                fileIsOK = (choice == 1);
-            }
-
-            else {
-                fileIsOK = true;
+            catch (PatternSyntaxException e) {
+                error("Erreur lors du test de la validité du nom du fichier !");
             }
         }
 
@@ -681,24 +789,32 @@ public abstract class Menu {
      * @return L'entier rentré par l'utilisateur
      */
     private static int getIntFromUser(boolean convertNothingToZero) {
-        int value = -99;
-        boolean validInput = false;
-        while (!validInput) {
-            String input = scanner.nextLine();
-            if (convertNothingToZero && input.isEmpty()) {
-                value = 0;
-                validInput = true;
-            }
-            else {
-                if (input.matches("[0-9]+")) {
-                    value = Integer.parseInt(input);
+        try {
+            int value = -99;
+            boolean validInput = false;
+            while (!validInput) {
+                String input = scanner.nextLine();
+                // si on accepte les réponses vides
+                if (convertNothingToZero && input.isEmpty()) {
+                    value = 0;
                     validInput = true;
                 } else {
-                    System.out.print("\033[38;2;255;0;0m" + "Veuillez rentrer un nombre : " + "\033[38;2;255;255;255m");
+                    // si l'input à la forme d'un nombre
+                    if (input.matches("[0-9]+")) {
+                        value = Integer.parseInt(input);
+                        validInput = true;
+                    } else {
+                        // sinon, on redemande jusqu'à ce que ce soit bon
+                        System.out.print("\033[38;2;255;0;0m" + "Veuillez rentrer un nombre : " + "\033[38;2;255;255;255m");
+                    }
                 }
             }
+            return value;
         }
-        return value;
+        catch (Exception e) {
+            error("Erreur lors de l'essaie de la lecture du nombre !");
+            return -99;
+        }
     }
 
     /**

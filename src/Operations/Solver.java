@@ -91,8 +91,9 @@ public abstract class Solver {
      * @param additionalConstraints Des contraintes supplémentaires si on veut en rajouter
      * @param menuLogs Une liste de logs à laquelle ajouter les logs de l'algorithme
      * @return Un booléen qui indique si le puzzle est résolvable
+     * @throws IllegalArgumentException Si une erreur arrive durant la résolution
      */
-    public static boolean solveWithBacktracking(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, ArrayList<String> menuLogs) {
+    public static boolean solveWithBacktracking(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, ArrayList<String> menuLogs) throws IllegalArgumentException {
         // on initialise la liste des logs
         if (menuLogs != null) {
             logs = new ArrayList<>();
@@ -130,8 +131,9 @@ public abstract class Solver {
      * @param constraints Des contraintes additionnelles sur le puzzle
      * @param isPureBacktracking Indique si la méthode est appelée dans le cas de l'algo de backtracking pure ou de l'algo mixte
      * @return Le puzzle résolu s'il est résolvable, null sinon
+     * @throws IllegalArgumentException Si une erreur arrive durant la résolution
      */
-    private static Puzzle applyBacktracking(Puzzle puzzle, ArrayList<SudokuConstraint> constraints, boolean isPureBacktracking) {
+    private static Puzzle applyBacktracking(Puzzle puzzle, ArrayList<SudokuConstraint> constraints, boolean isPureBacktracking) throws IllegalArgumentException {
         // on cherche la case à tester
         Case testedCase;
         ArrayList<Case> casesList = puzzle.casesList();
@@ -232,8 +234,9 @@ public abstract class Solver {
      * @param additionalConstraints Des contraintes supplémentaires si on veut en rajouter
      * @param menuLogs Une liste de logs à laquelle ajouter les logs de l'algorithme
      * @return Un booléen qui indique si le puzzle est résolvable
+     * @throws IllegalArgumentException Si une erreur arrive durant la résolution
      */
-    public static boolean solveWithBoth(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, ArrayList<String> menuLogs) {
+    public static boolean solveWithBoth(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, ArrayList<String> menuLogs) throws IllegalArgumentException {
         // on initialise la liste des logs
         if (menuLogs != null) {
             logs = new ArrayList<>();
@@ -269,8 +272,9 @@ public abstract class Solver {
      * @param puzzle Une copie d'un puzzle
      * @param constraints Des contraintes additionnelles sur le puzzle
      * @return Le puzzle résolu s'il est résolvable, null sinon
+     * @throws IllegalArgumentException Si une erreur arrive durant la résolution
      */
-    private static Puzzle applyBoth(Puzzle puzzle, ArrayList<SudokuConstraint> constraints) {
+    private static Puzzle applyBoth(Puzzle puzzle, ArrayList<SudokuConstraint> constraints) throws IllegalArgumentException {
         // on récupère les contraintes
         ArrayList<SudokuConstraint> everyConstraints = new ArrayList<>();
         if (constraints != null) {
@@ -298,7 +302,7 @@ public abstract class Solver {
      * @param additionalConstraints Des contraintes supplémentaires si on veut en rajouter
      * @param menuLogs Une liste de logs à laquelle ajouter les logs de l'algorithme
      * @return Un booléen qui indique si le puzzle est résolvable
-     * @throws IllegalArgumentException Si le puzzle donné n'est pas vide
+     * @throws IllegalArgumentException Si le puzzle donné n'est pas vide, ou si une erreur arrive durant la génération
      */
     public static boolean generateNewSolvedPuzzle(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, ArrayList<String> menuLogs) throws IllegalArgumentException{
         // on initialise la liste des logs
@@ -332,7 +336,7 @@ public abstract class Solver {
      * @param difficulty La difficulté qu'aura le puzzle, soit 1 (facile), 2 (moyen) ou 3 (difficile)
      * @param menuLogs Une liste de logs à laquelle ajouter les logs de l'algorithme
      * @return Un booléen qui indique si on a enlevé assez de cases pour atteindre la difficulté souhaitée
-     * @throws IllegalArgumentException Si le puzzle donné n'est pas résolu ou la difficulté n'existe pas
+     * @throws IllegalArgumentException Si le puzzle donné n'est pas résolu, la difficulté n'existe pas, ou si une erreur arrive durant la génération
      */
     public static boolean generateNewPuzzleToSolve(Puzzle puzzle, ArrayList<SudokuConstraint> additionalConstraints, int difficulty, ArrayList<String> menuLogs) throws IllegalArgumentException{
         // on initialise la liste des logs
@@ -369,8 +373,9 @@ public abstract class Solver {
      * @param removedCases Le nombre de cases enlevées sur le puzzle donné
      * @param difficulty La difficulté que l'on souhaite avoir sur le puzzle, soit 1 (facile), 2 (moyen) ou 3 (difficile)
      * @return Un booléen qui indique si on a enlevé assez de cases pour atteindre la difficulté souhaitée
+     * @throws IllegalArgumentException Si une erreur arrive durant la génération
      */
-    private static boolean tryToRemoveValue(Puzzle puzzle, ArrayList<SudokuConstraint> constraints, int removedCases, int difficulty) {
+    private static boolean tryToRemoveValue(Puzzle puzzle, ArrayList<SudokuConstraint> constraints, int removedCases, int difficulty) throws IllegalArgumentException {
         ArrayList<Case> casesList =  puzzle.casesList();
         // si assez de cases ont été enlevées on retourne le puzzle
         // facile = 50%, moyen = 67%, difficile = 75%
@@ -420,8 +425,9 @@ public abstract class Solver {
      * @param newPuzzle Le nouveau puzzle auquel faire référence
      * @param constraints Les contraintes à copier
      * @return Une copie de la liste de contraintes faisant référence au nouveau puzzle
+     * @throws IllegalArgumentException Si le puzzle passé en argument n'est pas une copie du puzzle sur lequel s'appliquent les contraintes
      */
-    private static ArrayList<SudokuConstraint> copyConstraints(Puzzle newPuzzle, ArrayList<SudokuConstraint> constraints) {
+    private static ArrayList<SudokuConstraint> copyConstraints(Puzzle newPuzzle, ArrayList<SudokuConstraint> constraints) throws IllegalArgumentException {
         ArrayList<SudokuConstraint> newConstraints = new ArrayList<>();
         if (constraints != null) {
             for (SudokuConstraint constraint : constraints) {
@@ -437,18 +443,23 @@ public abstract class Solver {
      * @param puzzle Le puzzle auquel appartient la case
      */
     private static void log(Case c, Puzzle puzzle) {
-        if (stopLogging) return;
-        StringBuilder sb = new StringBuilder();
-        if (puzzle instanceof Multidoku) {
-            // position du sudoku
-            PlacedSudoku placedSudoku = ((Multidoku) puzzle).getSudoku(c);
-            sb.append(placedSudoku.line() + 1).append(" ").append(placedSudoku.column() + 1).append(" ");
+        try {
+            if (stopLogging) return;
+            StringBuilder sb = new StringBuilder();
+            if (puzzle instanceof Multidoku) {
+                // position du sudoku
+                PlacedSudoku placedSudoku = ((Multidoku) puzzle).getSudoku(c);
+                sb.append(placedSudoku.line() + 1).append(" ").append(placedSudoku.column() + 1).append(" ");
+            }
+            // position de la case
+            sb.append(c.getLine() + 1).append(" ").append(c.getColumn() + 1).append(" ");
+            // valeur de la case
+            sb.append("-> ").append(c.getValue() + 1);
+            logs.addLast(sb.toString());
         }
-        // position de la case
-        sb.append(c.getLine() + 1).append(" ").append(c.getColumn() + 1).append(" ");
-        // valeur de la case
-        sb.append("-> ").append(c.getValue() + 1);
-        logs.addLast(sb.toString());
+        catch (RuntimeException e) {
+            logs.addLast("Erreur de création de log : " + e.getMessage());
+        }
     }
 
     /**

@@ -80,14 +80,14 @@ public class NotEqualConstraint implements SudokuConstraint {
      * Crée une copie de la contrainte qui référence le puzzle passé en paramètre
      * @param newPuzzle Le puzzle sur lequel la nouvelle contrainte doit s'appliquer
      * @return Une copie de la contrainte qui référence le nouveau puzzle
-     * @throws IllegalArgumentException Si une erreur arrive parce que le puzzle en argument n'est pas une copie du puzzle originel
+     * @throws IllegalArgumentException Si le puzzle passé en argument n'est pas une copie du puzzle originel
      */
     @Override
     public SudokuConstraint copy(Puzzle newPuzzle) throws IllegalArgumentException {
         Case newConstrainedCase;
         ArrayList<Case> newCasesToCompareTo = new ArrayList<>();
         if (newPuzzle instanceof Sudoku) {
-            if (!(puzzle instanceof Sudoku)) {
+            if (!(this.puzzle instanceof Sudoku)) {
                 throw new IllegalArgumentException("La contrainte ne s'appliquait pas sur un sudoku");
             }
 
@@ -96,7 +96,7 @@ public class NotEqualConstraint implements SudokuConstraint {
                 newCasesToCompareTo.add(((Sudoku) newPuzzle).getCase(caseToCompare.getLine(), caseToCompare.getColumn()));
             }
         } else if (newPuzzle instanceof Multidoku) {
-            if (!(puzzle instanceof Multidoku)) {
+            if (!(this.puzzle instanceof Multidoku)) {
                 throw new IllegalArgumentException("La contrainte ne s'appliquait pas sur un multidoku");
             }
 

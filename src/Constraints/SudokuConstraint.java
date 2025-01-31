@@ -28,8 +28,9 @@ public interface SudokuConstraint {
      * Une implémentation de cette méthode doit créer une contrainte identique, mais ayant lieu sur le puzzle passé en paramètre
      * @param newPuzzle Le puzzle sur lequel la nouvelle contrainte doit s'appliquer
      * @return Une copie de cette contrainte qui référence le nouveau puzzle
+     * @throws IllegalArgumentException Si le puzzle passé en argument n'est pas une copie du puzzle originel
      */
-    SudokuConstraint copy(Puzzle newPuzzle);
+    SudokuConstraint copy(Puzzle newPuzzle) throws IllegalArgumentException;
 
     /**
      * Une implémentation de cette méthode doit indiquer si elle applique des contraintes sur la même case que celle passée en paramètre
