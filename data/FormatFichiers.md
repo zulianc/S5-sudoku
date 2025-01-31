@@ -2,8 +2,6 @@
 On a à chaque fois une ligne "header" suivi d'une ou plusieurs lignes de valeurs.  
 Tous les headers sont obligatoires, mais certains n'ont pas forcément besoin de valeurs.  
 Pour vous aider, il y a plusieurs fichiers d'exemple dans data/tests.
-Ces fichiers ne sont pas lisibles depuis le menu de l'application et
-il faut les copier dans les dossiers data/sudokus et data/multidokus si vous voulez les utiliser.
 ### Tous les indices dans les fichiers et dans le menu textuel commencent à 1 au lieu de 0 dans le code, pour faciliter la lecture et l'écriture
 
 ## Format d'un sudoku : 

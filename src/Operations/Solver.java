@@ -128,19 +128,49 @@ public abstract class Solver {
      * Applique l'algo de backtracking pur pour une copie d'un puzzle et des contraintes sur ce puzzle
      * @param puzzle Une copie d'un puzzle
      * @param constraints Des contraintes additionnelles sur le puzzle
+     * @param isPureBacktracking Indique si la méthode est appelée dans le cas de l'algo de backtracking pure ou de l'algo mixte
      * @return Le puzzle résolu s'il est résolvable, null sinon
      */
-    private static Puzzle applyBacktracking(Puzzle puzzle, ArrayList<SudokuConstraint> constraints, boolean isRecursive) {
-        // on cherche la première case non résolue
-        int currentCase = 0;
-        while (puzzle.casesList().get(currentCase).hasValue()) {
-            currentCase++;
-            // si on a atteint la fin du puzzle, alors c'est qu'il est résolu
-            if (currentCase == puzzle.casesList().size()) {
+    private static Puzzle applyBacktracking(Puzzle puzzle, ArrayList<SudokuConstraint> constraints, boolean isPureBacktracking) {
+        // on cherche la case à tester
+        Case testedCase;
+        ArrayList<Case> casesList = puzzle.casesList();
+        // si on n'est pas intelligent
+        if (isPureBacktracking) {
+            // on cherche la première case non résolue
+            int currentCase = 0;
+            while (casesList.get(currentCase).hasValue()) {
+                currentCase++;
+                // si on a atteint la fin du puzzle, alors c'est qu'il est résolu
+                if (currentCase == casesList.size()) {
+                    return puzzle;
+                }
+            }
+            testedCase = casesList.get(currentCase);
+        }
+        // si on est intelligent
+        else {
+            // on cherche la case avec le moins de valeurs possibles
+            int smallestAmountOfValues = 0;
+            int currentSmallestCase = -1;
+            for (int i = 0; i < casesList.size(); i++) {
+                Case c = casesList.get(i);
+                // on ne teste que les cases qui ne sont pas résolues
+                if (!c.hasValue()) {
+                    if (smallestAmountOfValues == 0 || smallestAmountOfValues > c.possibleValues().size()) {
+                        smallestAmountOfValues = c.possibleValues().size();
+                        currentSmallestCase = i;
+                    }
+                }
+            }
+            // si aucune case a plusieurs valeurs, c'est que le puzzle est résolu
+            if (currentSmallestCase == -1) {
                 return puzzle;
             }
+            // sinon, on prend la case avec le moins de valeurs possibles
+            testedCase = casesList.get(currentSmallestCase);
         }
-        Case c = puzzle.casesList().get(currentCase);
+
         // on teste toutes ses valeurs une par une
         Puzzle backtrack;
         int value;
@@ -148,14 +178,14 @@ public abstract class Solver {
         do {
             do {
                 // on vérifie si la case est encore résolvable
-                if (!c.isValid()) return null;
+                if (!testedCase.isValid()) return null;
                 // on essaie une de ses valeurs possibles
-                value = (int) c.possibleValues().toArray()[ThreadLocalRandom.current().nextInt(0, c.possibleValues().size())];
-                c.tryTestValue(value);
-                log(c, puzzle);
+                value = (int) testedCase.possibleValues().toArray()[ThreadLocalRandom.current().nextInt(0, testedCase.possibleValues().size())];
+                testedCase.tryTestValue(value);
+                log(testedCase, puzzle);
                 // on vérifie si les contraintes sont toujours respectées
                 isValid = true;
-                for (SudokuConstraint constraint : puzzle.constraintsOnCase(c)) {
+                for (SudokuConstraint constraint : puzzle.constraintsOnCase(testedCase)) {
                     if (!constraint.isConstraintValid()) {
                         isValid = false;
                     }
@@ -167,7 +197,7 @@ public abstract class Solver {
                 }
                 if (!isValid) {
                     // si elles ne les sont pas alors la valeur n'était pas la bonne
-                    c.removePossibleValue(value);
+                    testedCase.removePossibleValue(value);
                 }
             } while (!isValid);
 
@@ -176,7 +206,7 @@ public abstract class Solver {
             ArrayList<SudokuConstraint> newConstraints = copyConstraints(newPuzzle, constraints);
 
             // on teste la valeur candidate
-            if (isRecursive) {
+            if (isPureBacktracking) {
                 backtrack = applyBacktracking(newPuzzle, newConstraints, true);
             }
             else {
@@ -184,12 +214,12 @@ public abstract class Solver {
             }
             if (backtrack == null) {
                 // si l'algo n'a pas abouti, la valeur n'était donc pas la bonne
-                c.removePossibleValue(value);
-                c.scrapTestValue();
-                log(c, puzzle);
+                testedCase.removePossibleValue(value);
+                testedCase.scrapTestValue();
+                log(testedCase, puzzle);
             } else {
                 // sinon, on confirme la valeur
-                c.confirmTestValue();
+                testedCase.confirmTestValue();
                 // pas besoin de log, car on ne change pas la valeur visible
             }
         } while (backtrack == null);
