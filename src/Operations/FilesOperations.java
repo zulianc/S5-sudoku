@@ -237,31 +237,7 @@ public abstract class FilesOperations {
             ArrayList<SudokuConstraint> constraints = new ArrayList<>();
             do {
                 line = br.readLine();
-                if (line.isEmpty()) {
-                    throw new IOException("Une ligne de contrainte est vide !");
-                }
-                if (!line.equals("end")) {
-                    String[] elements = line.split(" ");
-                    if (elements.length < 5 || elements.length % 4 != 1) {
-                        throw new IOException("Une ligne de contrainte ne respecte pas le bon format : " + line);
-                    }
-                    PlacedSudoku placedSudokuHasConstraint = multidoku.getSudoku(Integer.parseInt(elements[1]) - 1, Integer.parseInt(elements[2]) - 1);
-                    Case caseHasContraint = placedSudokuHasConstraint.sudoku().getCase(Integer.parseInt(elements[3]) - 1, Integer.parseInt(elements[4]) - 1);
-                    ArrayList<Case> casesToCompareTo = new ArrayList<>();
-                    for (int i = 5; i < elements.length; i += 4) {
-                        PlacedSudoku placedSudokuToCompareTo = multidoku.getSudoku(Integer.parseInt(elements[i]) - 1, Integer.parseInt(elements[i+1]) - 1);
-                        casesToCompareTo.add(placedSudokuToCompareTo.sudoku().getCase(Integer.parseInt(elements[i+2]) - 1, Integer.parseInt(elements[i+3]) - 1));
-                    }
-                    if (elements[0].equals("!=")) {
-                        constraints.add(new NotEqualConstraint(caseHasContraint, casesToCompareTo, multidoku));
-                    }
-                    else if (elements[0].equals("=")) {
-                        constraints.add(new EqualConstraint(caseHasContraint, casesToCompareTo, multidoku));
-                    }
-                    else {
-                        throw new IOException("Type de contrainte inconnu : " + elements[0]);
-                    }
-                }
+                constraints.add(readConstraint(line, multidoku));
             } while (!line.equals("end"));
             multidoku.setAddedConstraints(constraints);
 
@@ -286,9 +262,9 @@ public abstract class FilesOperations {
      * @param br Le BufferedReader en train de lire un sudoku
      * @return Le sudoku lu
      * @throws IOException S'il y a une erreur lors de la lecture
-     * @throws IllegalArgumentException S'il y a une erreur lors de la création du sudoku
+     * @throws RuntimeException S'il y a une erreur lors de la création du sudoku
      */
-    private static Sudoku readSudoku(BufferedReader br) throws IOException, IllegalArgumentException {
+    private static Sudoku readSudoku(BufferedReader br) throws IOException, RuntimeException {
         // on lit les informations de base sur le sudoku
         br.readLine();
         boolean hasCustomPlacements = Boolean.parseBoolean(br.readLine());
@@ -350,33 +326,61 @@ public abstract class FilesOperations {
         ArrayList<SudokuConstraint> constraints = new ArrayList<>();
         do {
             line = br.readLine();
-            if (line.isEmpty()) {
-                throw new IOException("Une ligne de contrainte est vide !");
-            }
-            if (!line.equals("end")) {
-                String[] elements = line.split(" ");
-                if (elements.length < 3 || elements.length % 2 != 1) {
-                    throw new IOException("Une ligne de contrainte ne respecte pas le bon format : " + line);
-                }
-                Case caseHasContraint = sudoku.getCase(Integer.parseInt(elements[1]) - 1, Integer.parseInt(elements[2]) - 1);
-                ArrayList<Case> casesToCompareTo = new ArrayList<>();
-                for (int i = 3; i < elements.length; i += 2) {
-                    casesToCompareTo.add(sudoku.getCase(Integer.parseInt(elements[i]) - 1, Integer.parseInt(elements[i+1]) - 1));
-                }
-                if (elements[0].equals("!=")) {
-                    constraints.add(new NotEqualConstraint(caseHasContraint, casesToCompareTo, sudoku));
-                }
-                else if (elements[0].equals("=")) {
-                    constraints.add(new EqualConstraint(caseHasContraint, casesToCompareTo, sudoku));
-                }
-                else {
-                    throw new IOException("Type de contrainte inconnu : " + elements[0]);
-                }
-            }
+            constraints.add(readConstraint(line, sudoku));
         } while (!line.equals("end"));
         sudoku.setAddedConstraints(constraints);
 
         return sudoku;
+    }
+
+    /**
+     * Lit une contrainte contenue dans un String et la crée
+     * @param line Le string qui contient la contrainte
+     * @param puzzle Le puzzle sur lequel s'applique la contrainte
+     * @return La contrainte contenue dans le string
+     * @throws RuntimeException Si une erreur se produit
+     */
+    public static SudokuConstraint readConstraint(String line, Puzzle puzzle) throws RuntimeException {
+        // on teste si la ligne est vide
+        if (line.isEmpty()) throw new RuntimeException("Une contrainte ne peut pas être vide !");
+
+        String[] elements = line.split(" ");
+        Case caseHasContraint;
+        ArrayList<Case> casesToCompareTo = new ArrayList<>();
+
+        // si c'est une contrainte de sudoku
+        if (elements.length > 2 && elements.length % 2 == 1 && puzzle instanceof Sudoku) {
+            caseHasContraint = ((Sudoku) puzzle).getCase(Integer.parseInt(elements[1]) - 1, Integer.parseInt(elements[2]) - 1);
+            for (int i = 3; i < elements.length; i += 2) {
+                casesToCompareTo.add(((Sudoku) puzzle).getCase(Integer.parseInt(elements[i]) - 1, Integer.parseInt(elements[i+1]) - 1));
+            }
+        }
+
+        // si c'est une contrainte du multidoku
+        else if (elements.length > 4 && elements.length % 4 == 1 && puzzle instanceof Multidoku) {
+            caseHasContraint = ((Multidoku) puzzle).getSudoku(Integer.parseInt(elements[1]) - 1, Integer.parseInt(elements[2]) - 1).sudoku().getCase(Integer.parseInt(elements[3]) - 1, Integer.parseInt(elements[4]) - 1);
+            for (int i = 5; i < elements.length; i += 4) {
+                casesToCompareTo.add(((Multidoku) puzzle).getSudoku(Integer.parseInt(elements[i]) - 1, Integer.parseInt(elements[i+1]) - 1).sudoku().getCase(Integer.parseInt(elements[i+2]) - 1, Integer.parseInt(elements[i+3]) - 1));
+            }
+        }
+
+        // sinon ce n'est pas implémenté ou erroné
+        else {
+            throw new RuntimeException("La contrainte ne respecte pas un format connu !");
+        }
+
+        // on crée la contrainte
+        SudokuConstraint constraint = null;
+        if (elements[0].equals("!=")) {
+            constraint = new NotEqualConstraint(caseHasContraint, casesToCompareTo, puzzle);
+        }
+        else if (elements[0].equals("=")) {
+            constraint = new EqualConstraint(caseHasContraint, casesToCompareTo, puzzle);
+        }
+        if (constraint != null && constraint.isConstraintOnPuzzle(puzzle)) {
+            return constraint;
+        }
+        return null;
     }
 
     /**

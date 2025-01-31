@@ -72,13 +72,13 @@ On peut rajouter des contraintes internes à un sudoku lors de sa création et d
 ou en rajouter juste pour la durée d'un algo.
 ### Grilles avec multiples solutions
 Pas réalisé pour l'instant.  
-Peut s'implémenter assez facilement en forçant en ne s'arrêtant pas quand on trouve une bonne valeur
-et en renvoyant une ArrayList<Puzzle> au lieu d'un Puzzle dans la méthode applyBacktracking() de Solver.
+Peut s'implémenter assez facilement en forçant de ne pas s'arrêter quand on trouve une bonne valeur
+et en renvoyant une ArrayList<Puzzle> au lieu d'un Puzzle dans la méthode Solver.applyBacktracking().
 ### Rajout de contrainte
 On n'a pas rajouté de nouvelles contraintes explicitement,
 mais la conception permet de le faire relativement facilement.  
-Il "suffit" de créer une nouvelle classe implémentant SudokuConstraint dans le package Constraints,
-et de l'ajouter à la lecture de contraintes dans Menu et FilesOperations.
+Il suffit de créer une nouvelle classe implémentant SudokuConstraint dans le package Constraints,
+et de l'ajouter à la méthode FilesOperations.readConstraint().
 ### Résolution par l’humain
 Pas réalisé.  
 On n'a pas du tout réfléchi à ce point lors de la conception, mais ça doit être possible sans modifier trop de choses.

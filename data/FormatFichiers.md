@@ -62,9 +62,9 @@ end
 
 # Format des contraintes
 Une contrainte s'écrit sur une ligne, elle est composées de 3 parties :  
-``(contraintType) + " " + (caseHasConstraint) + " " + ((caseToCompareTo) + " ")*``  
+``(contraintType)." ".(caseHasConstraint)." ".((caseToCompareTo)." ")*``  
 Les types de contraintes actuellement reconnues par l'application sont : `=` et `!=`.  
-On définit chaque case par sa position, donc `(ligne) + " " + (colonne)`.  
+On définit chaque case par sa position, donc `(ligne)." ".(colonne)`.  
 Si c'est une contrainte de multidoku, on ajoute également la position du sudoku auquel appartient la case.
 ### Le format des contraintes est le même dans les fichiers et dans le menu textuel
 
@@ -103,4 +103,10 @@ logs:
 //
 end
 ```
-Les champs autres que ``logs`` sont les mêmes que dans les fichiers de sudokus/multidokus.
+- Les champs autres que ``logs`` sont les mêmes que dans les fichiers de sudokus/multidokus.
+- Chaque log est constitué comme suit : ``(placement case)."->".(nouvelle valeur case)``.  
+``(placement case)`` suit le même format que pour les contraintes, c'est-à-dire  
+``((line du sudoku)." ".(colonne du sudoku)." ")?.(ligne de la case)." ".(colonne de la case)." "``.  
+où on rajoute la position du sudoku dans le multidoku si c'est une contrainte sur un multidoku.  
+- On ne logue que si la valeur de la case a changée, et loguer "0" signifie
+qu'on annule toutes les opérations jusqu'au dernier changement de valeur de cette case (backtrack).

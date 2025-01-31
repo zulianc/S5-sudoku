@@ -478,43 +478,13 @@ public abstract class Menu {
         while (!stop) {
             System.out.print("Rentrez une nouvelle contrainte : ");
             String line = scanner.nextLine();
-            if (line.isEmpty()) {
-                error("Une contrainte ne peut pas être vide !");
-            }
-            else {
-                String[] elements = line.split(" ");
-                Case caseHasContraint = null;
-                ArrayList<Case> casesToCompareTo = new ArrayList<>();
-                boolean validFormat = true;
-                if (elements.length > 2 && elements.length % 2 == 1 && puzzle instanceof Sudoku) {
-                    caseHasContraint = ((Sudoku) puzzle).getCase(Integer.parseInt(elements[1]) - 1, Integer.parseInt(elements[2]) - 1);
-                    for (int i = 3; i < elements.length; i += 2) {
-                        casesToCompareTo.add(((Sudoku) puzzle).getCase(Integer.parseInt(elements[i]) - 1, Integer.parseInt(elements[i+1]) - 1));
-                    }
-                }
-                else if (elements.length > 4 && elements.length % 4 == 1 && puzzle instanceof Multidoku) {
-                    caseHasContraint = ((Multidoku) puzzle).getSudoku(Integer.parseInt(elements[1]) - 1, Integer.parseInt(elements[2]) - 1).sudoku().getCase(Integer.parseInt(elements[3]) - 1, Integer.parseInt(elements[4]) - 1);
-                    for (int i = 5; i < elements.length; i += 4) {
-                        casesToCompareTo.add(((Multidoku) puzzle).getSudoku(Integer.parseInt(elements[i]) - 1, Integer.parseInt(elements[i+1]) - 1).sudoku().getCase(Integer.parseInt(elements[i+2]) - 1, Integer.parseInt(elements[i+3]) - 1));
-                    }
-                }
-                else {
-                    error("La contrainte ne respecte pas un format connu !");
-                    validFormat = false;
-                }
 
-                SudokuConstraint constraint = null;
-                if (validFormat) {
-                    if (elements[0].equals("!=")) {
-                        constraint = new NotEqualConstraint(caseHasContraint, casesToCompareTo, puzzle);
-                    }
-                    else if (elements[0].equals("=")) {
-                        constraint = new EqualConstraint(caseHasContraint, casesToCompareTo, puzzle);
-                    }
-                    if (constraint != null && constraint.isConstraintOnPuzzle(puzzle)) {
-                        constraints.add(constraint);
-                    }
-                }
+            try {
+                constraints.add(FilesOperations.readConstraint(line, puzzle));
+            }
+            catch (RuntimeException e) {
+                error("La contrainte rentrée n'est pas valide !");
+                error(e.getMessage());
             }
 
             important("Ajouter une autre contrainte ?");
