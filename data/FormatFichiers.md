@@ -108,3 +108,5 @@ end
 où on rajoute la position du sudoku dans le multidoku si c'est une contrainte sur un multidoku.  
 - On ne logue que si la valeur de la case a changée, et loguer "0" signifie
 qu'on annule toutes les opérations jusqu'au dernier changement de valeur de cette case (backtrack).
+- Quand on logue plusieurs fois sur la même case à la suite,
+cela signifie qu'on teste plusieurs valeurs et que celles d'avant ne sont pas bonnes.

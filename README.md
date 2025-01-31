@@ -12,7 +12,7 @@
 - doc : documentation (contient les diagrammes UML et le rapport, et un dossier où générer la javadoc)
 - data : où sont stockés les fichiers par l'application
 (les dossiers sudokus, multidokus et logs sont directement utilisés par l'application
-et le dossier tests contient juste des exemples et ne sont pas accessibles depuis l'application)
+et le dossier tests contient juste des exemples qui ne sont pas accessibles depuis l'application)
 
 ## Utilisation de l'application
 
