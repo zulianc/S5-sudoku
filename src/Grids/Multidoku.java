@@ -190,8 +190,11 @@ public class Multidoku implements Puzzle {
      */
     @Override
     public ArrayList<SudokuConstraint> defaultConstraints() throws RuntimeException {
-        //TODO
-        return null;
+        ArrayList<SudokuConstraint> constraints = new ArrayList<>();
+        for (PlacedSudoku placedSudoku : this.sudokus) {
+            constraints.addAll(placedSudoku.sudoku().defaultConstraints());
+        }
+        return constraints;
     }
 
     /**
@@ -202,8 +205,13 @@ public class Multidoku implements Puzzle {
      */
     @Override
     public ArrayList<SudokuConstraint> constraintsOnCase(Case c) throws RuntimeException {
-        //TODO
-        return null;
+        ArrayList<SudokuConstraint> constraints = new ArrayList<>();
+        for (SudokuConstraint constraint : this.defaultConstraints()) {
+            if (constraint.isConstraintOnCase(c)) {
+                constraints.add(constraint);
+            }
+        }
+        return constraints;
     }
 
     /**
@@ -213,8 +221,11 @@ public class Multidoku implements Puzzle {
      */
     @Override
     public ArrayList<Case> casesList() throws RuntimeException {
-        //TODO
-        return null;
+        ArrayList<Case> cases = new ArrayList<>();
+        for (PlacedSudoku placedSudoku : this.sudokus) {
+            cases.addAll(placedSudoku.sudoku().casesList());
+        }
+        return cases;
     }
 
     /**
@@ -224,8 +235,11 @@ public class Multidoku implements Puzzle {
      */
     @Override
     public Puzzle copy() throws RuntimeException {
-        //TODO
-        return null;
+        ArrayList<PlacedSudoku> newSudokus = new ArrayList<>();
+        for (PlacedSudoku placedSudoku : this.sudokus) {
+            newSudokus.add(new PlacedSudoku(placedSudoku.sudoku().copy(), placedSudoku.line(), placedSudoku.column()));
+        }
+        return new Multidoku(newSudokus);
     }
 
     /**
@@ -234,7 +248,47 @@ public class Multidoku implements Puzzle {
      */
     @Override
     public String toString() {
-        //TODO
-        return "";
+        StringBuilder sb = new StringBuilder();
+        sb.append("Multidoku:\n");
+        int[][] grid = new int[sizeMultidokuGrid][sizeMultidokuGrid];
+        int[][] blockIds = new int[sizeMultidokuGrid][sizeMultidokuGrid];
+        String[] colors = {"\u001B[31m", "\u001B[32m", "\u001B[33m", "\u001B[34m", "\u001B[35m", "\u001B[36m", "\u001B[37m"};
+        String resetColor = "\u001B[0m";
+
+        for (int i = 0; i < sizeMultidokuGrid; i++) {
+            for (int j = 0; j < sizeMultidokuGrid; j++) {
+                grid[i][j] = -1;
+                blockIds[i][j] = -1;
+            }
+        }
+
+        int blockId = 0;
+        for (PlacedSudoku placedSudoku : sudokus) {
+            Sudoku sudoku = placedSudoku.sudoku();
+            int startRow = placedSudoku.line();
+            int startCol = placedSudoku.column();
+            for (int i = 0; i < sizeSudokus; i++) {
+                for (int j = 0; j < sizeSudokus; j++) {
+                    Case c = sudoku.getCase(i, j);
+                    grid[startRow + i][startCol + j] = c.getValue();
+                    blockIds[startRow + i][startCol + j] = blockId;
+                }
+            }
+            blockId++;
+        }
+
+        for (int i = 0; i < sizeMultidokuGrid; i++) {
+            for (int j = 0; j < sizeMultidokuGrid; j++) {
+                if (grid[i][j] == -1) {
+                    sb.append("   ");
+                } else {
+                    sb.append(colors[blockIds[i][j] % colors.length])
+                            .append(" ").append(grid[i][j]).append(" ")
+                            .append(resetColor);
+                }
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 }
