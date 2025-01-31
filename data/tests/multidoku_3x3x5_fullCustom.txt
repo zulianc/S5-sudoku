@@ -1,0 +1,128 @@
+puzzleType:
+multidoku
+useCustomSymbols:
+true
+sudokusCount:
+5
+sudokuLine:
+1
+sudokuColumn:
+1
+puzzleType:
+sudoku
+useCustomPlacements:
+true
+useCustomSymbols:
+false
+size:
+3
+values:
+2 0 0
+0 3 0
+0 0 0
+placements:
+1 1 2
+1 2 3
+2 3 3
+symbols:
+additionalConstraints:
+end
+sudokuLine:
+5
+sudokuColumn:
+1
+puzzleType:
+sudoku
+useCustomPlacements:
+true
+useCustomSymbols:
+false
+size:
+3
+values:
+0 0 0
+0 0 0
+0 0 0
+placements:
+2 1 1
+3 2 1
+3 3 2
+symbols:
+additionalConstraints:
+end
+sudokuLine:
+1
+sudokuColumn:
+5
+puzzleType:
+sudoku
+useCustomPlacements:
+true
+useCustomSymbols:
+false
+size:
+3
+values:
+0 0 0
+0 0 0
+0 0 0
+placements:
+2 3 3
+1 2 3
+1 1 2
+symbols:
+additionalConstraints:
+end
+sudokuLine:
+5
+sudokuColumn:
+5
+puzzleType:
+sudoku
+useCustomPlacements:
+true
+useCustomSymbols:
+false
+size:
+3
+values:
+0 0 0
+0 3 0
+0 0 0
+placements:
+3 3 2
+3 2 1
+2 1 1
+symbols:
+additionalConstraints:
+end
+sudokuLine:
+3
+sudokuColumn:
+3
+puzzleType:
+sudoku
+useCustomPlacements:
+false
+useCustomSymbols:
+false
+size:
+3
+values:
+0 2 0
+0 0 0
+0 0 0
+placements:
+symbols:
+additionalConstraints:
+end
+symbols:
+I
+X
+M
+additionalConstraints:
+= 1 1 1 1 5 5 3 3
+!= 1 5 1 3 1 1 1 1 5 5 3 3
+!= 5 1 3 1 1 1 1 1 5 5 3 3
+= 5 5 3 3 1 1 1 1
+end

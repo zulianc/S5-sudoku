@@ -204,11 +204,10 @@ public abstract class FilesOperations {
             // on lit les informations pour chaque sudoku
             ArrayList<PlacedSudoku> placedSudokus = new ArrayList<>();
             for (int i = 0; i < sudokusCount; i++) {
-                System.out.println(i);
                 br.readLine();
-                int sudokuLine = Integer.parseInt(br.readLine());
+                int sudokuLine = Integer.parseInt(br.readLine()) - 1;
                 br.readLine();
-                int sudokuColumn = Integer.parseInt(br.readLine());
+                int sudokuColumn = Integer.parseInt(br.readLine()) - 1;
                 br.readLine();
                 puzzleType = br.readLine();
                 if (!puzzleType.equals("sudoku")) {
@@ -237,7 +236,8 @@ public abstract class FilesOperations {
             ArrayList<SudokuConstraint> constraints = new ArrayList<>();
             do {
                 line = br.readLine();
-                constraints.add(readConstraint(line, multidoku));
+                if (!line.equals("end"))
+                    constraints.add(readConstraint(line, multidoku));
             } while (!line.equals("end"));
             multidoku.setAddedConstraints(constraints);
 
@@ -326,7 +326,8 @@ public abstract class FilesOperations {
         ArrayList<SudokuConstraint> constraints = new ArrayList<>();
         do {
             line = br.readLine();
-            constraints.add(readConstraint(line, sudoku));
+            if (!line.equals("end"))
+                constraints.add(readConstraint(line, sudoku));
         } while (!line.equals("end"));
         sudoku.setAddedConstraints(constraints);
 

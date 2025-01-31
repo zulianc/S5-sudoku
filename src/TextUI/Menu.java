@@ -119,7 +119,7 @@ public abstract class Menu {
 
         Puzzle puzzle = null;
         if (choice == 1) {
-            puzzle = createSudoku(false);
+            puzzle = createSudoku(false, null);
         }
         if (choice == 2) {
             puzzle = createMultidoku(false);
@@ -158,7 +158,7 @@ public abstract class Menu {
             important("Quel type de grille créer ?");
             choice = askSudokuOrMultidoku();
             if (choice == 1) {
-                puzzle = createSudoku(false);
+                puzzle = createSudoku(false, null);
             }
             if (choice == 2) {
                 puzzle = createMultidoku(false);
@@ -300,7 +300,7 @@ public abstract class Menu {
 
         Puzzle puzzle = null;
         if (choice == 1) {
-            puzzle = createSudoku(true);
+            puzzle = createSudoku(true, null);
         }
         if (choice == 2) {
             puzzle = createMultidoku(true);
@@ -310,20 +310,28 @@ public abstract class Menu {
 
     /**
      * Demande à l'utilisateur de créer un sudoku et le renvoie
+     * @param isEmpty Spécifie si le sudoku doit être vide, c'est-à-dire si l'utilisateur ne doit pas rentrer ses valeurs
+     * @param specifiedSize Spécifie une taille pour le sudoku, s'il est null alors la taille sera demandée à l'utilisateur
      * @return Le sudoku créé par l'utilisateur
      */
-    private static Sudoku createSudoku(boolean isEmpty) {
+    private static Sudoku createSudoku(boolean isEmpty, Integer specifiedSize) {
         separator();
         System.out.println("Veuillez remplir les informations du sudoku");
 
-        if (!isEmpty) {
-            important("Attention, il est très fastidieux de créer un sudoku à la main au-delà de 6 de taille !");
+        int size;
+        if (specifiedSize == null) {
+            if (!isEmpty) {
+                important("Attention, il est très fastidieux de créer un sudoku à la main au-delà de 6 de taille !");
+            }
+            else {
+                important("Attention, il peut être très long de générer des sudokus au-delà de 16 de taille !");
+            }
+            System.out.print("Taille du sudoku : ");
+            size = getIntFromUser(false);
         }
         else {
-            important("Attention, il peut être très long de générer des sudokus au-delà de 16 de taille !");
+            size = specifiedSize;
         }
-        System.out.print("Taille du sudoku : ");
-        int size = getIntFromUser(false);
 
         int[][] values = new int[size][size];
         int[][] placements = new int[size][size];
@@ -351,7 +359,7 @@ public abstract class Menu {
 
                 if (hasCustomPlacement) {
                     do {
-                        System.out.print("Grids.Bloc auquel appartient cette case : ");
+                        System.out.print("Bloc auquel appartient cette case : ");
                         val = getIntFromUser(false);
                     } while (val < 1 || val > size);
                     placements[i][j] = val - 1;
@@ -363,9 +371,8 @@ public abstract class Menu {
             placements = null;
         }
 
-        Sudoku sudoku;
         try {
-            sudoku = new Sudoku(size, placements);
+            Sudoku sudoku = new Sudoku(size, placements);
             for (int i = 0; i < size; i++) {
                 for (int j = 0; j < size; j++) {
                     if (values[i][j] != -1)
@@ -375,7 +382,7 @@ public abstract class Menu {
 
             important("Voulez-vous spécifier les symboles utilisés ?");
             input = askYesOrNo();
-            if ((input == 1)) {
+            if (input == 1) {
                 HashMap<Integer, String> symbols = new HashMap<>();
                 for (int i = 0; i < size; i++) {
                     System.out.print("Veuillez rentrer le symbole pour le chiffre " + (i+1) + " : ");
@@ -391,18 +398,18 @@ public abstract class Menu {
                 ArrayList<SudokuConstraint> constraints = getCustomRules(sudoku);
                 sudoku.setAddedConstraints(constraints);
             }
+
+            separator();
+            success("Nouveau sudoku créé !");
+            System.out.println(sudoku);
+
+            return sudoku;
         }
         catch (RuntimeException e) {
             error("Le sudoku créé n'est pas valide !");
             error(e.getMessage());
             return null;
         }
-
-        separator();
-        success("Nouveau sudoku créé !");
-        System.out.println(sudoku);
-
-        return sudoku;
     }
 
     /**
@@ -410,9 +417,58 @@ public abstract class Menu {
      * @return Le sudoku créé par l'utilisateur
      */
     private static Multidoku createMultidoku(boolean isEmpty) {
-        //TODO
-        System.out.println("Pas encore implémenté");
-        return null;
+        separator();
+        System.out.println("Veuillez remplir les informations du sudoku");
+        if (!isEmpty) {
+            important("Attention, il est très fastidieux de créer plusieurs sudokus à la main au-delà de 4 de taille !");
+        }
+        else {
+            important("Attention, il peut être très long de générer plusieurs sudokus au-delà de 9 de taille !");
+        }
+        System.out.print("Taille des sudokus : ");
+        int sizeSudokus = getIntFromUser(false);
+
+        ArrayList<PlacedSudoku> placedSudokus = new ArrayList<>();
+        for (int i = 0; i < sizeSudokus; i++) {
+            separator();
+            important("Sudoku n°" + (i + 1) + " : ");
+            System.out.print("Quelle est la ligne du sudoku sur la grille de multidoku ? ");
+            int sudokuLine = getIntFromUser(false);
+            System.out.print("Quelle est la colonne du sudoku sur la grille de multidoku ? ");
+            int sudokuColumn = getIntFromUser(false);
+            Sudoku sudoku = createSudoku(false, sizeSudokus);
+            placedSudokus.add(new PlacedSudoku(sudoku, sudokuLine, sudokuColumn));
+        }
+
+        try {
+            Multidoku multidoku = new Multidoku(placedSudokus);
+
+            important("Voulez-vous spécifier les symboles utilisés ?");
+            int input = askYesOrNo();
+            if (input == 1) {
+                HashMap<Integer, String> symbols = new HashMap<>();
+                for (int i = 0; i < sizeSudokus; i++) {
+                    System.out.print("Veuillez rentrer le symbole pour le chiffre " + (i+1) + " : ");
+                    String symbol = scanner.nextLine();
+                    symbols.put(i, symbol);
+                }
+                multidoku.setSymbols(symbols);
+            }
+
+            important("Voulez-vous ajouter des règles internes au multidoku ?");
+            input = askYesOrNo();
+            if (input == 1) {
+                ArrayList<SudokuConstraint> constraints = getCustomRules(multidoku);
+                multidoku.setAddedConstraints(constraints);
+            }
+
+            return multidoku;
+        }
+        catch (RuntimeException e) {
+            error("Le multidoku créé n'est pas valide !");
+            error(e.getMessage());
+            return null;
+        }
     }
 
     /**
@@ -667,8 +723,8 @@ public abstract class Menu {
     private static int askSudokuOrMultidoku() {
         int choice;
         do {
-            System.out.println("1. Grids.Sudoku");
-            System.out.println("2. Grids.Multidoku");
+            System.out.println("1. Sudoku");
+            System.out.println("2. Multidoku");
             System.out.print("Choix : ");
             choice = getIntFromUser(false);
         } while (choice < 1 || choice > 2);

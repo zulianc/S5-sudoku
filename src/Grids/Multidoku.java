@@ -105,7 +105,7 @@ public class Multidoku implements Puzzle {
      */
     public void setAddedConstraints(ArrayList<SudokuConstraint> constraints) throws IllegalArgumentException {
         for (SudokuConstraint constraint : constraints) {
-            if (constraint.copy(this) != constraint) {
+            if (!constraint.isConstraintOnPuzzle(this)) {
                 throw new IllegalArgumentException("La contrainte ne s'applique pas sur ce multidoku !");
             }
         }

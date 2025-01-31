@@ -50,7 +50,7 @@ Complètement fonctionnel, sauf pour les multidokus.
 ### Affichage
 Implémenté et testé sur des sudokus, mais pas des multidokus.
 ### Rentrer un sudoku à la main
-Implémenté et testé sur des sudokus, mais pas des multidokus.
+Implémenté et testé sur des sudokus et les multidokus.
 
 ## Avancement des extensions
 
