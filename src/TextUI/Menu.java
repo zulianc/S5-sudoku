@@ -371,8 +371,10 @@ public abstract class Menu {
             else {
                 important("Attention, il peut être très long de générer des sudokus au-delà de 16 de taille !");
             }
-            System.out.print("Taille du sudoku : ");
-            size = getIntFromUser(false);
+            do {
+                System.out.print("Taille du sudoku : ");
+                size = getIntFromUser(false);
+            } while (size <= 0);
         }
         else {
             size = specifiedSize;
@@ -405,7 +407,12 @@ public abstract class Menu {
 
                 if (hasCustomPlacement) {
                     do {
-                        System.out.print("Bloc auquel appartient cette case : ");
+                        if (!isEmpty) {
+                            System.out.print("Bloc auquel appartient cette case : ");
+                        }
+                        else {
+                            System.out.print("Bloc auquel appartient la case à la ligne " + (i+1) + " et colonne " + (j+1) + " : ");
+                        }
                         val = getIntFromUser(false);
                     } while (val < 1 || val > size);
                     placements[i][j] = val - 1;
@@ -427,16 +434,18 @@ public abstract class Menu {
             }
 
             // choix des symboles utilisés
-            important("Voulez-vous spécifier les symboles utilisés ?");
-            input = askYesOrNo();
-            if (input == 1) {
-                HashMap<Integer, String> symbols = new HashMap<>();
-                for (int i = 0; i < size; i++) {
-                    System.out.print("Veuillez rentrer le symbole pour le chiffre " + (i+1) + " : ");
-                    String symbol = scanner.nextLine();
-                    symbols.put(i, symbol);
+            if (specifiedSize == null) {
+                important("Voulez-vous spécifier les symboles utilisés ?");
+                input = askYesOrNo();
+                if (input == 1) {
+                    HashMap<Integer, String> symbols = new HashMap<>();
+                    for (int i = 0; i < size; i++) {
+                        System.out.print("Veuillez rentrer le symbole pour le chiffre " + (i + 1) + " : ");
+                        String symbol = scanner.nextLine();
+                        symbols.put(i, symbol);
+                    }
+                    sudoku.setSymbols(symbols);
                 }
-                sudoku.setSymbols(symbols);
             }
 
             // choix des contraintes sur le sudoku
@@ -466,29 +475,45 @@ public abstract class Menu {
      * @return Le sudoku créé par l'utilisateur
      */
     private static Multidoku createMultidoku(boolean isEmpty) {
-        // choix de la taille des sudokus
+        // choix du nombre de multidoku
         separator();
-        System.out.println("Veuillez remplir les informations du sudoku");
+        System.out.println("Veuillez remplir les informations du multidoku");
+        int sudokusCount;
+        do {
+            System.out.print("Nombre de sudokus : ");
+            sudokusCount = getIntFromUser(false);
+        } while (sudokusCount <= 0);
+
+        // choix de la taille des sudokus
         if (!isEmpty) {
             important("Attention, il est très fastidieux de créer plusieurs sudokus à la main au-delà de 4 de taille !");
         }
         else {
             important("Attention, il peut être très long de générer plusieurs sudokus au-delà de 9 de taille !");
         }
-        System.out.print("Taille des sudokus : ");
-        int sizeSudokus = getIntFromUser(false);
+        int sizeSudokus;
+        do {
+            System.out.print("Taille des sudokus : ");
+            sizeSudokus = getIntFromUser(false);
+        } while (sizeSudokus <= 0);
 
         // création des sudokus
         ArrayList<PlacedSudoku> placedSudokus = new ArrayList<>();
-        for (int i = 0; i < sizeSudokus; i++) {
+        int sudokuLine;
+        int sudokuColumn;
+        for (int i = 0; i < sudokusCount; i++) {
             separator();
             important("Sudoku n°" + (i + 1) + " : ");
-            System.out.print("Quelle est la ligne du sudoku sur la grille de multidoku ? ");
-            int sudokuLine = getIntFromUser(false);
-            System.out.print("Quelle est la colonne du sudoku sur la grille de multidoku ? ");
-            int sudokuColumn = getIntFromUser(false);
-            Sudoku sudoku = createSudoku(false, sizeSudokus);
-            placedSudokus.add(new PlacedSudoku(sudoku, sudokuLine, sudokuColumn));
+            do {
+                System.out.print("Quelle est la ligne du sudoku sur la grille de multidoku ? ");
+                sudokuLine = getIntFromUser(false);
+            } while (sudokuLine <= 0);
+            do {
+                System.out.print("Quelle est la colonne du sudoku sur la grille de multidoku ? ");
+                sudokuColumn = getIntFromUser(false);
+            } while (sudokuColumn <= 0);
+            Sudoku sudoku = createSudoku(isEmpty, sizeSudokus);
+            placedSudokus.add(new PlacedSudoku(sudoku, sudokuLine - 1, sudokuColumn - 1));
         }
 
         try {
@@ -496,7 +521,8 @@ public abstract class Menu {
             Multidoku multidoku = new Multidoku(placedSudokus);
 
             // choix des symboles utilisés
-            important("Voulez-vous spécifier les symboles utilisés ?");
+            separator();
+            important("Voulez-vous spécifier les symboles utilisés du multidoku ?");
             int input = askYesOrNo();
             if (input == 1) {
                 HashMap<Integer, String> symbols = new HashMap<>();

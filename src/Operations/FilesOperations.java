@@ -56,8 +56,8 @@ public abstract class FilesOperations {
 
         // on écrit les informations pour chaque sudoku
         for (PlacedSudoku placedSudoku : multidoku.getSudokus()) {
-            bw.append("sudokuLine:\n").append(Integer.toString(placedSudoku.line())).append("\n");
-            bw.append("sudokuColumn:\n").append(Integer.toString(placedSudoku.column())).append("\n");
+            bw.append("sudokuLine:\n").append(Integer.toString(placedSudoku.line() + 1)).append("\n");
+            bw.append("sudokuColumn:\n").append(Integer.toString(placedSudoku.column() + 1)).append("\n");
             convertSudoku(placedSudoku.sudoku(), bw);
         }
 

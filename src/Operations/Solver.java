@@ -44,12 +44,20 @@ public abstract class Solver {
             int constraintsNumber = constraints.size();
             boolean valid = applyConstraints(constraints);
             if (!valid) {
+                // on donne les logs au menu
+                if (menuLogs != null) {
+                    menuLogs.addAll(logs);
+                }
                 return false;
             }
             // failsafe au cas où l'algorithme serait dans une boucle infinie
             // cette méthode ne revient jamais en arrière donc on peut juste prendre un gros nombre (10) pour être sûr
             notChangedInARow = (constraintsNumber == constraints.size()) ? notChangedInARow + 1 : 0;
             if (notChangedInARow > 10) {
+                // on donne les logs au menu
+                if (menuLogs != null) {
+                    menuLogs.addAll(logs);
+                }
                 return false;
             }
         }
