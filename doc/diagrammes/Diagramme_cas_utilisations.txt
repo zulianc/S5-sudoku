@@ -1,22 +1,22 @@
 Menu de l'application : Lorsque l'utilisateur ouvre l'application, un menu s'ouvre à lui avec plusieurs choix : afficher une grille, créer une grille, résoudre une grille, générer une grille résolue, générer une grille à résoudre, ou simplement quitter.
 
-Afficher une grille enregistrée : L'application demande à l'utilisateur d'importer une des grilles sauvegardée dans les fichier et l'affiche, une fois finis on demande si on veut sauvegarder la grille revient au menu principal.
+Afficher une grille enregistrée : L'application demande à l'utilisateur d'importer une des grilles sauvegardée dans les fichiers et l'affiche, une fois finis on demande si on veut sauvegarder la grille revient au menu principal.
 
-Créer une grille manuellement : L'application demande à l'utilisateur de créer une nouvelle grille (sudoku ou multidoku) en demandant toutes les informations dont peut avoir besoin la grille, une fois finis on affiche le résultat puis on demande si on veut sauvegarder la grille et on revient au menu principal.
+Créer une grille manuellement : L'application demande à l'utilisateur de créer une nouvelle grille (sudoku ou multidoku) en demandant toutes les informations dont peut avoir besoin la grille, une fois finis on affiche le résultat, finalement on demande si on veut sauvegarder la grille et on revient au menu principal.
 
-Résoudre une grille ou indiquer qu'elle est irrésolvable : L'application va demander à l'utilisateur une grille, soit à créer manuellement soit à importer, puis va essayer de la résoudre de la manière demandée par l'utilisateur, une fois finis on affiche le résultat puis on demande si on veut sauvegarder la grille et on revient au menu principal.
+Résoudre une grille ou indiquer qu'elle est irrésolvable : L'application va demander à l'utilisateur une grille, soit à créer manuellement soit à importer, puis va essayer de la résoudre de la manière demandée par l'utilisateur, une fois finis on affiche le résultat, finalement on demande si on veut sauvegarder la grille et on revient au menu principal.
 
-Générer une grille résolue : L'application va demander à l'utilisateur de créer une grille vide, c'est-à-dire sans valeurs, puis créera une grille déjà résolue, une fois finis on affiche le résultat puis on demande si on veut sauvegarder la grille et on revient au menu principal.
+Générer une grille résolue : L'application va demander à l'utilisateur de créer une grille vide, c'est-à-dire sans valeurs, puis créera une grille déjà résolue, une fois finis on affiche le résultat, finalement on demande si on veut sauvegarder la grille et on revient au menu principal.
 
-Générer une grille à résoudre : L'application va demander à l'utilisateur de créer une grille vide, c'est-à-dire sans valeurs, puis créera une grille déjà résolue, en fera une grille à résoudre selon la difficulté voulue par l'utilisateur, une fois finis on affiche le résultat puis on demande si on veut sauvegarder la grille et on revient au menu principal.
+Générer une grille à résoudre : L'application va demander à l'utilisateur de créer une grille vide, c'est-à-dire sans valeurs, puis créera une grille déjà résolue, en fera une grille à résoudre selon la difficulté voulue par l'utilisateur, une fois finis on affiche le résultat, finalement on demande si on veut sauvegarder la grille et on revient au menu principal.
 
-Importer une grille depuis un fichier : L'application va lister tout les sudokus ou multidokus enregistrés selon ce que veut l'utilisateur, puis lui demander lequel importer et créer la grille à partir de ce fichier, si l'utilisateur lui indique un fichier valide.
+Importer une grille depuis un fichier : L'application va lister tous les sudokus ou multidokus enregistrés selon ce que veut l'utilisateur, puis lui demander lequel importer et créer la grille à partir de ce fichier, si l'utilisateur lui indique un fichier valide.
 
-Exporter une grille dans un fichier : L'application va demander un nom de fichier où exporter la grille, si le nom contient des caractères spéciaux on redemandera un nouveau nom, et si un fichier a le même nom on demander si l'utilisateur est sûr d'écraser le fichier, ensuite l'application créera un fichier à partir de la grille.
+Exporter une grille dans un fichier : L'application va demander un nom de fichier où exporter la grille, si le nom contient des caractères spéciaux on redemandera un nouveau nom, et si un fichier a le même nom on demande si l'utilisateur est sûr d'écraser le fichier, ensuite l'application créera un fichier à partir de la grille.
 
 Choisir les valeurs des cases : Pour chaque case de la grille, l'application va demander quelle valeur elle doit avoir, qui doit être un nombre entre 1 et la taille de la grille, ou 0 ou rien si la case doit être vide.
 
-Choisir la taille de la grille et la position des blocs : Pour créer la grille, l'application doit demander quelle est sa taille et savoir si l'utilisateur veut utiliser une disposition de blocs par défauts, où l'application essaieras de les faire le plus carré possible, ou si l'utilisateur veut les spécifier manuellement, auquel cas il devra donner un nombre entre 1 et la taille de la grille pour chaque case qui représente le bloc auquel elle appartient.
+Choisir la taille de la grille et la position des blocs : Pour créer la grille, l'application doit demander quelle est sa taille et savoir si l'utilisateur veut utiliser une disposition de blocs par défauts, où l'application essaiera de les faire le plus carré possible, ou si l'utilisateur veut les spécifier manuellement, auquel cas il devra donner un nombre entre 1 et la taille de la grille pour chaque case qui représente le bloc auquel elle appartient.
 
 Choisir les symboles utilisés par la grille : Pour chaque nombre entre 1 et la taille de la grille, l'application demande à l'utilisateur une suite de caractères qui le remplacera lors de l'affichage.
 
@@ -24,7 +24,7 @@ Choisit les contraintes supplémentaires sur la grille : L'application demande �
 
 Créer une grille vide : L'application demande à l'utilisateur de créer une nouvelle grille, mais celle-ci ne doit avoir aucune valeur à l'intérieur.
 
-Choisir l'algorithme de résolution : L'application demande à l'utilisateur de choisir entre 3 algorithmes différents pour résoudre la grille : un qui applique juste les contraintes, un qui applique juste le backtracking, et un qui fait un mix des deux à la fois.
+Choisir l'algorithme de résolution : L'application demande à l'utilisateur de choisir entre trois algorithmes différents pour résoudre la grille : un qui n'applique que les contraintes, un qui n'applique que le backtracking, et un qui fait un mix des deux à la fois.
 
 Afficher les étapes de résolution : Une fois l'algorithme finit, l'application demande à l'utilisateur s'il veut voir les étapes réalisées par l'algorithme (les logs).
 

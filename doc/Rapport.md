@@ -48,7 +48,7 @@ A été implémenté et testé sur plusieurs grilles et algos.
 ### Menu textuel
 Complètement fonctionnel.
 ### Affichage
-Implémenté et testé sur des sudokus, mais pas des multidokus.
+Implémenté et testé sur des sudokus et des multidokus.
 ### Rentrer un sudoku à la main
 Implémenté et testé sur des sudokus et des multidokus.
 
@@ -67,16 +67,16 @@ il n'y aurait pas de difficulté en plus que de créer l'interface en elle-même
 ### Fichier de configuration et sauvegarde
 Ils ont étés intégrés à la conception depuis le début.
 Les fichiers de sudokus et de multidokus peuvent être lus et écrits par l'application et sont relativement facilement éditable.
-L'application peut écrire et lire des fichiers de logs. L'importation de logs n'a pas encore été réalisée.
+L'application peut écrire et lire des fichiers de logs, mais l'importation de logs n'a pas été réalisée.
 ### Rajout de règles de déduction
 On peut rajouter des contraintes internes à un sudoku lors de sa création (ou dans son fichier de sauvegarde),
 ou également en rajouter juste pour la durée d'un algo.
 ### Grilles avec multiples solutions
-Pas réalisé par manque de temps et pour pas ralentir le backtracking encore plus.
+Pas réalisé par manque de temps et éviter de ralentir le backtracking encore plus.
 ### Rajout de contrainte
 On n'a pas rajouté de nouvelles contraintes explicitement,
-mais la conception permet de le faire relativement facilement.  
+mais la conception permet de le faire relativement facilement.
 Il suffit de créer une nouvelle classe implémentant SudokuConstraint dans le package Constraints,
 et de l'ajouter à la méthode FilesOperations.readConstraint().
 ### Résolution par l’humain
-Pas réalisé.
+Pas réalisée.
