@@ -343,8 +343,12 @@ public class Multidoku implements Puzzle {
      * @throws RuntimeException Si une erreur interne arrive
      */
     @Override
-    public Multidoku copy() {
-       return this;
+    public Puzzle copy() {
+        ArrayList<PlacedSudoku> newSudokus = new ArrayList<>();
+        for (PlacedSudoku placedSudoku : this.sudokus) {
+            newSudokus.add(new PlacedSudoku(placedSudoku.sudoku().copy(), placedSudoku.line(), placedSudoku.column()));
+        }
+        return new Multidoku(newSudokus);
     }
 
 
@@ -408,8 +412,7 @@ public class Multidoku implements Puzzle {
                     nbr++;
                 }
 
-                // Affichage des informations sur le bloc
-                System.out.println("Case (" + i + ", " + j + ") belongs to block " + blocIndex);
+
 
                 // Calcul de la couleur en fonction du bloc
                 int red = Math.abs((blocIndex * 67 + 123) % 256);
