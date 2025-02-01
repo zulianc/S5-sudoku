@@ -400,8 +400,8 @@ public abstract class FilesOperations {
             bw.append("sudokusSize:\n").append(Integer.toString(((Multidoku) puzzle).getSizeSudokus())).append("\n");
             bw.append("sudokusCount:\n").append(Integer.toString(((Multidoku) puzzle).getSudokus().size())).append("\n");
             for (PlacedSudoku placedSudoku : (((Multidoku) puzzle).getSudokus())) {
-                bw.append("sudokuLine:\n").append(Integer.toString(placedSudoku.line())).append("\n");
-                bw.append("sudokuColumn:\n").append(Integer.toString(placedSudoku.column())).append("\n");
+                bw.append("sudokuLine:\n").append(Integer.toString(placedSudoku.line() + 1)).append("\n");
+                bw.append("sudokuColumn:\n").append(Integer.toString(placedSudoku.column() + 1)).append("\n");
             }
         }
         else {

@@ -10,18 +10,20 @@ import java.util.ArrayList;
 public interface Puzzle {
     /**
      * Une implémentation de cette méthode doit retourner les contraintes internes du puzzle
+     * @param puzzle Si on veut que les contraintes pointent sur un autre puzzle
      * @return Les contraintes internes du puzzle
      * @throws RuntimeException Si une erreur interne arrive
      */
-    ArrayList<SudokuConstraint> defaultConstraints() throws RuntimeException;
+    ArrayList<SudokuConstraint> defaultConstraints(Puzzle puzzle) throws RuntimeException;
 
     /**
      * Une implémentation de cette méthode doit retourner les contraintes internes du puzzle qui s'appliquent sur une case donnée
      * @param c La case sur laquelle les contraintes sont appliquées
+     * @param puzzle Si on veut que les contraintes pointent sur un autre puzzle
      * @return La liste des contraintes appliquées sur cette case
      * @throws RuntimeException Si une erreur interne arrive
      */
-    ArrayList<SudokuConstraint> constraintsOnCase(Case c) throws RuntimeException;
+    ArrayList<SudokuConstraint> constraintsOnCase(Case c, Puzzle puzzle) throws RuntimeException;
 
     /**
      * Une implémentation de cette méthode doit retourner l'ensemble des cases constituant le puzzle, toujours dans le même ordre

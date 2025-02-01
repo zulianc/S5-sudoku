@@ -258,12 +258,18 @@ public class Sudoku implements Puzzle {
 
     /**
      * Retourne les contraintes internes entre les cases du sudoku
+     * @param puzzle Si on veut que les contraintes pointent sur un autre puzzle
      * @return Une liste de contraintes entre cases
      * @throws RuntimeException Si une erreur interne arrive
      */
     @Override
-    public ArrayList<SudokuConstraint> defaultConstraints() throws RuntimeException {
+    public ArrayList<SudokuConstraint> defaultConstraints(Puzzle puzzle) throws RuntimeException {
         try {
+            // on set le puzzle sur lequel pointent les contraintes
+            if (puzzle == null) {
+                puzzle = this;
+            }
+
             ArrayList<SudokuConstraint> constraints = new ArrayList<>();
             NotEqualConstraint newConstraint;
             ArrayList<Case> toInsert;
@@ -272,19 +278,19 @@ public class Sudoku implements Puzzle {
                     // contrainte entre la case j de la ligne i et la ligne i
                     toInsert = new ArrayList<>(Arrays.asList(this.getLine(i)).subList(0, this.size));
                     toInsert.remove(this.getLine(i)[j]);
-                    newConstraint = new NotEqualConstraint(this.getLine(i)[j], toInsert, this);
+                    newConstraint = new NotEqualConstraint(this.getLine(i)[j], toInsert, puzzle);
                     constraints.add(newConstraint);
 
                     // contrainte entre la case j de la colonne i et la colonne i
                     toInsert = new ArrayList<>(Arrays.asList(this.getColumn(i)).subList(0, this.size));
                     toInsert.remove(this.getColumn(i)[j]);
-                    newConstraint = new NotEqualConstraint(this.getColumn(i)[j], toInsert, this);
+                    newConstraint = new NotEqualConstraint(this.getColumn(i)[j], toInsert, puzzle);
                     constraints.add(newConstraint);
 
                     // contrainte entre la case j du bloc i et le bloc i
                     toInsert = new ArrayList<>(Arrays.asList(this.getBloc(i).cases()).subList(0, this.size));
                     toInsert.remove(this.getBloc(i).getCase(j));
-                    newConstraint = new NotEqualConstraint(this.getBloc(i).getCase(j), toInsert, this);
+                    newConstraint = new NotEqualConstraint(this.getBloc(i).getCase(j), toInsert, puzzle);
                     constraints.add(newConstraint);
                 }
             }
@@ -300,12 +306,18 @@ public class Sudoku implements Puzzle {
     /**
      * Retourne les contraintes internes appliquées sur une case du sudoku
      * @param c La case sur laquelle les contraintes sont appliquées
+     * @param puzzle Si on veut que les contraintes pointent sur un autre puzzle
      * @return La liste des contraintes appliquées sur cette case
      * @throws RuntimeException Si une erreur interne arrive
      */
     @Override
-    public ArrayList<SudokuConstraint> constraintsOnCase(Case c) throws RuntimeException {
+    public ArrayList<SudokuConstraint> constraintsOnCase(Case c, Puzzle puzzle) throws RuntimeException {
         try {
+            // on set le puzzle sur lequel pointent les contraintes
+            if (puzzle == null) {
+                puzzle = this;
+            }
+
             ArrayList<SudokuConstraint> constraints = new ArrayList<>();
             NotEqualConstraint newConstraint;
             ArrayList<Case> toInsert;
@@ -313,19 +325,19 @@ public class Sudoku implements Puzzle {
             // contrainte entre la case et sa ligne
             toInsert = new ArrayList<>(Arrays.asList(this.getLine(c.getLine())).subList(0, this.size));
             toInsert.remove(c);
-            newConstraint = new NotEqualConstraint(c, toInsert, this);
+            newConstraint = new NotEqualConstraint(c, toInsert, puzzle);
             constraints.add(newConstraint);
 
             // contrainte entre la case et la colonne j
             toInsert = new ArrayList<>(Arrays.asList(this.getColumn(c.getColumn())).subList(0, this.size));
             toInsert.remove(c);
-            newConstraint = new NotEqualConstraint(c, toInsert, this);
+            newConstraint = new NotEqualConstraint(c, toInsert, puzzle);
             constraints.add(newConstraint);
 
             // contrainte entre la case et le bloc k
             toInsert = new ArrayList<>(Arrays.asList(this.getBloc(c.getBlocIndex()).cases()).subList(0, this.size));
             toInsert.remove(c);
-            newConstraint = new NotEqualConstraint(c, toInsert, this);
+            newConstraint = new NotEqualConstraint(c, toInsert, puzzle);
             constraints.add(newConstraint);
 
             // contraintes supplémentaires s'appliquant sur cette case

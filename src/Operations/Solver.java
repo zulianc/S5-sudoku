@@ -36,7 +36,7 @@ public abstract class Solver {
 
         // on récupère les contraintes
         ArrayList<SudokuConstraint> constraints = Objects.requireNonNullElseGet(additionalConstraints, ArrayList::new);
-        constraints.addAll(puzzle.defaultConstraints());
+        constraints.addAll(puzzle.defaultConstraints(null));
 
         // on applique les contraintes tant qu'elles n'ont pas été toutes validées
         int notChangedInARow = 0;
@@ -187,7 +187,7 @@ public abstract class Solver {
                 log(testedCase, puzzle);
                 // on vérifie si les contraintes sont toujours respectées
                 isValid = true;
-                for (SudokuConstraint constraint : puzzle.constraintsOnCase(testedCase)) {
+                for (SudokuConstraint constraint : puzzle.constraintsOnCase(testedCase, null)) {
                     if (!constraint.isConstraintValid()) {
                         isValid = false;
                     }
@@ -280,7 +280,7 @@ public abstract class Solver {
         if (constraints != null) {
             everyConstraints.addAll(constraints);
         }
-        everyConstraints.addAll(puzzle.defaultConstraints());
+        everyConstraints.addAll(puzzle.defaultConstraints(null));
 
         // on applique les contraintes une fois
         int size;
@@ -345,7 +345,7 @@ public abstract class Solver {
         }
 
         // on vérifie les arguments
-        ArrayList<SudokuConstraint> constraints = puzzle.defaultConstraints();
+        ArrayList<SudokuConstraint> constraints = puzzle.defaultConstraints(null);
         for (SudokuConstraint constraint : constraints) {
             if (!(constraint.hasBeenResolved())) {
                 throw new IllegalArgumentException("Le puzzle doit être résolu !");
