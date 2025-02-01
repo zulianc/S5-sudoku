@@ -369,7 +369,6 @@ public class Multidoku implements Puzzle {
             int rowStart = placedSudoku.line();
             int colStart = placedSudoku.column();
 
-
             System.out.println("Placing Sudoku at position (" + rowStart + ", " + colStart + ")");
 
             // Place les valeurs dans la grille là où le Sudoku est placé
@@ -388,7 +387,6 @@ public class Multidoku implements Puzzle {
                     }
                 }
             }
-
         }
 
         // Affichage de la grille avec couleurs par bloc spécifique au Sudoku
@@ -404,7 +402,7 @@ public class Multidoku implements Puzzle {
                             j >= placedSudoku.column() && j < placedSudoku.column() + sizeSudokus) {
                         Sudoku sudoku = placedSudoku.sudoku();
                         // L'index du bloc local du Sudoku + l'index global de celui-ci
-                        blocIndex = sudoku.getCase(i - placedSudoku.line(), j - placedSudoku.column()).getBlocIndex() +nbr*sizeSudokus  ;
+                        blocIndex = sudoku.getCase(i - placedSudoku.line(), j - placedSudoku.column()).getBlocIndex() + nbr * sizeSudokus;
                         break;
                     }
                     nbr++;
@@ -418,32 +416,17 @@ public class Multidoku implements Puzzle {
                 int green = Math.abs((blocIndex * 151 + 231) % 256);
                 int blue = Math.abs((blocIndex * 199 + 87) % 256);
 
-
                 // Appliquer la couleur pour la case
                 sb.append("\033[38;2;")
                         .append(red).append(";")
                         .append(green).append(";")
                         .append(blue).append("m");
 
-                HashMap<Integer, String> symbolsToPrint = new HashMap<>();
-                if (this.symbols != null) {
-                    symbolsToPrint.putAll(this.symbols);
-                }
-                else {
-                    for (int k = 0; k < sizeSudokus; k++) {
-                        symbolsToPrint.put(i, Integer.toString(i + 1));
-                    }
-                }
-                int maxSize = 0;
-                for (Integer key : symbolsToPrint.keySet()) {
-                    if (symbolsToPrint.get(key).length() > maxSize) {
-                        maxSize = symbolsToPrint.get(key).length();
-                    }
-                }
-                for (Integer key : symbolsToPrint.keySet()) {
-                    for (int k = symbolsToPrint.get(key).length(); k < maxSize; k++) {
-                        symbolsToPrint.replace(key, " " + symbolsToPrint.get(key));
-                    }
+                // Vérifie si les symboles sont définis
+                HashMap<Integer, String> symbolsToPrint = this.getSymbols();
+                String symbolToDisplay = Integer.toString(grid[i][j]);  // Valeur par défaut si pas de symbole
+                if (symbolsToPrint != null && symbolsToPrint.containsKey(grid[i][j])) {
+                    symbolToDisplay = symbolsToPrint.get(grid[i][j]);  // Si un symbole est défini, on l'affiche
                 }
 
                 // Affichage des cases avec leur couleur
@@ -452,7 +435,7 @@ public class Multidoku implements Puzzle {
                 } else if (grid[i][j] == -1) {
                     sb.append("[ ]");  // Case vide à l'intérieur d'un Sudoku
                 } else {
-                    sb.append("[").append(grid[i][j]).append("]");  // Case avec valeur
+                    sb.append("[").append(symbolToDisplay).append("]");  // Case avec valeur ou symbole
                 }
 
                 // Réinitialiser la couleur après chaque case
@@ -463,4 +446,5 @@ public class Multidoku implements Puzzle {
 
         return sb.toString();
     }
+
 }
