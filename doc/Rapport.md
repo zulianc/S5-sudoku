@@ -46,11 +46,11 @@ A été implémenté et testé sur plusieurs tailles de grilles.
 ### Loguer les opérations de résolution
 A été implémenté et testé sur plusieurs grilles et algos.
 ### Menu textuel
-Complètement fonctionnel, sauf pour les multidokus.
+Complètement fonctionnel.
 ### Affichage
 Implémenté et testé sur des sudokus, mais pas des multidokus.
 ### Rentrer un sudoku à la main
-Implémenté et testé sur des sudokus et les multidokus.
+Implémenté et testé sur des sudokus et des multidokus.
 
 ## Avancement des extensions
 
@@ -61,24 +61,22 @@ et tous les ajouts aux codes sont passés par là.
 Pas réalisés.
 ### Interface graphique
 Pas réalisée.  
-D'un point de vue conception, il faudrait créer un nouveau package GraphicalUI
-et appeler la classe principale de ce package depuis le Main au lieu de TextUI comme actuellement.
+Cependant, comme on a fait attention à ce qu'aucune classe ne dépende de TextUI,
+il n'y aurait pas de difficulté en plus que de créer l'interface en elle-même
+(dans un nouveau package GraphicalUI qui serait indépendant de TextUI).
 ### Fichier de configuration et sauvegarde
 Ils ont étés intégrés à la conception depuis le début.
 Les fichiers de sudokus et de multidokus peuvent être lus et écrits par l'application et sont relativement facilement éditable.
-L'application peut écrire et lire des fichiers de logs, mais pas les "importer".
+L'application peut écrire et lire des fichiers de logs. L'importation de logs n'a pas encore été réalisée.
 ### Rajout de règles de déduction
-On peut rajouter des contraintes internes à un sudoku lors de sa création et dans son fichier,
-ou en rajouter juste pour la durée d'un algo.
+On peut rajouter des contraintes internes à un sudoku lors de sa création (ou dans son fichier de sauvegarde),
+ou également en rajouter juste pour la durée d'un algo.
 ### Grilles avec multiples solutions
-Pas réalisé pour l'instant.  
-Peut s'implémenter assez facilement en forçant de ne pas s'arrêter quand on trouve une bonne valeur
-et en renvoyant une ArrayList<Puzzle> au lieu d'un Puzzle dans la méthode Solver.applyBacktracking().
+Pas réalisé par manque de temps et pour pas ralentir le backtracking encore plus.
 ### Rajout de contrainte
 On n'a pas rajouté de nouvelles contraintes explicitement,
 mais la conception permet de le faire relativement facilement.  
 Il suffit de créer une nouvelle classe implémentant SudokuConstraint dans le package Constraints,
 et de l'ajouter à la méthode FilesOperations.readConstraint().
 ### Résolution par l’humain
-Pas réalisé.  
-On n'a pas du tout réfléchi à ce point lors de la conception, mais ça doit être possible sans modifier trop de choses.
+Pas réalisé.
