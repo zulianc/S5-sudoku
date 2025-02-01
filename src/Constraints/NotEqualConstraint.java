@@ -3,6 +3,7 @@ package Constraints;
 import Grids.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Une contrainte de sudoku qui stipule qu'une case ne doit pas avoir la même valeur qu'une liste d'autres cases
@@ -211,4 +212,12 @@ public class NotEqualConstraint implements SudokuConstraint {
         sb.append("-> ").append(this.constrainedCase.getValue() + 1);
         return sb.toString();
     }
+
+    public NotEqualConstraint(Case case1, Case case2, Puzzle puzzle) {
+        this.constrainedCase = case1;
+        this.casesToCompareTo = new ArrayList<>(Arrays.asList(case2));  // Transforme la deuxième case en une liste
+        this.puzzle = puzzle;
+        this.hasAppliedItsConstraint = false;
+    }
+
 }

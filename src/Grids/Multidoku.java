@@ -3,6 +3,7 @@ package Grids;
 import Constraints.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -189,13 +190,56 @@ public class Multidoku implements Puzzle {
      * @throws RuntimeException Si une erreur interne arrive
      */
     @Override
-    public ArrayList<SudokuConstraint> defaultConstraints() throws RuntimeException {
+    public ArrayList<SudokuConstraint> defaultConstraints() {
         ArrayList<SudokuConstraint> constraints = new ArrayList<>();
+
+        // Parcours de chaque Sudoku dans le Multidoku
         for (PlacedSudoku placedSudoku : this.sudokus) {
+            // Ajoute les contraintes internes du Sudoku (lignes, colonnes, blocs)
             constraints.addAll(placedSudoku.sudoku().defaultConstraints());
+
+
+
+            // Parcours des cases du Sudoku actuel
+            for (int i = 0; i < sizeSudokus; i++) {
+                for (int j = 0; j < sizeSudokus; j++) {
+
+                    Case currentCase = placedSudoku.sudoku().getCase(i, j);
+
+                    // Compare la case actuelle avec les cases des autres Sudokus
+                    for (PlacedSudoku otherSudoku : this.sudokus) {
+                        if (otherSudoku != placedSudoku) {
+                            for (int a = 0; a < sizeSudokus; a++) {
+                                for (int b = 0; b < sizeSudokus; b++) {
+                                    if (placedSudoku.line() + i == otherSudoku.line() + a && placedSudoku.column() + j == otherSudoku.column() + b) {
+                                        Sudoku other = otherSudoku.sudoku();
+                                        Case otherCase = other.getCase(a, b);  // Récupère la case correspondante dans l'autre Sudoku
+                                        if (otherCase != null) {
+                                            // Crée une contrainte d'égalité entre la case actuelle et la case correspondante
+                                            ArrayList<Case> otherCaseList = new ArrayList<>();
+                                            otherCaseList.add(otherCase);
+                                            SudokuConstraint newConstraint = new EqualConstraint(currentCase, otherCaseList, this);
+                                            constraints.add(newConstraint);
+                                        }
+                                    }
+                                }
+
+
+                            }
+
+
+
+                        }
+                    }
+                }
+            }
         }
         return constraints;
     }
+
+
+
+
 
     /**
      * Retourne les contraintes internes appliquées sur une case du multidoku
@@ -204,15 +248,80 @@ public class Multidoku implements Puzzle {
      * @throws RuntimeException Si une erreur interne arrive
      */
     @Override
-    public ArrayList<SudokuConstraint> constraintsOnCase(Case c) throws RuntimeException {
+    public ArrayList<SudokuConstraint> constraintsOnCase(Case c) {
         ArrayList<SudokuConstraint> constraints = new ArrayList<>();
-        for (SudokuConstraint constraint : this.defaultConstraints()) {
-            if (constraint.isConstraintOnCase(c)) {
-                constraints.add(constraint);
+        NotEqualConstraint newConstraint;
+        ArrayList<Case> toInsert;
+
+        // Parcours de chaque Sudoku dans le Multidoku
+        for (PlacedSudoku placedSudoku : this.sudokus) {
+
+            // Recherche de la case dans chaque Sudoku du Multidoku
+            for (int i = 0; i < placedSudoku.sudoku().getSize(); i++) {
+                for (int j = 0; j < placedSudoku.sudoku().getSize(); j++) {
+                    Case currentCase = placedSudoku.sudoku().getCase(i, j);
+
+                    // Si la case du Sudoku actuel correspond à la case recherchée
+                    if (currentCase == c) {
+
+                        // Contrainte entre la case et sa ligne dans le Sudoku actuel
+                        toInsert = new ArrayList<>(Arrays.asList(placedSudoku.sudoku().getLine(i)).subList(0, placedSudoku.sudoku().getSize()));
+                        toInsert.remove(currentCase);
+                        newConstraint = new NotEqualConstraint(currentCase, toInsert, placedSudoku.sudoku());
+                        constraints.add(newConstraint);
+
+                        // Contrainte entre la case et sa colonne dans le Sudoku actuel
+                        toInsert = new ArrayList<>(Arrays.asList(placedSudoku.sudoku().getColumn(j)).subList(0, placedSudoku.sudoku().getSize()));
+                        toInsert.remove(currentCase);
+                        newConstraint = new NotEqualConstraint(currentCase, toInsert, placedSudoku.sudoku());
+                        constraints.add(newConstraint);
+
+                        // Contrainte entre la case et son bloc dans le Sudoku actuel
+                        toInsert = new ArrayList<>(Arrays.asList(placedSudoku.sudoku().getBloc(currentCase.getBlocIndex()).cases()).subList(0, placedSudoku.sudoku().getSize()));
+                        toInsert.remove(currentCase);
+                        newConstraint = new NotEqualConstraint(currentCase, toInsert, placedSudoku.sudoku());
+                        constraints.add(newConstraint);
+
+                        // Contraintes supplémentaires s'appliquant sur cette case dans le Sudoku
+                        for (SudokuConstraint constraint : placedSudoku.sudoku().getAddedConstraints()) {
+                            if (constraint.isConstraintOnCase(currentCase)) {
+                                constraints.add(constraint);
+                            }
+                        }
+
+                        for (PlacedSudoku otherSudoku : this.sudokus) {
+                            if (otherSudoku != placedSudoku) {
+                                for (int a = 0; a < sizeSudokus; a++) {
+                                    for (int b = 0; b < sizeSudokus; b++) {
+                                        if (placedSudoku.line() + i == otherSudoku.line() + a && placedSudoku.column() + j == otherSudoku.column() + b) {
+                                            Sudoku other = otherSudoku.sudoku();
+                                            Case otherCase = other.getCase(a, b);  // Récupère la case correspondante dans l'autre Sudoku
+                                            if (otherCase != null) {
+                                                // Crée une contrainte d'égalité entre la case actuelle et la case correspondante
+                                                ArrayList<Case> otherCaseList = new ArrayList<>();
+                                                otherCaseList.add(otherCase);
+                                                SudokuConstraint newConstraint2 = new EqualConstraint(currentCase, otherCaseList, this);
+                                                constraints.add(newConstraint2);
+                                            }
+                                        }
+                                    }
+
+
+                                }
+
+
+
+                            }
+                        }
+                    }
+                }
             }
         }
+
         return constraints;
     }
+
+
 
     /**
      * Retourne la liste des cases constituant le multidoku, toujours dans le même ordre
@@ -234,13 +343,10 @@ public class Multidoku implements Puzzle {
      * @throws RuntimeException Si une erreur interne arrive
      */
     @Override
-    public Puzzle copy() throws RuntimeException {
-        ArrayList<PlacedSudoku> newSudokus = new ArrayList<>();
-        for (PlacedSudoku placedSudoku : this.sudokus) {
-            newSudokus.add(new PlacedSudoku(placedSudoku.sudoku().copy(), placedSudoku.line(), placedSudoku.column()));
-        }
-        return new Multidoku(newSudokus);
+    public Multidoku copy() {
+       return this;
     }
+
 
     /**
      * Crée un string qui affiche le multidoku comme une grille, avec les valeurs des cases déjà remplies et des couleurs différentes pour chaque bloc
@@ -249,46 +355,92 @@ public class Multidoku implements Puzzle {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Multidoku:\n");
-        int[][] grid = new int[sizeMultidokuGrid][sizeMultidokuGrid];
-        int[][] blockIds = new int[sizeMultidokuGrid][sizeMultidokuGrid];
-        String[] colors = {"\u001B[31m", "\u001B[32m", "\u001B[33m", "\u001B[34m", "\u001B[35m", "\u001B[36m", "\u001B[37m"};
-        String resetColor = "\u001B[0m";
+        int gridSize = this.sizeMultidokuGrid;
 
-        for (int i = 0; i < sizeMultidokuGrid; i++) {
-            for (int j = 0; j < sizeMultidokuGrid; j++) {
-                grid[i][j] = -1;
-                blockIds[i][j] = -1;
-            }
+        // Crée une grille vide avec -2 représentant les cases vides
+        int[][] grid = new int[gridSize][gridSize];
+        for (int i = 0; i < gridSize; i++) {
+            Arrays.fill(grid[i], -2);  // Initialisation avec -2 pour les cases vides
         }
 
-        int blockId = 0;
-        for (PlacedSudoku placedSudoku : sudokus) {
+        // Ce compteur servira à déterminer les indices de bloc globaux
+        for (PlacedSudoku placedSudoku : this.sudokus) {
             Sudoku sudoku = placedSudoku.sudoku();
-            int startRow = placedSudoku.line();
-            int startCol = placedSudoku.column();
-            for (int i = 0; i < sizeSudokus; i++) {
-                for (int j = 0; j < sizeSudokus; j++) {
-                    Case c = sudoku.getCase(i, j);
-                    grid[startRow + i][startCol + j] = c.getValue();
-                    blockIds[startRow + i][startCol + j] = blockId;
+            int rowStart = placedSudoku.line();
+            int colStart = placedSudoku.column();
+
+            System.out.println("Placing Sudoku at position (" + rowStart + ", " + colStart + ")");
+
+            // Place les valeurs dans la grille là où le Sudoku est placé
+            for (int i = 0; i < this.sizeSudokus; i++) {
+                for (int j = 0; j < this.sizeSudokus; j++) {
+                    int value = sudoku.getCase(i, j).getValue();
+                    if (grid[rowStart + i][colStart + j] != value) {
+                        if (grid[rowStart + i][colStart + j] != -2 && value != -2 && value != -1 && grid[rowStart + i][colStart + j] != -1) {
+                            throw new IllegalArgumentException("Les cases ne correspondent pas à (" + (rowStart + i) + ", " + (colStart + j) + ")");
+                        } else {
+                            if (grid[rowStart + i][colStart + j] == -2 || grid[rowStart + i][colStart + j] == -1) {
+                                grid[rowStart + i][colStart + j] = value;
+                                System.out.println("Placing value " + value + " at position (" + (rowStart + i) + ", " + (colStart + j) + ")");
+                            }
+                        }
+                    }
                 }
             }
-            blockId++;
+
+            // Après avoir placé le Sudoku, incrémenter l'index du bloc pour le Sudoku actuel
+
         }
 
-        for (int i = 0; i < sizeMultidokuGrid; i++) {
-            for (int j = 0; j < sizeMultidokuGrid; j++) {
-                if (grid[i][j] == -1) {
-                    sb.append("   ");
-                } else {
-                    sb.append(colors[blockIds[i][j] % colors.length])
-                            .append(" ").append(grid[i][j]).append(" ")
-                            .append(resetColor);
+        // Affichage de la grille avec couleurs par bloc spécifique au Sudoku
+        for (int i = 0; i < gridSize; i++) {
+            for (int j = 0; j < gridSize; j++) {
+                int blocIndex = -1;
+
+                int nbr = 0;
+                // Trouver le bloc auquel appartient la case et calculer l'index global du bloc
+                for (PlacedSudoku placedSudoku : this.sudokus) {
+
+                    if (i >= placedSudoku.line() && i < placedSudoku.line() + sizeSudokus &&
+                            j >= placedSudoku.column() && j < placedSudoku.column() + sizeSudokus) {
+                        Sudoku sudoku = placedSudoku.sudoku();
+                        // L'index du bloc local du Sudoku + l'index global de celui-ci
+                        blocIndex = sudoku.getCase(i - placedSudoku.line(), j - placedSudoku.column()).getBlocIndex() +nbr*sizeSudokus  ;
+                        break;
+                    }
+                    nbr++;
                 }
+
+                // Affichage des informations sur le bloc
+                System.out.println("Case (" + i + ", " + j + ") belongs to block " + blocIndex);
+
+                // Calcul de la couleur en fonction du bloc
+                int colorTotal = blocIndex * 50;
+                int red = Math.min(255, Math.max(0, 255 - colorTotal));
+                int green = Math.min(255, Math.max(0, colorTotal));
+                int blue = Math.min(255, Math.max(0, 255 - colorTotal));
+
+                // Appliquer la couleur pour la case
+                sb.append("\033[38;2;")
+                        .append(red).append(";")
+                        .append(green).append(";")
+                        .append(blue).append("m");
+
+                // Affichage des cases avec leur couleur
+                if (grid[i][j] == -2) {
+                    sb.append("   ");  // Case vide
+                } else if (grid[i][j] == -1) {
+                    sb.append("[ ]");  // Case vide à l'intérieur d'un Sudoku
+                } else {
+                    sb.append("[").append(grid[i][j]).append("]");  // Case avec valeur
+                }
+
+                // Réinitialiser la couleur après chaque case
+                sb.append("\033[0m");
             }
             sb.append("\n");
         }
+
         return sb.toString();
     }
 }
