@@ -369,6 +369,7 @@ public class Multidoku implements Puzzle {
             int rowStart = placedSudoku.line();
             int colStart = placedSudoku.column();
 
+
             System.out.println("Placing Sudoku at position (" + rowStart + ", " + colStart + ")");
 
             // Place les valeurs dans la grille là où le Sudoku est placé
@@ -387,8 +388,6 @@ public class Multidoku implements Puzzle {
                     }
                 }
             }
-
-            // Après avoir placé le Sudoku, incrémenter l'index du bloc pour le Sudoku actuel
 
         }
 
@@ -415,16 +414,37 @@ public class Multidoku implements Puzzle {
                 System.out.println("Case (" + i + ", " + j + ") belongs to block " + blocIndex);
 
                 // Calcul de la couleur en fonction du bloc
-                int colorTotal = blocIndex * 50;
-                int red = Math.min(255, Math.max(0, 255 - colorTotal));
-                int green = Math.min(255, Math.max(0, colorTotal));
-                int blue = Math.min(255, Math.max(0, 255 - colorTotal));
+                int red = Math.abs((blocIndex * 67 + 123) % 256);
+                int green = Math.abs((blocIndex * 151 + 231) % 256);
+                int blue = Math.abs((blocIndex * 199 + 87) % 256);
+
 
                 // Appliquer la couleur pour la case
                 sb.append("\033[38;2;")
                         .append(red).append(";")
                         .append(green).append(";")
                         .append(blue).append("m");
+
+                HashMap<Integer, String> symbolsToPrint = new HashMap<>();
+                if (this.symbols != null) {
+                    symbolsToPrint.putAll(this.symbols);
+                }
+                else {
+                    for (int k = 0; k < sizeSudokus; k++) {
+                        symbolsToPrint.put(i, Integer.toString(i + 1));
+                    }
+                }
+                int maxSize = 0;
+                for (Integer key : symbolsToPrint.keySet()) {
+                    if (symbolsToPrint.get(key).length() > maxSize) {
+                        maxSize = symbolsToPrint.get(key).length();
+                    }
+                }
+                for (Integer key : symbolsToPrint.keySet()) {
+                    for (int k = symbolsToPrint.get(key).length(); k < maxSize; k++) {
+                        symbolsToPrint.replace(key, " " + symbolsToPrint.get(key));
+                    }
+                }
 
                 // Affichage des cases avec leur couleur
                 if (grid[i][j] == -2) {
