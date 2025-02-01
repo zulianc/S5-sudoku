@@ -5,9 +5,9 @@ false
 sudokusCount:
 2
 sudokuLine:
-0
+1
 sudokuColumn:
-0
+1
 puzzleType:
 sudoku
 useCustomPlacements:
@@ -24,9 +24,9 @@ symbols:
 additionalConstraints:
 end
 sudokuLine:
-1
+2
 sudokuColumn:
-1
+2
 puzzleType:
 sudoku
 useCustomPlacements:

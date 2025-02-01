@@ -87,15 +87,7 @@ public abstract class Menu {
      * Un des sous-menus principaux, qui permet de voir un des puzzles enregistré
      */
     private static void seePuzzleSubMenu() {
-        separator();
-        important("Quel type de grille enregistrée voir ?");
-        int choice = askSudokuOrMultidoku();
-
-        String filename = askWhichFileToImport((choice == 2));
-
-        if (filename != null) {
-            importPuzzle();
-        }
+        importPuzzle();
     }
 
     /**
