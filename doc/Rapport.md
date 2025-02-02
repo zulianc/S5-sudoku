@@ -111,8 +111,9 @@ Implémenté et testé sur des sudokus et des multidokus.
 ## Avancement des extensions
 
 ### Environnement de travail
-Un repository GitHub a été créé dès le début pour accueillir le projet
+Un repository git a été créé dès le début pour accueillir le projet
 et tous les ajouts aux codes sont passés par là.
+Le lien du repo est le suivant : https://github.com/zulianc/S5-sudoku.
 ### Tests unitaires
 Pas réalisés.
 ### Interface graphique
