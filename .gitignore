@@ -88,8 +88,9 @@ nb-configuration.xml
 ## Miscellaneous
 ##############################
 *.log
-!libraries/*
 
 data/multidokus/*.txt
 data/sudokus/*.txt
 data/logs/*.txt
+doc/javadoc/*
+!doc/javadoc/.gitkeep
